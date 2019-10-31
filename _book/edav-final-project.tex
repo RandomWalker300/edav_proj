@@ -30,6 +30,46 @@
 \urlstyle{same}  % don't use monospace font for urls
 \usepackage{natbib}
 \bibliographystyle{apalike}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \usepackage{longtable,booktabs}
 \usepackage{graphicx,grffile}
 \makeatletter
@@ -84,7 +124,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-10-30}
+    \date{2019-10-31}
 
 \usepackage{booktabs}
 \usepackage{amsthm}
@@ -114,13 +154,57 @@ explain why we chose this topic, and the questoins we are interested in studying
 
 we can write citation, for example, we are using the \textbf{bookdown} package \citep{R-bookdown} in this sample book, which was built on top of R Markdown and \textbf{knitr} \citep{xie2015}.
 
+\emph{reading}
+
+Robert Lang has a tutorial that uses publicly available hurricane mapping sites to understand hurricane tracks. Visit: \href{\%22https://www.gislounge.com/how-can-looking-at-hurricane-tracks-help-to-understand-them/\%22}{How Can Looking at Hurricane Tracks Help to Understand Them?}
+
+\url{https://www.goes-r.gov/featureStories/monitoringHurricanes.html}
+
 \hypertarget{methods}{%
 \chapter{Methods}\label{methods}}
 
 \hypertarget{data-sources}{%
 \section{Data sources}\label{data-sources}}
 
-We describe our data sources, our methods in this chapter.ion
+(We describe our data sources, our methods in this chapter.ion)
+
+Storm tracks data can be downloaded from \href{\%22https://www.nhc.noaa.gov/data/\#hurdat\%22}{National Hurricane Center and Central Pacific Hurricane Center}. The data using in the project is known as Atlantic hurricane database (\href{\%22https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf\%22}{HURDAT2}) 1851-2018 (\href{\%22https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt\%22}{5.9MB download}). The data has a comma-delimited, text format with six-hourly information on the location, maximum winds, central pressure, and (beginning in 2004) size of all known tropical cyclones and subtropical cyclones.
+
+\hypertarget{read-data}{%
+\section{read data}\label{read-data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\KeywordTok{library}\NormalTok{(stringr)}
+\CommentTok{# Read in data set so each line is a character string}
+\NormalTok{storm_strings <-}\StringTok{ }\KeywordTok{read_lines}\NormalTok{(}\StringTok{"https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt"}\NormalTok{)}
+
+\CommentTok{# Identify the header lines that have three commas}
+\KeywordTok{library}\NormalTok{(stringr)}
+\NormalTok{header_locations <-}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(storm_strings))[}\KeywordTok{str_count}\NormalTok{(storm_strings, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{,"}\NormalTok{) }\OperatorTok{==}\StringTok{ }\DecValTok{3}\NormalTok{]}
+
+\CommentTok{# Extract length of each sub-dataset}
+\NormalTok{headers <-}\StringTok{ }\KeywordTok{as.list}\NormalTok{(storm_strings[header_locations])}
+\NormalTok{headers_df <-}\StringTok{ }\NormalTok{headers }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{map}\NormalTok{(str_sub, }\DataTypeTok{start =} \DecValTok{1}\NormalTok{, }\DataTypeTok{end =} \DecValTok{-2}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }\CommentTok{# to remove trailing comma}
+\StringTok{  }\KeywordTok{map}\NormalTok{(paste0, }\StringTok{"}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{) }\OperatorTok{%>%}\StringTok{                 }\CommentTok{# to trigger literal read}
+\StringTok{  }\KeywordTok{map_df}\NormalTok{(read_csv, }\DataTypeTok{col_names =} \KeywordTok{c}\NormalTok{(}\StringTok{"id"}\NormalTok{, }\StringTok{"name"}\NormalTok{, }\StringTok{"n_obs"}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{name =} \KeywordTok{recode}\NormalTok{(name, }\StringTok{"UNNAMED"}\NormalTok{ =}\StringTok{ }\NormalTok{id), }\DataTypeTok{skip =}\NormalTok{ header_locations) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(name, skip, n_obs)}
+
+\CommentTok{# Read in the sub-datasets as data frames}
+\NormalTok{df_names <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}
+  \StringTok{"date"}\NormalTok{, }\StringTok{"time"}\NormalTok{, }\StringTok{"record_type"}\NormalTok{, }\StringTok{"status"}\NormalTok{, }\StringTok{"lat"}\NormalTok{, }\StringTok{"long"}\NormalTok{, }\StringTok{"wind"}\NormalTok{, }\StringTok{"pressure"}\NormalTok{,}
+  \StringTok{"extent_34_NE"}\NormalTok{, }\StringTok{"extent_34_SE"}\NormalTok{, }\StringTok{"extent_34_SW"}\NormalTok{, }\StringTok{"extent_34_NW"}\NormalTok{,}
+  \StringTok{"extent_50_NE"}\NormalTok{, }\StringTok{"extent_50_SE"}\NormalTok{, }\StringTok{"extent_50_SW"}\NormalTok{, }\StringTok{"extent_50_NW"}\NormalTok{,}
+  \StringTok{"extent_64_NE"}\NormalTok{, }\StringTok{"extent_64_SE"}\NormalTok{, }\StringTok{"extent_64_SW"}\NormalTok{, }\StringTok{"extent_64_NW"}\NormalTok{, }\StringTok{"nas"}
+\NormalTok{)}
+
+\NormalTok{storm_dfs <-}\StringTok{ }\KeywordTok{vector}\NormalTok{(}\StringTok{"list"}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(headers_df))}
+\KeywordTok{names}\NormalTok{(storm_dfs) <-}\StringTok{ }\NormalTok{headers_df}\OperatorTok{$}\NormalTok{name}
+\end{Highlighting}
+\end{Shaded}
 
 \hypertarget{data-transformat}{%
 \section{Data transformat}\label{data-transformat}}
@@ -132,6 +216,27 @@ Describe the process of getting the data into a form in which you could work wit
 
 Describe any patterns you discover in missing values.
 
+** Reading **
+
+\begin{itemize}
+\item
+  \href{\%22https://cran.r-project.org/web/packages/HURDAT/HURDAT.pdf}{HURDAT}
+\item
+  \href{\%22https://github.com/ropensci/rrricanes\%22}{rrricanes}
+\item
+  \href{\%22https://dplyr.tidyverse.org/reference/storms.html\%22}{Storm tracks data}
+\item
+  \href{\%22https://www.r-bloggers.com/visualizing-hurricane-data-with-shiny/\%22}{Visualizing Hurricane Data with Shiny}
+\item
+  \href{\%22https://rpubs.com/jelsner/4826\%22}{Chapter 6: Hurricane Data}
+\item
+  \href{\%22http://david-lallemant.com/mapping-global-earthquakes-and-hurricane-tracks-with-r-2/\%22}{Mapping Global Earthquakes and Hurricane tracks with R}
+\item
+  \href{\%22http://www.storytellingwithdata.com/blog/2017/10/1/how-youd-visualize-hurricanes\%22}{How would you visulize hurricanes}
+\item
+  {[}Tracking Atlantic Hurricanes Using Statistical Methods{]} (``\url{https://scholarcommons.usf.edu/cgi/viewcontent.cgi?article=5927\&context=etd}'')
+\end{itemize}
+
 \hypertarget{results}{%
 \chapter{Results}\label{results}}
 
@@ -141,6 +246,8 @@ Provide a short nontechnical but \emph{significant} summary of the most revealin
 \chapter{Discussion}\label{discussion}}
 
 Interactive component
+
+D3
 
 Select one (or more) of your key findings to present in an interactive format. Be selective in the choices that you present to the user; the idea is that in 5-10 minutes, users should have a good sense of the question(s) that you are interested in and the trends you've identified in the data. In other words, they should understand the value of the analysis, be it business value, scientific value, general knowledge, etc.
 
