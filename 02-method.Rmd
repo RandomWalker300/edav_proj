@@ -1,0 +1,13 @@
+# Methods
+
+## Data sources
+
+We describe our data sources, our methods in this chapter.ion
+
+## Data transformat
+
+Describe the process of getting the data into a form in which you could work with it in R.
+
+## Missing values
+
+Describe any patterns you discover in missing values.

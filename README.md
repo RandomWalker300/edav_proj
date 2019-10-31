@@ -1,2 +1,1 @@
-# edav_proj_hurricane
-This is a class final project
+This is a class project, we are still working on it

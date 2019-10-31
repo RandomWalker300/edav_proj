@@ -1,0 +1,18 @@
+--- 
+title: "An edav project: hurricane analysis"
+author: "Romane Shoshana Goldmuntz, Vy Tan, and Jianqiong Zhan "
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: [proj.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: rstudio/bookdown-demo
+description: "This is an edav class final project"
+---
+
+# Preface
+
+This is a _edav class_ final project written in **Markdown**. we are working on it.
+
