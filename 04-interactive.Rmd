@@ -1,6 +1,4 @@
-# Discussion
-
-Interactive component
+# Interactive Component
 
 D3
 

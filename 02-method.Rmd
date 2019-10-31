@@ -5,7 +5,7 @@
 
 Storm tracks data can be downloaded from [National Hurricane Center and Central Pacific Hurricane Center]("https://www.nhc.noaa.gov/data/#hurdat"). The data using in the project is known as Atlantic hurricane database ([HURDAT2]("https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf")) 1851-2018 ([5.9MB download]("https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt")). The data has a comma-delimited, text format with six-hourly information on the location, maximum winds, central pressure, and (beginning in 2004) size of all known tropical cyclones and subtropical cyclones.
 
-## read data
+## Read data
 
 ```{r setup, include=FALSE}
  # keep this chunk in your .Rmd file

@@ -3,7 +3,7 @@ bookdown::gitbook:
   config:
     toc:
       before: |
-        <li><a href="./">Hurricane</a></li>
+        <li><a href="./">Hurricane Analysis and Visulization Using R</a></li>
       after: |
         <li><a href="https://github.com/jqz300/edav_proj.git" target="blank">Github Link</a></li>
     edit: https://github.com/jqz300/edav_proj.git%s

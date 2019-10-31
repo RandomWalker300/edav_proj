@@ -6,8 +6,6 @@ we can write citation, for example, we are using the **bookdown** package [@R-bo
 
 
 
-
-
 *reading*
 
 Robert Lang has a tutorial that uses publicly available hurricane mapping sites to understand hurricane tracks.  Visit: [How Can Looking at Hurricane Tracks Help to Understand Them?]("https://www.gislounge.com/how-can-looking-at-hurricane-tracks-help-to-understand-them/")

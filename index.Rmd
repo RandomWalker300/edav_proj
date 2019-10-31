@@ -1,6 +1,6 @@
 --- 
-title: "An edav project: hurricane analysis"
-author: "Romane Shoshana Goldmuntz, Vy Tan, and Jianqiong Zhan "
+title: "Hurricane Analysis and Visulization Using R"
+author: "Romane Shoshana Goldmuntz, Vy Tran, and Jianqiong Zhan"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
