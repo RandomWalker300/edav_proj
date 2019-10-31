@@ -1,4 +1,7 @@
 language: r
+before_install:
+  - tlmgr install index
+
 sudo: false
 cache:
   packages: true
