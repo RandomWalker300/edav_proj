@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 3 Methods | An edav project: hurricane analysis</title>
+  <title>Chapter 3 Methods | Hurricane Analysis and Visulization Using R</title>
   <meta name="description" content="This is an edav class final project" />
   <meta name="generator" content="bookdown 0.14 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 3 Methods | An edav project: hurricane analysis" />
+  <meta property="og:title" content="Chapter 3 Methods | Hurricane Analysis and Visulization Using R" />
   <meta property="og:type" content="book" />
   
   
@@ -16,12 +16,12 @@
   <meta name="github-repo" content="rstudio/bookdown-demo" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 3 Methods | An edav project: hurricane analysis" />
+  <meta name="twitter:title" content="Chapter 3 Methods | Hurricane Analysis and Visulization Using R" />
   
   <meta name="twitter:description" content="This is an edav class final project" />
   
 
-<meta name="author" content="Romane Shoshana Goldmuntz, Vy Tan, and Jianqiong Zhan" />
+<meta name="author" content="Romane Shoshana Goldmuntz, Vy Tran, and Jianqiong Zhan" />
 
 
 <meta name="date" content="2019-10-31" />
@@ -128,20 +128,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <nav role="navigation">
 
 <ul class="summary">
-<li><a href="./">Hurricane</a></li>
+<li><a href="./">Hurricane Analysis and Visulization Using R</a></li>
 
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a></li>
 <li class="chapter" data-level="2" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
 <li class="chapter" data-level="3" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>3</b> Methods</a><ul>
 <li class="chapter" data-level="3.1" data-path="methods.html"><a href="methods.html#data-sources"><i class="fa fa-check"></i><b>3.1</b> Data sources</a></li>
-<li class="chapter" data-level="3.2" data-path="methods.html"><a href="methods.html#read-data"><i class="fa fa-check"></i><b>3.2</b> read data</a></li>
+<li class="chapter" data-level="3.2" data-path="methods.html"><a href="methods.html#read-data"><i class="fa fa-check"></i><b>3.2</b> Read data</a></li>
 <li class="chapter" data-level="3.3" data-path="methods.html"><a href="methods.html#data-transformat"><i class="fa fa-check"></i><b>3.3</b> Data transformat</a></li>
 <li class="chapter" data-level="3.4" data-path="methods.html"><a href="methods.html#missing-values"><i class="fa fa-check"></i><b>3.4</b> Missing values</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>4</b> Results</a></li>
-<li class="chapter" data-level="5" data-path="discussion.html"><a href="discussion.html"><i class="fa fa-check"></i><b>5</b> Discussion</a></li>
-<li class="chapter" data-level="6" data-path="summary-and-conclusion.html"><a href="summary-and-conclusion.html"><i class="fa fa-check"></i><b>6</b> Summary and Conclusion</a></li>
+<li class="chapter" data-level="5" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>5</b> Interactive Component</a></li>
+<li class="chapter" data-level="6" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>6</b> Conclusion</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/jqz300/edav_proj.git" target="blank">Github Link</a></li>
@@ -155,7 +155,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">An edav project: hurricane analysis</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Hurricane Analysis and Visulization Using R</a>
           </h1>
         </div>
 
@@ -171,7 +171,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Storm tracks data can be downloaded from <a href="%22https://www.nhc.noaa.gov/data/#hurdat%22">National Hurricane Center and Central Pacific Hurricane Center</a>. The data using in the project is known as Atlantic hurricane database (<a href="%22https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf%22">HURDAT2</a>) 1851-2018 (<a href="%22https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt%22">5.9MB download</a>). The data has a comma-delimited, text format with six-hourly information on the location, maximum winds, central pressure, and (beginning in 2004) size of all known tropical cyclones and subtropical cyclones.</p>
 </div>
 <div id="read-data" class="section level2">
-<h2><span class="header-section-number">3.2</span> read data</h2>
+<h2><span class="header-section-number">3.2</span> Read data</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(tidyverse)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(stringr)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># Read in data set</span></a>
