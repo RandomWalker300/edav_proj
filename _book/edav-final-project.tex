@@ -177,32 +177,8 @@ Storm tracks data can be downloaded from \href{\%22https://www.nhc.noaa.gov/data
 \begin{Highlighting}[]
 \KeywordTok{library}\NormalTok{(tidyverse)}
 \KeywordTok{library}\NormalTok{(stringr)}
-\CommentTok{# Read in data set so each line is a character string}
+\CommentTok{# Read in data set}
 \NormalTok{storm_strings <-}\StringTok{ }\KeywordTok{read_lines}\NormalTok{(}\StringTok{"https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt"}\NormalTok{)}
-
-\CommentTok{# Identify the header lines that have three commas}
-\KeywordTok{library}\NormalTok{(stringr)}
-\NormalTok{header_locations <-}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(storm_strings))[}\KeywordTok{str_count}\NormalTok{(storm_strings, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{,"}\NormalTok{) }\OperatorTok{==}\StringTok{ }\DecValTok{3}\NormalTok{]}
-
-\CommentTok{# Extract length of each sub-dataset}
-\NormalTok{headers <-}\StringTok{ }\KeywordTok{as.list}\NormalTok{(storm_strings[header_locations])}
-\NormalTok{headers_df <-}\StringTok{ }\NormalTok{headers }\OperatorTok{%>%}
-\StringTok{  }\KeywordTok{map}\NormalTok{(str_sub, }\DataTypeTok{start =} \DecValTok{1}\NormalTok{, }\DataTypeTok{end =} \DecValTok{-2}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }\CommentTok{# to remove trailing comma}
-\StringTok{  }\KeywordTok{map}\NormalTok{(paste0, }\StringTok{"}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{) }\OperatorTok{%>%}\StringTok{                 }\CommentTok{# to trigger literal read}
-\StringTok{  }\KeywordTok{map_df}\NormalTok{(read_csv, }\DataTypeTok{col_names =} \KeywordTok{c}\NormalTok{(}\StringTok{"id"}\NormalTok{, }\StringTok{"name"}\NormalTok{, }\StringTok{"n_obs"}\NormalTok{)) }\OperatorTok{%>%}
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{name =} \KeywordTok{recode}\NormalTok{(name, }\StringTok{"UNNAMED"}\NormalTok{ =}\StringTok{ }\NormalTok{id), }\DataTypeTok{skip =}\NormalTok{ header_locations) }\OperatorTok{%>%}
-\StringTok{  }\KeywordTok{select}\NormalTok{(name, skip, n_obs)}
-
-\CommentTok{# Read in the sub-datasets as data frames}
-\NormalTok{df_names <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}
-  \StringTok{"date"}\NormalTok{, }\StringTok{"time"}\NormalTok{, }\StringTok{"record_type"}\NormalTok{, }\StringTok{"status"}\NormalTok{, }\StringTok{"lat"}\NormalTok{, }\StringTok{"long"}\NormalTok{, }\StringTok{"wind"}\NormalTok{, }\StringTok{"pressure"}\NormalTok{,}
-  \StringTok{"extent_34_NE"}\NormalTok{, }\StringTok{"extent_34_SE"}\NormalTok{, }\StringTok{"extent_34_SW"}\NormalTok{, }\StringTok{"extent_34_NW"}\NormalTok{,}
-  \StringTok{"extent_50_NE"}\NormalTok{, }\StringTok{"extent_50_SE"}\NormalTok{, }\StringTok{"extent_50_SW"}\NormalTok{, }\StringTok{"extent_50_NW"}\NormalTok{,}
-  \StringTok{"extent_64_NE"}\NormalTok{, }\StringTok{"extent_64_SE"}\NormalTok{, }\StringTok{"extent_64_SW"}\NormalTok{, }\StringTok{"extent_64_NW"}\NormalTok{, }\StringTok{"nas"}
-\NormalTok{)}
-
-\NormalTok{storm_dfs <-}\StringTok{ }\KeywordTok{vector}\NormalTok{(}\StringTok{"list"}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(headers_df))}
-\KeywordTok{names}\NormalTok{(storm_dfs) <-}\StringTok{ }\NormalTok{headers_df}\OperatorTok{$}\NormalTok{name}
 \end{Highlighting}
 \end{Shaded}
 
@@ -219,6 +195,7 @@ Describe any patterns you discover in missing values.
 ** Reading **
 
 \begin{itemize}
+\tightlist
 \item
   \href{\%22https://cran.r-project.org/web/packages/HURDAT/HURDAT.pdf}{HURDAT}
 \item
@@ -234,7 +211,7 @@ Describe any patterns you discover in missing values.
 \item
   \href{\%22http://www.storytellingwithdata.com/blog/2017/10/1/how-youd-visualize-hurricanes\%22}{How would you visulize hurricanes}
 \item
-  {[}Tracking Atlantic Hurricanes Using Statistical Methods{]} (``\url{https://scholarcommons.usf.edu/cgi/viewcontent.cgi?article=5927\&context=etd}'')
+  \href{\%22https://scholarcommons.usf.edu/cgi/viewcontent.cgi?article=5927\&context=etd\%22}{Tracking Atlantic Hurricanes Using Statistical Methods}
 \end{itemize}
 
 \hypertarget{results}{%
