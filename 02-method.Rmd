@@ -7,7 +7,7 @@ Storm tracks data can be downloaded from [National Hurricane Center and Central 
 
 ## Read data
 
-```{r setup, include=FALSE}
+```{r include=FALSE}
  # keep this chunk in your .Rmd file
  knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```

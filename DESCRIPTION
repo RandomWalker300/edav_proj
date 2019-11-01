@@ -10,3 +10,4 @@ Imports:
   ggridges,
   viridis
   plyr
+  shiny
