@@ -26,15 +26,3 @@ Describe the process of getting the data into a form in which you could work wit
 ## Missing values
 
 Describe any patterns you discover in missing values.
-
-
-** Reading **
-
-* [HURDAT]("https://cran.r-project.org/web/packages/HURDAT/HURDAT.pdf)
-* [rrricanes]("https://github.com/ropensci/rrricanes")
-* [Storm tracks data]("https://dplyr.tidyverse.org/reference/storms.html")
-* [Visualizing Hurricane Data with Shiny]("https://www.r-bloggers.com/visualizing-hurricane-data-with-shiny/")
-* [Chapter 6: Hurricane Data]("https://rpubs.com/jelsner/4826")
-* [Mapping Global Earthquakes and Hurricane tracks with R]("http://david-lallemant.com/mapping-global-earthquakes-and-hurricane-tracks-with-r-2/")
-* [How would you visulize hurricanes]("http://www.storytellingwithdata.com/blog/2017/10/1/how-youd-visualize-hurricanes")
-* [Tracking Atlantic Hurricanes Using Statistical Methods]("https://scholarcommons.usf.edu/cgi/viewcontent.cgi?article=5927&context=etd")

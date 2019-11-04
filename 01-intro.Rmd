@@ -3,11 +3,3 @@
 explain why we chose this topic, and the questoins we are interested in studying.
 
 we can write citation, for example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015].
-
-
-
-*reading*
-
-Robert Lang has a tutorial that uses publicly available hurricane mapping sites to understand hurricane tracks.  Visit: [How Can Looking at Hurricane Tracks Help to Understand Them?]("https://www.gislounge.com/how-can-looking-at-hurricane-tracks-help-to-understand-them/")
-
-https://www.goes-r.gov/featureStories/monitoringHurricanes.html
