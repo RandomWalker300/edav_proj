@@ -1,6 +1,6 @@
 --- 
 title: "Hurricane Analysis and Visulization Using R"
-author: "Romane Shoshana Goldmuntz, Vy Tran, and Jianqiong Zhan"
+author: "Romane Goldmuntz, Vy Tran, and Jianqiong Zhan"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
@@ -14,5 +14,5 @@ description: "This is an edav class final project"
 
 # Preface
 
-This is a _edav class_ final project written in **Markdown**. we are working on it.
+This is a class project written in **Markdown**. We are still working on it.
 

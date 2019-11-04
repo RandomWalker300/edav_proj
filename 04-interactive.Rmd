@@ -1,6 +1,4 @@
 # Interactive Component
 
-D3
-
-Select one (or more) of your key findings to present in an interactive format. Be selective in the choices that you present to the user; the idea is that in 5-10 minutes, users should have a good sense of the question(s) that you are interested in and the trends you’ve identified in the data. In other words, they should understand the value of the analysis, be it business value, scientific value, general knowledge, etc.
+Select one (or more) of our key findings to present in an interactive format (D3). Be selective in the choices that we present to the user; the idea is that in 5-10 minutes, users should have a good sense of the question(s) that we are interested in and the trends we’ve identified in the data. In other words, they should understand the value of the analysis, be it business value, scientific value, general knowledge, etc.
 

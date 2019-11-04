@@ -1,5 +1,5 @@
 # Introduction {#intro}
 
-explain why we chose this topic, and the questoins we are interested in studying.
+Explain why we chose this topic, and the questoins we are interested in studying.
 
-we can write citation, for example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015].
+We can write citation, for example, we are using the **bookdown** package [@R-bookdown] in this project, which was built on top of R Markdown and **knitr** [@xie2015].
