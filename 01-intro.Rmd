@@ -34,6 +34,3 @@ ggplot(df_clean,aes(x=Name, y= Nominal_Damage)) + geom_bar(position = "dodge", s
 In addition, hurricane tracking data can provide Federal Emergency Management Agency (FEMA), local emergency managers, and first responders the information they need to be able to send out appropriate responses and help to the citizens at the affected areas [@Newtools4H2019].
 
 For those reasons, hurricanes data is very interesting to analyze and will constitute the topic of this Exploratory Data Analysis and Vizualisation final project.
-
-New Tools for Monitoring Hurricanes in a Changing Climate, 23 May 2019,
-www.goes-r.gov/featureStories/monitoringHurricanes.html.
