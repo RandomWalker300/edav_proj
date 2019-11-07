@@ -8,23 +8,3 @@ runtime: shiny
 
 Select one (or more) of our key findings to present in an interactive format (D3). Be selective in the choices that we present to the user; the idea is that in 5-10 minutes, users should have a good sense of the question(s) that we are interested in and the trends we’ve identified in the data. In other words, they should understand the value of the analysis, be it business value, scientific value, general knowledge, etc.
 
-
-#```{r out.width='100%', echo=FALSE}
-library(leaflet)
-leaflet() %>% addTiles() %>%
-  setView(-93.65, 42.0285, zoom = 17) %>%
-  addPopups(
-    -93.65, 42.0285,
-    'Here is the <b>Department of Statistics</b>, ISU'
-  )
-#```
-#```{r}
-#devtools::install_github("rstudio/r2d3", force = TRUE)
-```
-
-#```{r}
-library(r2d3)
-r2d3(data=c(0.3, 0.6, 0.8, 0.95, 0.40, 0.20), script = "barchart.js")
-#```
-
-
