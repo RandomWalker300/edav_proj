@@ -16,3 +16,5 @@ description: "This is an edav class final project"
 
 This is a class project written in **Markdown**. We are still working on it.
 
+We are using the **bookdown** package [@R-bookdown] in this project, which was built on top of R Markdown and **knitr** [@xie2015].
+

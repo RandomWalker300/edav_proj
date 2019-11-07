@@ -1,5 +1,39 @@
 # Introduction {#intro}
 
-Explain why we chose this topic, and the questoins we are interested in studying.
+As coastal shoreline counties create about 40% of the United States’s jobs and account for 46% of its GDP, hurricanes have a trumendous impact on the country’s economy.
 
-We can write citation, for example, we are using the **bookdown** package [@R-bookdown] in this project, which was built on top of R Markdown and **knitr** [@xie2015].
+They are considered as one of the costliest natural disasters in the world : they currently cost the government over \$28 billion each year, and that amount is expected to increase to over \$39 billion a year due to the increased development of the U.S. coastlines and the global warming. The latter will indeed increase the proportion of cyclones of category 4 and 5, which lead to the most damages and therefore higher costs [@Amadeo2019].  
+ 
+Besides the government, several industries are heavily impacted by hurricanes, including the insurance industry. For example, according to Bloomberg, hurricane Dorian caused the insurance industry losses of up \$25 billion, making it the most expensive natural disaster for the industry since 2017's Hurricane Maria [@DSouza2019].
+
+```{r include=FALSE}
+ # keep this chunk in your .Rmd file
+ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+```{r}
+library(rvest)
+library(dplyr)
+library(robotstxt)
+library(ggplot2)
+url <- "https://en.wikipedia.org/wiki/List_of_costliest_Atlantic_hurricanes"
+#paths_allowed(url)
+
+df<-as.data.frame(read_html(url) %>% html_table(fill = TRUE))
+
+df_clean <- df %>% mutate(Nominal_Damage = as.factor(gsub("[$><]", "",Nominal.damage.Billions.USD.)))%>%
+  select(Name, Season, Storm.classificationat.peak.intensity,Nominal_Damage) %>% rename(Classification = Storm.classificationat.peak.intensity)
+df_clean$Season<-as.factor(df_clean$Season)
+as.numeric.factor <- function(x) {as.numeric(levels(x))[x]}
+df_clean[4]<-lapply(df_clean[4],as.numeric.factor)
+df_clean[2]<-lapply(df_clean[2],as.numeric.factor)
+df_clean <- df_clean %>% arrange(desc(Season)) %>% top_n(6)
+ggplot(df_clean,aes(x=Name, y= Nominal_Damage)) + geom_bar(position = "dodge", stat = "identity") + coord_flip() + xlab("Hurricane") + ylab("Damage (in Billion Dollars)") + ggtitle("Cost of Damage by Six Most Recent Hurricanes") + theme_classic()
+```
+
+In addition, hurricane tracking data can provide Federal Emergency Management Agency (FEMA), local emergency managers, and first responders the information they need to be able to send out appropriate responses and help to the citizens at the affected areas [@Newtools4H2019].
+
+For those reasons, hurricanes data is very interesting to analyze and will constitute the topic of this Exploratory Data Analysis and Vizualisation final project.
+
+New Tools for Monitoring Hurricanes in a Changing Climate, 23 May 2019,
+www.goes-r.gov/featureStories/monitoringHurricanes.html.

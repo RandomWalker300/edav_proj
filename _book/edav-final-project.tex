@@ -124,7 +124,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-11-04}
+    \date{2019-11-07}
 
 \usepackage{booktabs}
 \usepackage{amsthm}
@@ -147,12 +147,47 @@
 
 This is a class project written in \textbf{Markdown}. We are still working on it.
 
+We are using the \textbf{bookdown} package \citep{R-bookdown} in this project, which was built on top of R Markdown and \textbf{knitr} \citep{xie2015}.
+
 \hypertarget{intro}{%
 \chapter{Introduction}\label{intro}}
 
-Explain why we chose this topic, and the questoins we are interested in studying.
+As coastal shoreline counties create about 40\% of the United States's jobs and account for 46\% of its GDP, hurricanes have a trumendous impact on the country's economy.
 
-We can write citation, for example, we are using the \textbf{bookdown} package \citep{R-bookdown} in this project, which was built on top of R Markdown and \textbf{knitr} \citep{xie2015}.
+They are considered as one of the costliest natural disasters in the world : they currently cost the government over \$28 billion each year, and that amount is expected to increase to over \$39 billion a year due to the increased development of the U.S. coastlines and the global warming. The latter will indeed increase the proportion of cyclones of category 4 and 5, which lead to the most damages and therefore higher costs \citep{Amadeo2019}.
+
+Besides the government, several industries are heavily impacted by hurricanes, including the insurance industry. For example, according to Bloomberg, hurricane Dorian caused the insurance industry losses of up \$25 billion, making it the most expensive natural disaster for the industry since 2017's Hurricane Maria \citep{DSouza2019}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(rvest)}
+\KeywordTok{library}\NormalTok{(dplyr)}
+\KeywordTok{library}\NormalTok{(robotstxt)}
+\KeywordTok{library}\NormalTok{(ggplot2)}
+\NormalTok{url <-}\StringTok{ "https://en.wikipedia.org/wiki/List_of_costliest_Atlantic_hurricanes"}
+\CommentTok{#paths_allowed(url)}
+
+\NormalTok{df<-}\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{read_html}\NormalTok{(url) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{html_table}\NormalTok{(}\DataTypeTok{fill =} \OtherTok{TRUE}\NormalTok{))}
+
+\NormalTok{df_clean <-}\StringTok{ }\NormalTok{df }\OperatorTok{%>%}\StringTok{ }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{Nominal_Damage =} \KeywordTok{as.factor}\NormalTok{(}\KeywordTok{gsub}\NormalTok{(}\StringTok{"[$><]"}\NormalTok{, }\StringTok{""}\NormalTok{,Nominal.damage.Billions.USD.)))}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(Name, Season, Storm.classificationat.peak.intensity,Nominal_Damage) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{rename}\NormalTok{(}\DataTypeTok{Classification =}\NormalTok{ Storm.classificationat.peak.intensity)}
+\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Season<-}\KeywordTok{as.factor}\NormalTok{(df_clean}\OperatorTok{$}\NormalTok{Season)}
+\NormalTok{as.numeric.factor <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(x) \{}\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{levels}\NormalTok{(x))[x]\}}
+\NormalTok{df_clean[}\DecValTok{4}\NormalTok{]<-}\KeywordTok{lapply}\NormalTok{(df_clean[}\DecValTok{4}\NormalTok{],as.numeric.factor)}
+\NormalTok{df_clean[}\DecValTok{2}\NormalTok{]<-}\KeywordTok{lapply}\NormalTok{(df_clean[}\DecValTok{2}\NormalTok{],as.numeric.factor)}
+\NormalTok{df_clean <-}\StringTok{ }\NormalTok{df_clean }\OperatorTok{%>%}\StringTok{ }\KeywordTok{arrange}\NormalTok{(}\KeywordTok{desc}\NormalTok{(Season)) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{top_n}\NormalTok{(}\DecValTok{6}\NormalTok{)}
+\KeywordTok{ggplot}\NormalTok{(df_clean,}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{Name, }\DataTypeTok{y=}\NormalTok{ Nominal_Damage)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position =} \StringTok{"dodge"}\NormalTok{, }\DataTypeTok{stat =} \StringTok{"identity"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{coord_flip}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Hurricane"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Damage (in Billion Dollars)"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Cost of Damage by Six Most Recent Hurricanes"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{theme_classic}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{edav-final-project_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+In addition, hurricane tracking data can provide Federal Emergency Management Agency (FEMA), local emergency managers, and first responders the information they need to be able to send out appropriate responses and help to the citizens at the affected areas \citep{Newtools4H2019}.
+
+For those reasons, hurricanes data is very interesting to analyze and will constitute the topic of this Exploratory Data Analysis and Vizualisation final project.
+
+New Tools for Monitoring Hurricanes in a Changing Climate, 23 May 2019,
+www.goes-r.gov/featureStories/monitoringHurricanes.html.
 
 \hypertarget{methods}{%
 \chapter{Methods}\label{methods}}
@@ -195,6 +230,11 @@ Provide a short nontechnical but \emph{significant} summary of the most revealin
 \chapter{Interactive Component}\label{interactive-component}}
 
 Select one (or more) of our key findings to present in an interactive format (D3). Be selective in the choices that we present to the user; the idea is that in 5-10 minutes, users should have a good sense of the question(s) that we are interested in and the trends we've identified in the data. In other words, they should understand the value of the analysis, be it business value, scientific value, general knowledge, etc.
+
+\#\texttt{\{r\ out.width=\textquotesingle{}100\%\textquotesingle{},\ echo=FALSE\}\ library(leaflet)\ leaflet()\ \%\textgreater{}\%\ addTiles()\ \%\textgreater{}\%\ \ \ setView(-93.65,\ 42.0285,\ zoom\ =\ 17)\ \%\textgreater{}\%\ \ \ addPopups(\ \ \ \ \ -93.65,\ 42.0285,\ \ \ \ \ \textquotesingle{}Here\ is\ the\ \textless{}b\textgreater{}Department\ of\ Statistics\textless{}/b\textgreater{},\ ISU\textquotesingle{}\ \ \ )\ \#}
+\#\texttt{\{r\}\ \#devtools::install\_github("rstudio/r2d3",\ force\ =\ TRUE)}
+
+\#\texttt{\{r\}\ library(r2d3)\ r2d3(data=c(0.3,\ 0.6,\ 0.8,\ 0.95,\ 0.40,\ 0.20),\ script\ =\ "barchart.js")\ \#}
 
 \hypertarget{conclusion}{%
 \chapter{Conclusion}\label{conclusion}}
