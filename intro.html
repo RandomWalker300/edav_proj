@@ -24,7 +24,7 @@
 <meta name="author" content="Romane Goldmuntz, Vy Tran, and Jianqiong Zhan" />
 
 
-<meta name="date" content="2019-11-04" />
+<meta name="date" content="2019-11-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -165,17 +165,43 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="intro" class="section level1">
 <h1><span class="header-section-number">Chapter 2</span> Introduction</h1>
-<p>Explain why we chose this topic, and the questoins we are interested in studying.</p>
-<p>We can write citation, for example, we are using the <strong>bookdown</strong> package <span class="citation">(Xie <a href="#ref-R-bookdown">2019</a>)</span> in this project, which was built on top of R Markdown and <strong>knitr</strong> <span class="citation">(Xie <a href="#ref-xie2015">2015</a>)</span>.</p>
+<p>As coastal shoreline counties create about 40% of the United States’s jobs and account for 46% of its GDP, hurricanes have a trumendous impact on the country’s economy.</p>
+<p>They are considered as one of the costliest natural disasters in the world : they currently cost the government over $28 billion each year, and that amount is expected to increase to over $39 billion a year due to the increased development of the U.S. coastlines and the global warming. The latter will indeed increase the proportion of cyclones of category 4 and 5, which lead to the most damages and therefore higher costs <span class="citation">(Amadeo <a href="#ref-Amadeo2019">2019</a>)</span>.</p>
+<p>Besides the government, several industries are heavily impacted by hurricanes, including the insurance industry. For example, according to Bloomberg, hurricane Dorian caused the insurance industry losses of up $25 billion, making it the most expensive natural disaster for the industry since 2017’s Hurricane Maria <span class="citation">(D’Souza <a href="#ref-DSouza2019">2019</a>)</span>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(rvest)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(dplyr)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">library</span>(robotstxt)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">url &lt;-<span class="st"> &quot;https://en.wikipedia.org/wiki/List_of_costliest_Atlantic_hurricanes&quot;</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co">#paths_allowed(url)</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">df&lt;-<span class="kw">as.data.frame</span>(<span class="kw">read_html</span>(url) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">html_table</span>(<span class="dt">fill =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">df_clean &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Nominal_Damage =</span> <span class="kw">as.factor</span>(<span class="kw">gsub</span>(<span class="st">&quot;[$&gt;&lt;]&quot;</span>, <span class="st">&quot;&quot;</span>,Nominal.damage.Billions.USD.)))<span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="st">  </span><span class="kw">select</span>(Name, Season, Storm.classificationat.peak.intensity,Nominal_Damage) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>(<span class="dt">Classification =</span> Storm.classificationat.peak.intensity)</a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">df_clean<span class="op">$</span>Season&lt;-<span class="kw">as.factor</span>(df_clean<span class="op">$</span>Season)</a>
+<a class="sourceLine" id="cb1-13" data-line-number="13">as.numeric.factor &lt;-<span class="st"> </span><span class="cf">function</span>(x) {<span class="kw">as.numeric</span>(<span class="kw">levels</span>(x))[x]}</a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">df_clean[<span class="dv">4</span>]&lt;-<span class="kw">lapply</span>(df_clean[<span class="dv">4</span>],as.numeric.factor)</a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">df_clean[<span class="dv">2</span>]&lt;-<span class="kw">lapply</span>(df_clean[<span class="dv">2</span>],as.numeric.factor)</a>
+<a class="sourceLine" id="cb1-16" data-line-number="16">df_clean &lt;-<span class="st"> </span>df_clean <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(Season)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">top_n</span>(<span class="dv">6</span>)</a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="kw">ggplot</span>(df_clean,<span class="kw">aes</span>(<span class="dt">x=</span>Name, <span class="dt">y=</span> Nominal_Damage)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>, <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">coord_flip</span>() <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Hurricane&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Damage (in Billion Dollars)&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Cost of Damage by Six Most Recent Hurricanes&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_classic</span>()</a></code></pre></div>
+<p><img src="edav-final-project_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>In addition, hurricane tracking data can provide Federal Emergency Management Agency (FEMA), local emergency managers, and first responders the information they need to be able to send out appropriate responses and help to the citizens at the affected areas <span class="citation">(GOES-r <a href="#ref-Newtools4H2019">2019</a>)</span>.</p>
+<p>For those reasons, hurricanes data is very interesting to analyze and will constitute the topic of this Exploratory Data Analysis and Vizualisation final project.</p>
+<p>New Tools for Monitoring Hurricanes in a Changing Climate, 23 May 2019,
+www.goes-r.gov/featureStories/monitoringHurricanes.html.</p>
 
 </div>
 <h3>References</h3>
 <div id="refs" class="references">
-<div id="ref-xie2015">
-<p>Xie, Yihui. 2015. <em>Dynamic Documents with R and Knitr</em>. 2nd ed. Boca Raton, Florida: Chapman; Hall/CRC. <a href="http://yihui.name/knitr/">http://yihui.name/knitr/</a>.</p>
+<div id="ref-Amadeo2019">
+<p>Amadeo, Kimberly. 2019. <em>How Florence, Harvey, Maria, and Other Hurricanes Battered the Economy</em>. The Balance. <a href="http://www.thebalance.com/hurricane-damage-economic-costs-4150369">http://www.thebalance.com/hurricane-damage-economic-costs-4150369</a>.</p>
 </div>
-<div id="ref-R-bookdown">
-<p>Xie, Yihui. 2019. <em>Bookdown: Authoring Books and Technical Documents with R Markdown</em>. <a href="https://CRAN.R-project.org/package=bookdown">https://CRAN.R-project.org/package=bookdown</a>.</p>
+<div id="ref-DSouza2019">
+<p>D’Souza, Deborah. 2019. <em>Hurricane Dorian: Measuring the Economic Impact</em>. Investopedia. <a href="http://www.investopedia.com/hurricane-dorian-4769192">http://www.investopedia.com/hurricane-dorian-4769192</a>.</p>
+</div>
+<div id="ref-Newtools4H2019">
+<p>GOES-r. 2019. <em>New Tools for Monitoring Hurricanes in a Changing Climate</em>. <a href="http://www.goes-r.gov/featureStories/monitoringHurricanes.html">http://www.goes-r.gov/featureStories/monitoringHurricanes.html</a>.</p>
 </div>
 </div>
             </section>
