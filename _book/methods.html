@@ -135,9 +135,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
 <li class="chapter" data-level="3" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>3</b> Methods</a><ul>
 <li class="chapter" data-level="3.1" data-path="methods.html"><a href="methods.html#data-sources"><i class="fa fa-check"></i><b>3.1</b> Data sources</a></li>
-<li class="chapter" data-level="3.2" data-path="methods.html"><a href="methods.html#read-data"><i class="fa fa-check"></i><b>3.2</b> Read data</a></li>
-<li class="chapter" data-level="3.3" data-path="methods.html"><a href="methods.html#data-transformat"><i class="fa fa-check"></i><b>3.3</b> Data transformat</a></li>
-<li class="chapter" data-level="3.4" data-path="methods.html"><a href="methods.html#missing-values"><i class="fa fa-check"></i><b>3.4</b> Missing values</a></li>
+<li class="chapter" data-level="3.2" data-path="methods.html"><a href="methods.html#data-transformat"><i class="fa fa-check"></i><b>3.2</b> Data transformat</a></li>
+<li class="chapter" data-level="3.3" data-path="methods.html"><a href="methods.html#missing-values"><i class="fa fa-check"></i><b>3.3</b> Missing values</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>4</b> Results</a></li>
 <li class="chapter" data-level="5" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>5</b> Interactive Component</a></li>
@@ -170,20 +169,166 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>(We describe our data sources, our methods in this chapter)</p>
 <p>Storm tracks data can be downloaded from <a href="https://www.nhc.noaa.gov/data/#hurdat">National Hurricane Center and Central Pacific Hurricane Center</a>. The data using in the project is known as Atlantic hurricane database (<a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf">HURDAT2</a>) 1851-2018 (<a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt">5.9MB download</a>). The data has a comma-delimited, text format with six-hourly information on the location, maximum winds, central pressure, and (beginning in 2004) size of all known tropical cyclones and subtropical cyclones.</p>
 </div>
-<div id="read-data" class="section level2">
-<h2><span class="header-section-number">3.2</span> Read data</h2>
+<div id="data-transformat" class="section level2">
+<h2><span class="header-section-number">3.2</span> Data transformat</h2>
+<p>Describe the process of getting the data into a form in which you could work with it in R.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">library</span>(tidyverse)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">library</span>(stringr)</a>
 <a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co"># Read in data set</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">storm_strings &lt;-<span class="st"> </span><span class="kw">read_lines</span>(<span class="st">&quot;https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt&quot;</span>)</a></code></pre></div>
-</div>
-<div id="data-transformat" class="section level2">
-<h2><span class="header-section-number">3.3</span> Data transformat</h2>
-<p>Describe the process of getting the data into a form in which we could work with it in R.</p>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#dfile &lt;- read_lines(&quot;https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt&quot;)</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">dfile&lt;-<span class="st"> &quot;data/hurdat2-1851-2018-051019.txt&quot;</span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">storm_strings &lt;-<span class="st"> </span><span class="kw">read_lines</span>(dfile)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># Identify the header lines that have three commas</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw">library</span>(stringr)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">header_locations &lt;-<span class="st"> </span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(storm_strings))[<span class="kw">str_count</span>(storm_strings, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">,&quot;</span>) <span class="op">==</span><span class="st"> </span><span class="dv">3</span>] <span class="co"># count # of strings for each line, the header line has only 3 strings.</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">headers &lt;-<span class="st"> </span><span class="kw">as.list</span>(storm_strings[header_locations])</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">headers_df &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="st">  </span>headers <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="st">  </span>purrr<span class="op">::</span><span class="kw">map</span>(stringr<span class="op">::</span>str_sub, <span class="dt">start =</span> 1L, <span class="dt">end =</span> <span class="op">-</span>2L) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># to remove trailing comma</span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="st">  </span>purrr<span class="op">::</span><span class="kw">map</span>(paste0, <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>) <span class="op">%&gt;%</span><span class="st">                 </span><span class="co"># and replace final comma with \n</span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="st">  </span>purrr<span class="op">::</span><span class="kw">map_dfr</span>(read_csv, <span class="dt">col_names =</span> <span class="kw">c</span>(<span class="st">&quot;id&quot;</span>, <span class="st">&quot;name&quot;</span>, <span class="st">&quot;n_obs&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="co">#name = dplyr::recode(name, &quot;UNNAMED&quot; = id), </span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12">                <span class="dt">skip =</span> header_locations) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(id, name, skip, n_obs)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># Set data frames names</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">df_names &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  <span class="st">&quot;date&quot;</span>, <span class="st">&quot;time&quot;</span>, <span class="st">&quot;record_type&quot;</span>, <span class="st">&quot;status&quot;</span>, <span class="st">&quot;lat&quot;</span>, <span class="st">&quot;long&quot;</span>, <span class="st">&quot;wind&quot;</span>, <span class="st">&quot;pressure&quot;</span>,</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">  <span class="st">&quot;extent_34_NE&quot;</span>, <span class="st">&quot;extent_34_SE&quot;</span>, <span class="st">&quot;extent_34_SW&quot;</span>, <span class="st">&quot;extent_34_NW&quot;</span>,</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">  <span class="st">&quot;extent_50_NE&quot;</span>, <span class="st">&quot;extent_50_SE&quot;</span>, <span class="st">&quot;extent_50_SW&quot;</span>, <span class="st">&quot;extent_50_NW&quot;</span>,</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">  <span class="st">&quot;extent_64_NE&quot;</span>, <span class="st">&quot;extent_64_SE&quot;</span>, <span class="st">&quot;extent_64_SW&quot;</span>, <span class="st">&quot;extent_64_NW&quot;</span>, <span class="st">&quot;nas&quot;</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">)</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">storm_dfs &lt;-<span class="st"> </span><span class="kw">vector</span>(<span class="st">&quot;list&quot;</span>, <span class="kw">nrow</span>(headers_df))</a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="kw">names</span>(storm_dfs) &lt;-<span class="st"> </span>headers_df<span class="op">$</span>id</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># Read in the sub-datasets as data frames</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_along</span>(headers_df<span class="op">$</span>name)) {</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">  storm_dfs[[i]] &lt;-<span class="st"> </span><span class="kw">read_csv</span>(dfile,</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">    <span class="dt">skip =</span> headers_df<span class="op">$</span>skip[i],</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">    <span class="dt">n_max =</span> headers_df<span class="op">$</span>n_obs[i],</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">    <span class="dt">col_names =</span> df_names,</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7">    <span class="dt">na =</span> <span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;-99&quot;</span>, <span class="st">&quot;-999&quot;</span>),</a>
+<a class="sourceLine" id="cb5-8" data-line-number="8">    <span class="dt">col_types =</span> <span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">      <span class="dt">time =</span> <span class="kw">col_character</span>(),</a>
+<a class="sourceLine" id="cb5-10" data-line-number="10">      <span class="dt">pressure =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-11" data-line-number="11">      <span class="dt">extent_34_NE =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-12" data-line-number="12">      <span class="dt">extent_34_SE =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-13" data-line-number="13">      <span class="dt">extent_34_SW =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-14" data-line-number="14">      <span class="dt">extent_34_NW =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-15" data-line-number="15">      <span class="dt">extent_50_NE =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-16" data-line-number="16">      <span class="dt">extent_50_SE =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-17" data-line-number="17">      <span class="dt">extent_50_SW =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-18" data-line-number="18">      <span class="dt">extent_50_NW =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-19" data-line-number="19">      <span class="dt">extent_64_NE =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-20" data-line-number="20">      <span class="dt">extent_64_SE =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-21" data-line-number="21">      <span class="dt">extent_64_SW =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb5-22" data-line-number="22">      <span class="dt">extent_64_NW =</span> <span class="kw">col_integer</span>()</a>
+<a class="sourceLine" id="cb5-23" data-line-number="23">    )</a>
+<a class="sourceLine" id="cb5-24" data-line-number="24">  )</a>
+<a class="sourceLine" id="cb5-25" data-line-number="25">}</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># Combine and clean the data sets</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw">library</span>(lubridate)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">storms &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="st">  </span>storm_dfs <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">bind_rows</span>(<span class="dt">.id =</span> <span class="st">&quot;id&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">    <span class="dt">date =</span> lubridate<span class="op">::</span><span class="kw">ymd</span>(date),</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8">    <span class="dt">year =</span> lubridate<span class="op">::</span><span class="kw">year</span>(date),</a>
+<a class="sourceLine" id="cb6-9" data-line-number="9">    <span class="dt">month =</span> lubridate<span class="op">::</span><span class="kw">month</span>(date),</a>
+<a class="sourceLine" id="cb6-10" data-line-number="10">    <span class="dt">day =</span> lubridate<span class="op">::</span><span class="kw">day</span>(date),</a>
+<a class="sourceLine" id="cb6-11" data-line-number="11">    <span class="dt">hour =</span> <span class="kw">as.numeric</span>(stringr<span class="op">::</span><span class="kw">str_sub</span>(time, <span class="dv">1</span>, <span class="dv">2</span>)),</a>
+<a class="sourceLine" id="cb6-12" data-line-number="12">    <span class="dt">datetime =</span> <span class="kw">ISOdate</span>(year, month, day, hour, <span class="dt">min =</span> <span class="dv">0</span>, <span class="dt">sec =</span> <span class="dv">0</span>, <span class="dt">tz =</span> <span class="st">&quot;GMT&quot;</span>),</a>
+<a class="sourceLine" id="cb6-13" data-line-number="13">    <span class="dt">lat_hemisphere =</span> stringr<span class="op">::</span><span class="kw">str_sub</span>(lat, <span class="dv">-1</span>),</a>
+<a class="sourceLine" id="cb6-14" data-line-number="14">    <span class="dt">lat_sign =</span> dplyr<span class="op">::</span><span class="kw">if_else</span>(lat_hemisphere <span class="op">==</span><span class="st"> &quot;N&quot;</span>, <span class="dv">1</span>, <span class="dv">-1</span>),</a>
+<a class="sourceLine" id="cb6-15" data-line-number="15">    <span class="dt">lat =</span> <span class="kw">as.numeric</span>(stringr<span class="op">::</span><span class="kw">str_sub</span>(lat, <span class="dv">1</span>, <span class="dv">-2</span>)) <span class="op">*</span><span class="st"> </span>lat_sign,</a>
+<a class="sourceLine" id="cb6-16" data-line-number="16">    <span class="dt">long_hemisphere =</span> stringr<span class="op">::</span><span class="kw">str_sub</span>(long, <span class="dv">-1</span>),</a>
+<a class="sourceLine" id="cb6-17" data-line-number="17">    <span class="dt">long_sign =</span> dplyr<span class="op">::</span><span class="kw">if_else</span>(long_hemisphere <span class="op">==</span><span class="st"> &quot;E&quot;</span>, <span class="dv">1</span>, <span class="dv">-1</span>),</a>
+<a class="sourceLine" id="cb6-18" data-line-number="18">    <span class="dt">long =</span> <span class="kw">as.numeric</span>(stringr<span class="op">::</span><span class="kw">str_sub</span>(long, <span class="dv">1</span>, <span class="dv">-2</span>)) <span class="op">*</span><span class="st"> </span>long_sign,</a>
+<a class="sourceLine" id="cb6-19" data-line-number="19">    <span class="dt">category =</span> <span class="kw">cut</span>(wind, <span class="co">#cut divides the range of x into intervals</span></a>
+<a class="sourceLine" id="cb6-20" data-line-number="20">      <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">34</span>, <span class="dv">64</span>, <span class="dv">83</span>, <span class="dv">96</span>, <span class="dv">113</span>, <span class="dv">137</span>, <span class="dv">500</span>),</a>
+<a class="sourceLine" id="cb6-21" data-line-number="21">      <span class="dt">labels =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>),</a>
+<a class="sourceLine" id="cb6-22" data-line-number="22">      <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>, <span class="dt">ordered =</span> <span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb6-23" data-line-number="23">    ),</a>
+<a class="sourceLine" id="cb6-24" data-line-number="24">    <span class="co"># wind = wind * 1.15078, # transforms knots to mph,</span></a>
+<a class="sourceLine" id="cb6-25" data-line-number="25">    <span class="dt">TSradius1 =</span> extent_<span class="dv">34</span>_NE <span class="op">+</span><span class="st"> </span>extent_<span class="dv">34</span>_SW,</a>
+<a class="sourceLine" id="cb6-26" data-line-number="26">    <span class="dt">TSradius2 =</span> extent_<span class="dv">34</span>_NW <span class="op">+</span><span class="st"> </span>extent_<span class="dv">34</span>_SE,</a>
+<a class="sourceLine" id="cb6-27" data-line-number="27">    <span class="dt">ts_diameter =</span> <span class="kw">pmax</span>(TSradius1, TSradius2) <span class="op">*</span><span class="st"> </span><span class="fl">1.15078</span>, <span class="co"># to convert from nautical miles to miles # pmax: returns the parallel maxima and minima of the input values</span></a>
+<a class="sourceLine" id="cb6-28" data-line-number="28">    <span class="dt">HUradius1 =</span> extent_<span class="dv">64</span>_NE <span class="op">+</span><span class="st"> </span>extent_<span class="dv">64</span>_SW,</a>
+<a class="sourceLine" id="cb6-29" data-line-number="29">    <span class="dt">HUradius2 =</span> extent_<span class="dv">64</span>_NW <span class="op">+</span><span class="st"> </span>extent_<span class="dv">64</span>_SE,</a>
+<a class="sourceLine" id="cb6-30" data-line-number="30">    <span class="dt">hu_diameter =</span> <span class="kw">pmax</span>(HUradius1, HUradius2) <span class="op">*</span><span class="st"> </span><span class="fl">1.15078</span>, <span class="co"># to convert from nautical miles to miles</span></a>
+<a class="sourceLine" id="cb6-31" data-line-number="31">    <span class="dt">status =</span> <span class="kw">recode</span>(status,</a>
+<a class="sourceLine" id="cb6-32" data-line-number="32">                    <span class="st">&quot;TD&quot;</span> =<span class="st"> &quot;tropical depression&quot;</span>,</a>
+<a class="sourceLine" id="cb6-33" data-line-number="33">                    <span class="st">&quot;TS&quot;</span> =<span class="st"> &quot;tropical storm&quot;</span>, </a>
+<a class="sourceLine" id="cb6-34" data-line-number="34">                    <span class="st">&quot;HU&quot;</span> =<span class="st"> &quot;tropical hurricane&quot;</span>, </a>
+<a class="sourceLine" id="cb6-35" data-line-number="35">                    <span class="st">&quot;EX&quot;</span> =<span class="st"> &quot;Extratropical cyclone&quot;</span>, <span class="co">##</span></a>
+<a class="sourceLine" id="cb6-36" data-line-number="36">                    <span class="st">&quot;SD&quot;</span> =<span class="st"> &quot;subtropical depression&quot;</span>,</a>
+<a class="sourceLine" id="cb6-37" data-line-number="37">                    <span class="st">&quot;SS&quot;</span> =<span class="st"> &quot;subtropical storm&quot;</span>, </a>
+<a class="sourceLine" id="cb6-38" data-line-number="38">                    <span class="st">&quot;HU&quot;</span> =<span class="st"> &quot;tropical hurricane&quot;</span>, </a>
+<a class="sourceLine" id="cb6-39" data-line-number="39">                    <span class="st">&quot;LO&quot;</span> =<span class="st"> &quot;a low&quot;</span>,</a>
+<a class="sourceLine" id="cb6-40" data-line-number="40">                    <span class="st">&quot;WV&quot;</span> =<span class="st"> &quot;tropical wave&quot;</span>,</a>
+<a class="sourceLine" id="cb6-41" data-line-number="41">                    <span class="st">&quot;DB&quot;</span> =<span class="st"> &quot;disturbance&quot;</span>)</a>
+<a class="sourceLine" id="cb6-42" data-line-number="42">  ) </a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co"># data output</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">headers_df_selected &lt;-<span class="st"> </span>headers_df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="kw">c</span>(<span class="st">&quot;id&quot;</span>,<span class="st">&quot;name&quot;</span>))</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co"># headers_df_selected</span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">storms_with_name &lt;-<span class="st"> </span><span class="kw">left_join</span>(headers_df_selected, storms, <span class="dt">by=</span><span class="kw">c</span>(<span class="st">&quot;id&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="st">  </span><span class="kw">select</span>(id, name, datetime, year, month, day, hour, lat, long, status, category,</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">         wind, pressure, </a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">         extent_<span class="dv">34</span>_NE, extent_<span class="dv">34</span>_SW, extent_<span class="dv">34</span>_NW, extent_<span class="dv">34</span>_SE,</a>
+<a class="sourceLine" id="cb7-8" data-line-number="8">         extent_<span class="dv">50</span>_NE, extent_<span class="dv">50</span>_SW, extent_<span class="dv">50</span>_NW, extent_<span class="dv">50</span>_SE,</a>
+<a class="sourceLine" id="cb7-9" data-line-number="9">         extent_<span class="dv">64</span>_NE, extent_<span class="dv">64</span>_SW, extent_<span class="dv">64</span>_NW, extent_<span class="dv">64</span>_SE,</a>
+<a class="sourceLine" id="cb7-10" data-line-number="10">         ts_diameter, hu_diameter)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">storms_all &lt;-<span class="st"> </span>storms_with_name <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">name=</span> dplyr<span class="op">::</span><span class="kw">if_else</span>(<span class="kw">grepl</span>(<span class="st">&quot;UNNAMED&quot;</span>, name), name,</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">                              stringr<span class="op">::</span><span class="kw">str_to_title</span>(name)))</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">storms_all<span class="op">$</span>status &lt;-<span class="st"> </span><span class="kw">factor</span>(storms_all<span class="op">$</span>status)</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">storms_all<span class="op">$</span>id &lt;-<span class="st"> </span><span class="kw">factor</span>(storms_all<span class="op">$</span>id)</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">storms_all<span class="op">$</span>name &lt;-<span class="st"> </span><span class="kw">factor</span>(storms_all<span class="op">$</span>name)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">levels</span>(storms_all<span class="op">$</span>status)</a></code></pre></div>
+<pre><code>##  [1] &quot;a low&quot;                  &quot;disturbance&quot;            &quot;ET&quot;                    
+##  [4] &quot;Extratropical cyclone&quot;  &quot;subtropical depression&quot; &quot;subtropical storm&quot;     
+##  [7] &quot;tropical depression&quot;    &quot;tropical hurricane&quot;     &quot;tropical storm&quot;        
+## [10] &quot;tropical wave&quot;</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">storms_all <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(status <span class="op">==</span><span class="st"> &quot;ET&quot;</span>)</a></code></pre></div>
+<pre><code>## # A tibble: 1 x 27
+##   id    name  datetime             year month   day  hour   lat  long status
+##   &lt;fct&gt; &lt;fct&gt; &lt;dttm&gt;              &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt; 
+## 1 AL09… Harv… 1993-09-21 18:00:00  1993     9    21    18    46   -42 ET    
+## # … with 17 more variables: category &lt;ord&gt;, wind &lt;dbl&gt;, pressure &lt;int&gt;,
+## #   extent_34_NE &lt;int&gt;, extent_34_SW &lt;int&gt;, extent_34_NW &lt;int&gt;,
+## #   extent_34_SE &lt;int&gt;, extent_50_NE &lt;int&gt;, extent_50_SW &lt;int&gt;,
+## #   extent_50_NW &lt;int&gt;, extent_50_SE &lt;int&gt;, extent_64_NE &lt;int&gt;,
+## #   extent_64_SW &lt;int&gt;, extent_64_NW &lt;int&gt;, extent_64_SE &lt;int&gt;,
+## #   ts_diameter &lt;dbl&gt;, hu_diameter &lt;dbl&gt;</code></pre>
+<p><em>Note: there is an “ET” in <em>Status of system</em>, however, there is no description in <a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf">HURDAT2</a>, which is a typo in the dataset, <code>recode</code> it into ’EX&quot;.</em></p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">storms_all<span class="op">$</span>status &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(storms_all<span class="op">$</span>status, <span class="dt">ET =</span> <span class="st">&quot;Extratropical cyclone&quot;</span>)</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co">#levels(factor(storms_all$status))</span></a></code></pre></div>
+<p><strong>Narrow to storms that have complete pressure record</strong></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="co"># Narrow to storms that have complete pressure record</span></a>
+<a class="sourceLine" id="cb15-2" data-line-number="2">completeish &lt;-<span class="st"> </span>storms_all <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">group_by</span>(id) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-4" data-line-number="4"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">summarise</span>(<span class="dt">n_pressure =</span> <span class="kw">sum</span>(<span class="op">!</span><span class="kw">is.na</span>(pressure)), <span class="dt">p_pressure =</span> <span class="kw">mean</span>(<span class="op">!</span><span class="kw">is.na</span>(pressure))) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(p_pressure <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-6" data-line-number="6"><span class="st">  </span>.[[<span class="st">&quot;id&quot;</span>]]</a>
+<a class="sourceLine" id="cb15-7" data-line-number="7"><span class="co">#length(completeish)</span></a>
+<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="kw">dim</span>(storms_all)[<span class="dv">1</span>]</a></code></pre></div>
+<pre><code>## [1] 50911</code></pre>
+<p>Theare are 562 out of 50911storms that have complete pressure record.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">storms_completish_selected &lt;-<span class="st"> </span>storms_all <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="st">  </span><span class="kw">filter</span>(</a>
+<a class="sourceLine" id="cb17-3" data-line-number="3">    status <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;hurricane&quot;</span>, <span class="st">&quot;tropical storm&quot;</span>, <span class="st">&quot;tropical depression&quot;</span>),</a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">    id <span class="op">%in%</span><span class="st"> </span>completeish)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">storms_all_add_com &lt;-<span class="st"> </span>storms_all <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">completeish =</span> <span class="kw">if_else</span>(status <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;hurricane&quot;</span>, <span class="st">&quot;tropical storm&quot;</span>, <span class="st">&quot;tropical depression&quot;</span>) <span class="op">&amp;</span><span class="st"> </span>id <span class="op">%in%</span><span class="st"> </span>completeish, <span class="st">&quot;yes&quot;</span>,<span class="st">&quot;no&quot;</span>))</a>
+<a class="sourceLine" id="cb18-2" data-line-number="2">storms_all_add_com<span class="op">$</span>completeish &lt;-<span class="st"> </span><span class="kw">factor</span>(storms_all_add_com<span class="op">$</span>completeish)</a></code></pre></div>
+<p><strong>Save tranformed data</strong></p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">dir &lt;-<span class="st"> &#39;data/&#39;</span></a>
+<a class="sourceLine" id="cb19-2" data-line-number="2"><span class="kw">write_csv</span>(storms_all_add_com, <span class="kw">file.path</span>(dir, <span class="st">&quot;storms_all_out.csv&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">dir &lt;-<span class="st"> &#39;data/&#39;</span></a>
+<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="kw">write_csv</span>(storms, <span class="kw">file.path</span>(dir, <span class="st">&quot;storms_completish_selected.csv&quot;</span>))</a></code></pre></div>
 </div>
 <div id="missing-values" class="section level2">
-<h2><span class="header-section-number">3.4</span> Missing values</h2>
-<p>Describe any patterns we discover in missing values.</p>
+<h2><span class="header-section-number">3.3</span> Missing values</h2>
+<p>Describe any patterns you discover in missing values.</p>
 
 </div>
 </div>

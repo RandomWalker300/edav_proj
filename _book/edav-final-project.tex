@@ -196,27 +196,261 @@ For those reasons, hurricanes data is very interesting to analyze and will const
 
 Storm tracks data can be downloaded from \href{https://www.nhc.noaa.gov/data/\#hurdat}{National Hurricane Center and Central Pacific Hurricane Center}. The data using in the project is known as Atlantic hurricane database (\href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf}{HURDAT2}) 1851-2018 (\href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt}{5.9MB download}). The data has a comma-delimited, text format with six-hourly information on the location, maximum winds, central pressure, and (beginning in 2004) size of all known tropical cyclones and subtropical cyclones.
 
-\hypertarget{read-data}{%
-\section{Read data}\label{read-data}}
+\hypertarget{data-transformat}{%
+\section{Data transformat}\label{data-transformat}}
+
+Describe the process of getting the data into a form in which you could work with it in R.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{library}\NormalTok{(tidyverse)}
 \KeywordTok{library}\NormalTok{(stringr)}
 \CommentTok{# Read in data set}
-\NormalTok{storm_strings <-}\StringTok{ }\KeywordTok{read_lines}\NormalTok{(}\StringTok{"https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt"}\NormalTok{)}
+\CommentTok{#dfile <- read_lines("https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt")}
+\NormalTok{dfile<-}\StringTok{ "data/hurdat2-1851-2018-051019.txt"}
+\NormalTok{storm_strings <-}\StringTok{ }\KeywordTok{read_lines}\NormalTok{(dfile)}
 \end{Highlighting}
 \end{Shaded}
 
-\hypertarget{data-transformat}{%
-\section{Data transformat}\label{data-transformat}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Identify the header lines that have three commas}
+\KeywordTok{library}\NormalTok{(stringr)}
+\NormalTok{header_locations <-}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(storm_strings))[}\KeywordTok{str_count}\NormalTok{(storm_strings, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{,"}\NormalTok{) }\OperatorTok{==}\StringTok{ }\DecValTok{3}\NormalTok{] }\CommentTok{# count # of strings for each line, the header line has only 3 strings.}
 
-Describe the process of getting the data into a form in which we could work with it in R.
+\NormalTok{headers <-}\StringTok{ }\KeywordTok{as.list}\NormalTok{(storm_strings[header_locations])}
+\NormalTok{headers_df <-}\StringTok{ }
+\StringTok{  }\NormalTok{headers }\OperatorTok{%>%}
+\StringTok{  }\NormalTok{purrr}\OperatorTok{::}\KeywordTok{map}\NormalTok{(stringr}\OperatorTok{::}\NormalTok{str_sub, }\DataTypeTok{start =}\NormalTok{ 1L, }\DataTypeTok{end =} \OperatorTok{-}\NormalTok{2L) }\OperatorTok{%>%}\StringTok{ }\CommentTok{# to remove trailing comma}
+\StringTok{  }\NormalTok{purrr}\OperatorTok{::}\KeywordTok{map}\NormalTok{(paste0, }\StringTok{"}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{) }\OperatorTok{%>%}\StringTok{                 }\CommentTok{# and replace final comma with \textbackslash{}n}
+\StringTok{  }\NormalTok{purrr}\OperatorTok{::}\KeywordTok{map_dfr}\NormalTok{(read_csv, }\DataTypeTok{col_names =} \KeywordTok{c}\NormalTok{(}\StringTok{"id"}\NormalTok{, }\StringTok{"name"}\NormalTok{, }\StringTok{"n_obs"}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(}\CommentTok{#name = dplyr::recode(name, "UNNAMED" = id), }
+                \DataTypeTok{skip =}\NormalTok{ header_locations) }\OperatorTok{%>%}
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(id, name, skip, n_obs)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Set data frames names}
+\NormalTok{df_names <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}
+  \StringTok{"date"}\NormalTok{, }\StringTok{"time"}\NormalTok{, }\StringTok{"record_type"}\NormalTok{, }\StringTok{"status"}\NormalTok{, }\StringTok{"lat"}\NormalTok{, }\StringTok{"long"}\NormalTok{, }\StringTok{"wind"}\NormalTok{, }\StringTok{"pressure"}\NormalTok{,}
+  \StringTok{"extent_34_NE"}\NormalTok{, }\StringTok{"extent_34_SE"}\NormalTok{, }\StringTok{"extent_34_SW"}\NormalTok{, }\StringTok{"extent_34_NW"}\NormalTok{,}
+  \StringTok{"extent_50_NE"}\NormalTok{, }\StringTok{"extent_50_SE"}\NormalTok{, }\StringTok{"extent_50_SW"}\NormalTok{, }\StringTok{"extent_50_NW"}\NormalTok{,}
+  \StringTok{"extent_64_NE"}\NormalTok{, }\StringTok{"extent_64_SE"}\NormalTok{, }\StringTok{"extent_64_SW"}\NormalTok{, }\StringTok{"extent_64_NW"}\NormalTok{, }\StringTok{"nas"}
+\NormalTok{)}
+
+\NormalTok{storm_dfs <-}\StringTok{ }\KeywordTok{vector}\NormalTok{(}\StringTok{"list"}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(headers_df))}
+\KeywordTok{names}\NormalTok{(storm_dfs) <-}\StringTok{ }\NormalTok{headers_df}\OperatorTok{$}\NormalTok{id}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Read in the sub-datasets as data frames}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \KeywordTok{seq_along}\NormalTok{(headers_df}\OperatorTok{$}\NormalTok{name)) \{}
+\NormalTok{  storm_dfs[[i]] <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(dfile,}
+    \DataTypeTok{skip =}\NormalTok{ headers_df}\OperatorTok{$}\NormalTok{skip[i],}
+    \DataTypeTok{n_max =}\NormalTok{ headers_df}\OperatorTok{$}\NormalTok{n_obs[i],}
+    \DataTypeTok{col_names =}\NormalTok{ df_names,}
+    \DataTypeTok{na =} \KeywordTok{c}\NormalTok{(}\StringTok{""}\NormalTok{, }\StringTok{"-99"}\NormalTok{, }\StringTok{"-999"}\NormalTok{),}
+    \DataTypeTok{col_types =} \KeywordTok{list}\NormalTok{(}
+      \DataTypeTok{time =} \KeywordTok{col_character}\NormalTok{(),}
+      \DataTypeTok{pressure =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_34_NE =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_34_SE =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_34_SW =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_34_NW =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_50_NE =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_50_SE =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_50_SW =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_50_NW =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_64_NE =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_64_SE =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_64_SW =} \KeywordTok{col_integer}\NormalTok{(),}
+      \DataTypeTok{extent_64_NW =} \KeywordTok{col_integer}\NormalTok{()}
+\NormalTok{    )}
+\NormalTok{  )}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Combine and clean the data sets}
+\KeywordTok{library}\NormalTok{(lubridate)}
+\NormalTok{storms <-}\StringTok{ }
+\StringTok{  }\NormalTok{storm_dfs }\OperatorTok{%>%}
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{bind_rows}\NormalTok{(}\DataTypeTok{.id =} \StringTok{"id"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(}
+    \DataTypeTok{date =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{ymd}\NormalTok{(date),}
+    \DataTypeTok{year =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{year}\NormalTok{(date),}
+    \DataTypeTok{month =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{month}\NormalTok{(date),}
+    \DataTypeTok{day =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{day}\NormalTok{(date),}
+    \DataTypeTok{hour =} \KeywordTok{as.numeric}\NormalTok{(stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(time, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{)),}
+    \DataTypeTok{datetime =} \KeywordTok{ISOdate}\NormalTok{(year, month, day, hour, }\DataTypeTok{min =} \DecValTok{0}\NormalTok{, }\DataTypeTok{sec =} \DecValTok{0}\NormalTok{, }\DataTypeTok{tz =} \StringTok{"GMT"}\NormalTok{),}
+    \DataTypeTok{lat_hemisphere =}\NormalTok{ stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(lat, }\DecValTok{-1}\NormalTok{),}
+    \DataTypeTok{lat_sign =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{if_else}\NormalTok{(lat_hemisphere }\OperatorTok{==}\StringTok{ "N"}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{-1}\NormalTok{),}
+    \DataTypeTok{lat =} \KeywordTok{as.numeric}\NormalTok{(stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(lat, }\DecValTok{1}\NormalTok{, }\DecValTok{-2}\NormalTok{)) }\OperatorTok{*}\StringTok{ }\NormalTok{lat_sign,}
+    \DataTypeTok{long_hemisphere =}\NormalTok{ stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(long, }\DecValTok{-1}\NormalTok{),}
+    \DataTypeTok{long_sign =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{if_else}\NormalTok{(long_hemisphere }\OperatorTok{==}\StringTok{ "E"}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{-1}\NormalTok{),}
+    \DataTypeTok{long =} \KeywordTok{as.numeric}\NormalTok{(stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(long, }\DecValTok{1}\NormalTok{, }\DecValTok{-2}\NormalTok{)) }\OperatorTok{*}\StringTok{ }\NormalTok{long_sign,}
+    \DataTypeTok{category =} \KeywordTok{cut}\NormalTok{(wind, }\CommentTok{#cut divides the range of x into intervals}
+      \DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{34}\NormalTok{, }\DecValTok{64}\NormalTok{, }\DecValTok{83}\NormalTok{, }\DecValTok{96}\NormalTok{, }\DecValTok{113}\NormalTok{, }\DecValTok{137}\NormalTok{, }\DecValTok{500}\NormalTok{),}
+      \DataTypeTok{labels =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{5}\NormalTok{),}
+      \DataTypeTok{include.lowest =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{ordered =} \OtherTok{TRUE}
+\NormalTok{    ),}
+    \CommentTok{# wind = wind * 1.15078, # transforms knots to mph,}
+    \DataTypeTok{TSradius1 =}\NormalTok{ extent_}\DecValTok{34}\NormalTok{_NE }\OperatorTok{+}\StringTok{ }\NormalTok{extent_}\DecValTok{34}\NormalTok{_SW,}
+    \DataTypeTok{TSradius2 =}\NormalTok{ extent_}\DecValTok{34}\NormalTok{_NW }\OperatorTok{+}\StringTok{ }\NormalTok{extent_}\DecValTok{34}\NormalTok{_SE,}
+    \DataTypeTok{ts_diameter =} \KeywordTok{pmax}\NormalTok{(TSradius1, TSradius2) }\OperatorTok{*}\StringTok{ }\FloatTok{1.15078}\NormalTok{, }\CommentTok{# to convert from nautical miles to miles # pmax: returns the parallel maxima and minima of the input values}
+    \DataTypeTok{HUradius1 =}\NormalTok{ extent_}\DecValTok{64}\NormalTok{_NE }\OperatorTok{+}\StringTok{ }\NormalTok{extent_}\DecValTok{64}\NormalTok{_SW,}
+    \DataTypeTok{HUradius2 =}\NormalTok{ extent_}\DecValTok{64}\NormalTok{_NW }\OperatorTok{+}\StringTok{ }\NormalTok{extent_}\DecValTok{64}\NormalTok{_SE,}
+    \DataTypeTok{hu_diameter =} \KeywordTok{pmax}\NormalTok{(HUradius1, HUradius2) }\OperatorTok{*}\StringTok{ }\FloatTok{1.15078}\NormalTok{, }\CommentTok{# to convert from nautical miles to miles}
+    \DataTypeTok{status =} \KeywordTok{recode}\NormalTok{(status,}
+                    \StringTok{"TD"}\NormalTok{ =}\StringTok{ "tropical depression"}\NormalTok{,}
+                    \StringTok{"TS"}\NormalTok{ =}\StringTok{ "tropical storm"}\NormalTok{, }
+                    \StringTok{"HU"}\NormalTok{ =}\StringTok{ "tropical hurricane"}\NormalTok{, }
+                    \StringTok{"EX"}\NormalTok{ =}\StringTok{ "Extratropical cyclone"}\NormalTok{, }\CommentTok{##}
+                    \StringTok{"SD"}\NormalTok{ =}\StringTok{ "subtropical depression"}\NormalTok{,}
+                    \StringTok{"SS"}\NormalTok{ =}\StringTok{ "subtropical storm"}\NormalTok{, }
+                    \StringTok{"HU"}\NormalTok{ =}\StringTok{ "tropical hurricane"}\NormalTok{, }
+                    \StringTok{"LO"}\NormalTok{ =}\StringTok{ "a low"}\NormalTok{,}
+                    \StringTok{"WV"}\NormalTok{ =}\StringTok{ "tropical wave"}\NormalTok{,}
+                    \StringTok{"DB"}\NormalTok{ =}\StringTok{ "disturbance"}\NormalTok{)}
+\NormalTok{  ) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# data output}
+\NormalTok{headers_df_selected <-}\StringTok{ }\NormalTok{headers_df }\OperatorTok{%>%}\StringTok{ }\KeywordTok{select}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"id"}\NormalTok{,}\StringTok{"name"}\NormalTok{))}
+\CommentTok{# headers_df_selected}
+\NormalTok{storms_with_name <-}\StringTok{ }\KeywordTok{left_join}\NormalTok{(headers_df_selected, storms, }\DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"id"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{select}\NormalTok{(id, name, datetime, year, month, day, hour, lat, long, status, category,}
+\NormalTok{         wind, pressure, }
+\NormalTok{         extent_}\DecValTok{34}\NormalTok{_NE, extent_}\DecValTok{34}\NormalTok{_SW, extent_}\DecValTok{34}\NormalTok{_NW, extent_}\DecValTok{34}\NormalTok{_SE,}
+\NormalTok{         extent_}\DecValTok{50}\NormalTok{_NE, extent_}\DecValTok{50}\NormalTok{_SW, extent_}\DecValTok{50}\NormalTok{_NW, extent_}\DecValTok{50}\NormalTok{_SE,}
+\NormalTok{         extent_}\DecValTok{64}\NormalTok{_NE, extent_}\DecValTok{64}\NormalTok{_SW, extent_}\DecValTok{64}\NormalTok{_NW, extent_}\DecValTok{64}\NormalTok{_SE,}
+\NormalTok{         ts_diameter, hu_diameter)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{storms_all <-}\StringTok{ }\NormalTok{storms_with_name }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{name=}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{if_else}\NormalTok{(}\KeywordTok{grepl}\NormalTok{(}\StringTok{"UNNAMED"}\NormalTok{, name), name,}
+\NormalTok{                              stringr}\OperatorTok{::}\KeywordTok{str_to_title}\NormalTok{(name)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{storms_all}\OperatorTok{$}\NormalTok{status <-}\StringTok{ }\KeywordTok{factor}\NormalTok{(storms_all}\OperatorTok{$}\NormalTok{status)}
+\NormalTok{storms_all}\OperatorTok{$}\NormalTok{id <-}\StringTok{ }\KeywordTok{factor}\NormalTok{(storms_all}\OperatorTok{$}\NormalTok{id)}
+\NormalTok{storms_all}\OperatorTok{$}\NormalTok{name <-}\StringTok{ }\KeywordTok{factor}\NormalTok{(storms_all}\OperatorTok{$}\NormalTok{name)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{levels}\NormalTok{(storms_all}\OperatorTok{$}\NormalTok{status)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "a low"                  "disturbance"            "ET"                    
+##  [4] "Extratropical cyclone"  "subtropical depression" "subtropical storm"     
+##  [7] "tropical depression"    "tropical hurricane"     "tropical storm"        
+## [10] "tropical wave"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{storms_all }\OperatorTok{%>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(status }\OperatorTok{==}\StringTok{ "ET"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1 x 27
+##   id    name  datetime             year month   day  hour   lat  long status
+##   <fct> <fct> <dttm>              <dbl> <dbl> <int> <dbl> <dbl> <dbl> <fct> 
+## 1 AL09~ Harv~ 1993-09-21 18:00:00  1993     9    21    18    46   -42 ET    
+## # ... with 17 more variables: category <ord>, wind <dbl>, pressure <int>,
+## #   extent_34_NE <int>, extent_34_SW <int>, extent_34_NW <int>,
+## #   extent_34_SE <int>, extent_50_NE <int>, extent_50_SW <int>,
+## #   extent_50_NW <int>, extent_50_SE <int>, extent_64_NE <int>,
+## #   extent_64_SW <int>, extent_64_NW <int>, extent_64_SE <int>,
+## #   ts_diameter <dbl>, hu_diameter <dbl>
+\end{verbatim}
+
+\emph{Note: there is an ``ET'' in \emph{Status of system}, however, there is no description in \href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf}{HURDAT2}, which is a typo in the dataset, \texttt{recode} it into 'EX".}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{storms_all}\OperatorTok{$}\NormalTok{status <-}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{recode}\NormalTok{(storms_all}\OperatorTok{$}\NormalTok{status, }\DataTypeTok{ET =} \StringTok{"Extratropical cyclone"}\NormalTok{)}
+\CommentTok{#levels(factor(storms_all$status))}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{Narrow to storms that have complete pressure record}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Narrow to storms that have complete pressure record}
+\NormalTok{completeish <-}\StringTok{ }\NormalTok{storms_all }\OperatorTok{%>%}
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{group_by}\NormalTok{(id) }\OperatorTok{%>%}
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n_pressure =} \KeywordTok{sum}\NormalTok{(}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(pressure)), }\DataTypeTok{p_pressure =} \KeywordTok{mean}\NormalTok{(}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(pressure))) }\OperatorTok{%>%}
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(p_pressure }\OperatorTok{==}\StringTok{ }\DecValTok{1}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\NormalTok{.[[}\StringTok{"id"}\NormalTok{]]}
+\CommentTok{#length(completeish)}
+\KeywordTok{dim}\NormalTok{(storms_all)[}\DecValTok{1}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 50911
+\end{verbatim}
+
+Theare are 562 out of 50911storms that have complete pressure record.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{storms_completish_selected <-}\StringTok{ }\NormalTok{storms_all }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}
+\NormalTok{    status }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"hurricane"}\NormalTok{, }\StringTok{"tropical storm"}\NormalTok{, }\StringTok{"tropical depression"}\NormalTok{),}
+\NormalTok{    id }\OperatorTok{%in%}\StringTok{ }\NormalTok{completeish)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{storms_all_add_com <-}\StringTok{ }\NormalTok{storms_all }\OperatorTok{%>%}\StringTok{ }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{completeish =} \KeywordTok{if_else}\NormalTok{(status }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"hurricane"}\NormalTok{, }\StringTok{"tropical storm"}\NormalTok{, }\StringTok{"tropical depression"}\NormalTok{) }\OperatorTok{&}\StringTok{ }\NormalTok{id }\OperatorTok{%in%}\StringTok{ }\NormalTok{completeish, }\StringTok{"yes"}\NormalTok{,}\StringTok{"no"}\NormalTok{))}
+\NormalTok{storms_all_add_com}\OperatorTok{$}\NormalTok{completeish <-}\StringTok{ }\KeywordTok{factor}\NormalTok{(storms_all_add_com}\OperatorTok{$}\NormalTok{completeish)}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{Save tranformed data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dir <-}\StringTok{ 'data/'}
+\KeywordTok{write_csv}\NormalTok{(storms_all_add_com, }\KeywordTok{file.path}\NormalTok{(dir, }\StringTok{"storms_all_out.csv"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dir <-}\StringTok{ 'data/'}
+\KeywordTok{write_csv}\NormalTok{(storms, }\KeywordTok{file.path}\NormalTok{(dir, }\StringTok{"storms_completish_selected.csv"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
 
 \hypertarget{missing-values}{%
 \section{Missing values}\label{missing-values}}
 
-Describe any patterns we discover in missing values.
+Describe any patterns you discover in missing values.
 
 \hypertarget{results}{%
 \chapter{Results}\label{results}}
