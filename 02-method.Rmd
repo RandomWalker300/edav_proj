@@ -193,7 +193,7 @@ storms_all_add_com <- storms_all %>% mutate(completeish = if_else(status %in% c(
 storms_all_add_com$completeish <- factor(storms_all_add_com$completeish)
 ```
 
-**Save tranformed data**
+**Save transformed data**
 
 ```{r}
 dir <- 'data/'
