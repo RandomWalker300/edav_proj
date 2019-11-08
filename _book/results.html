@@ -138,7 +138,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.2" data-path="methods.html"><a href="methods.html#data-transformat"><i class="fa fa-check"></i><b>3.2</b> Data transformat</a></li>
 <li class="chapter" data-level="3.3" data-path="methods.html"><a href="methods.html#missing-values"><i class="fa fa-check"></i><b>3.3</b> Missing values</a></li>
 </ul></li>
-<li class="chapter" data-level="4" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>4</b> Results</a></li>
+<li class="chapter" data-level="4" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>4</b> Results</a><ul>
+<li class="chapter" data-level="4.1" data-path="results.html"><a href="results.html#read-tranformed-data"><i class="fa fa-check"></i><b>4.1</b> Read tranformed data</a></li>
+<li class="chapter" data-level="4.2" data-path="results.html"><a href="results.html#figures"><i class="fa fa-check"></i><b>4.2</b> Figures</a></li>
+<li class="chapter" data-level="4.3" data-path="results.html"><a href="results.html#tables"><i class="fa fa-check"></i><b>4.3</b> Tables</a></li>
+</ul></li>
 <li class="chapter" data-level="5" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>5</b> Interactive Component</a></li>
 <li class="chapter" data-level="6" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>6</b> Conclusion</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
@@ -165,7 +169,265 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="results" class="section level1">
 <h1><span class="header-section-number">Chapter 4</span> Results</h1>
 <p>Provide a short nontechnical but <em>significant</em> summary of the most revealing findings of our analysis written for a nontechnical audience. Take extra care to clean up our graphs, ensuring that best practices for presentation are followed, as described in the audience ready style section below.</p>
+<div id="read-tranformed-data" class="section level2">
+<h2><span class="header-section-number">4.1</span> Read tranformed data</h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="co"># Read in transformed data</span></a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">dfile&lt;-<span class="st"> &quot;data/hurdat2_out.csv&quot;</span></a>
+<a class="sourceLine" id="cb21-3" data-line-number="3"><span class="co">#dfile &lt;- &quot;https://raw.githubusercontent.com/jqz300/edav_proj/master/data/storms_all_out.csv&quot;</span></a>
+<a class="sourceLine" id="cb21-4" data-line-number="4">df &lt;-<span class="st"> </span><span class="kw">read_csv</span>(dfile,</a>
+<a class="sourceLine" id="cb21-5" data-line-number="5">                   <span class="dt">na =</span> <span class="kw">c</span>(<span class="st">&quot;NA&quot;</span>, <span class="st">&quot;-99&quot;</span>, <span class="st">&quot;-999&quot;</span>),</a>
+<a class="sourceLine" id="cb21-6" data-line-number="6">                   <span class="dt">col_types =</span> <span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb21-7" data-line-number="7">                     <span class="dt">id =</span> <span class="kw">col_character</span>(),</a>
+<a class="sourceLine" id="cb21-8" data-line-number="8">                   <span class="dt">name =</span> <span class="kw">col_character</span>(),</a>
+<a class="sourceLine" id="cb21-9" data-line-number="9">                   <span class="dt">year =</span><span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb21-10" data-line-number="10">                   <span class="dt">month =</span><span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb21-11" data-line-number="11">                   <span class="dt">day =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb21-12" data-line-number="12">                   <span class="dt">hour  =</span><span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb21-13" data-line-number="13">                   <span class="dt">latitude  =</span> <span class="kw">col_double</span>(),</a>
+<a class="sourceLine" id="cb21-14" data-line-number="14">                   <span class="dt">longitude   =</span> <span class="kw">col_double</span>(),</a>
+<a class="sourceLine" id="cb21-15" data-line-number="15">                   <span class="dt">status  =</span> <span class="kw">col_factor</span>(),</a>
+<a class="sourceLine" id="cb21-16" data-line-number="16">                   <span class="dt">category =</span> <span class="kw">col_factor</span>(),</a>
+<a class="sourceLine" id="cb21-17" data-line-number="17">                   <span class="dt">max_wind  =</span> <span class="kw">col_double</span>(),</a>
+<a class="sourceLine" id="cb21-18" data-line-number="18">                   <span class="dt">min_pressure  =</span> <span class="kw">col_integer</span>(),</a>
+<a class="sourceLine" id="cb21-19" data-line-number="19">                   <span class="dt">ts_diameter =</span> <span class="kw">col_double</span>(),</a>
+<a class="sourceLine" id="cb21-20" data-line-number="20">                   <span class="dt">hu_diameter =</span> <span class="kw">col_double</span>(),</a>
+<a class="sourceLine" id="cb21-21" data-line-number="21">                   <span class="dt">completeish =</span> <span class="kw">col_factor</span>()))</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw">tail</span>(df)</a></code></pre></div>
+<pre><code>## # A tibble: 6 x 16
+##   id    name  datetime    year month   day  hour latitude longitude status
+##   &lt;chr&gt; &lt;chr&gt; &lt;date&gt;     &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;dbl&gt;     &lt;dbl&gt; &lt;fct&gt; 
+## 1 AL16… Oscar 2018-11-03  2018    11     3     6     56.6     -23.1 Extra…
+## 2 AL16… Oscar 2018-11-03  2018    11     3    12     57.9     -19.6 Extra…
+## 3 AL16… Oscar 2018-11-03  2018    11     3    18     58.9     -17.1 Extra…
+## 4 AL16… Oscar 2018-11-04  2018    11     4     0     59.8     -14.5 Extra…
+## 5 AL16… Oscar 2018-11-04  2018    11     4     6     60.8     -12.1 Extra…
+## 6 AL16… Oscar 2018-11-04  2018    11     4    12     62.4      -9.1 Extra…
+## # … with 6 more variables: category &lt;fct&gt;, max_wind &lt;dbl&gt;, min_pressure &lt;int&gt;,
+## #   ts_diameter &lt;dbl&gt;, hu_diameter &lt;dbl&gt;, completeish &lt;fct&gt;</code></pre>
+</div>
+<div id="figures" class="section level2">
+<h2><span class="header-section-number">4.2</span> Figures</h2>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">df <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="st">  </span><span class="co">#filter(completeish == &quot;yes&quot;) %&gt;% </span></a>
+<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>longitude, <span class="dt">y=</span>latitude))<span class="op">+</span></a>
+<a class="sourceLine" id="cb24-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_hex</span>()<span class="op">+</span></a>
+<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>category, <span class="dt">ncol=</span><span class="dv">3</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb24-6" data-line-number="6"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Fig title&quot;</span>)</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:hex-fig"></span>
+<img src="edav-final-project_files/figure-html/hex-fig-1.png" alt="Here is a nice figure!" width="80%" />
+<p class="caption">
+Figure 4.1: Here is a nice figure!
+</p>
+</div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="co"># need to add map</span></a></code></pre></div>
+<p>Figure <a href="results.html#fig:hex-fig">4.1</a> shows</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">library</span>(gridExtra)</a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb26-3" data-line-number="3">df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb26-4" data-line-number="4"><span class="st">        </span><span class="kw">ggplot</span>()<span class="op">+</span></a>
+<a class="sourceLine" id="cb26-5" data-line-number="5"><span class="st">        </span><span class="kw">geom_boxplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">reorder</span>(category, max_wind, median), <span class="dt">y=</span>latitude), <span class="dt">varwidth =</span> <span class="ot">TRUE</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb26-6" data-line-number="6"><span class="st">        </span><span class="co">#coord_flip()</span></a>
+<a class="sourceLine" id="cb26-7" data-line-number="7"><span class="st">        </span><span class="kw">facet_wrap</span>(<span class="op">~</span>status, <span class="dt">scale=</span><span class="st">&quot;free&quot;</span>)</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:boxplot-wind-category-lat-fig"></span>
+<img src="edav-final-project_files/figure-html/boxplot-wind-category-lat-fig-1.png" alt="Here is a nice figure!" width="80%" />
+<p class="caption">
+Figure 4.2: Here is a nice figure!
+</p>
+</div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw">library</span>(gridExtra)</a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb27-3" data-line-number="3">df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb27-4" data-line-number="4"><span class="st">        </span><span class="kw">ggplot</span>()<span class="op">+</span></a>
+<a class="sourceLine" id="cb27-5" data-line-number="5"><span class="st">        </span><span class="kw">geom_boxplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">reorder</span>(category, max_wind, median), <span class="dt">y=</span>hu_diameter), <span class="dt">varwidth =</span> <span class="ot">TRUE</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb27-6" data-line-number="6"><span class="st">        </span><span class="co">#coord_flip()</span></a>
+<a class="sourceLine" id="cb27-7" data-line-number="7"><span class="st">        </span><span class="co">#facet_wrap(~status)#, scale=&quot;free&quot;)+</span></a>
+<a class="sourceLine" id="cb27-8" data-line-number="8"><span class="st">        </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Fig title&quot;</span>)</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:boxplot-wind-category-hu-fig"></span>
+<img src="edav-final-project_files/figure-html/boxplot-wind-category-hu-fig-1.png" alt="Here is a nice figure!" width="80%" />
+<p class="caption">
+Figure 4.3: Here is a nice figure!
+</p>
+</div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="kw">library</span>(ggridges)</a>
+<a class="sourceLine" id="cb28-2" data-line-number="2"><span class="kw">library</span>(viridis)</a>
+<a class="sourceLine" id="cb28-3" data-line-number="3">df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb28-4" data-line-number="4"><span class="st">        </span><span class="kw">ggplot</span>()<span class="op">+</span></a>
+<a class="sourceLine" id="cb28-5" data-line-number="5"><span class="st">        </span><span class="kw">geom_density_ridges_gradient</span>(<span class="kw">aes</span>(<span class="dt">x=</span> year, <span class="dt">y=</span> category, <span class="dt">group =</span> category, <span class="dt">fill =</span> ..x.., <span class="dt">scale =</span> <span class="fl">0.9</span>))<span class="op">+</span></a>
+<a class="sourceLine" id="cb28-6" data-line-number="6"><span class="st">        </span><span class="kw">scale_fill_viridis</span>()<span class="op">+</span></a>
+<a class="sourceLine" id="cb28-7" data-line-number="7"><span class="st">        </span><span class="co">#coord_flip()+</span></a>
+<a class="sourceLine" id="cb28-8" data-line-number="8"><span class="st">        </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Fig title&quot;</span>)</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:ridges-year-category-fig"></span>
+<img src="edav-final-project_files/figure-html/ridges-year-category-fig-1.png" alt="Here is a nice figure!" width="80%" />
+<p class="caption">
+Figure 4.4: Here is a nice figure!
+</p>
+</div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="kw">library</span>(ggridges)</a>
+<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="kw">library</span>(viridis)</a>
+<a class="sourceLine" id="cb29-3" data-line-number="3">df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb29-4" data-line-number="4"><span class="st">        </span><span class="kw">ggplot</span>()<span class="op">+</span></a>
+<a class="sourceLine" id="cb29-5" data-line-number="5"><span class="st">        </span><span class="kw">geom_density_ridges_gradient</span>(<span class="kw">aes</span>(<span class="dt">x=</span> year, <span class="dt">y=</span> status, <span class="dt">group =</span> status, <span class="dt">fill =</span> ..x.., <span class="dt">scale =</span> <span class="fl">0.9</span>))<span class="op">+</span></a>
+<a class="sourceLine" id="cb29-6" data-line-number="6"><span class="st">        </span><span class="kw">scale_fill_viridis</span>()<span class="op">+</span></a>
+<a class="sourceLine" id="cb29-7" data-line-number="7"><span class="st">        </span><span class="co">#coord_flip()+</span></a>
+<a class="sourceLine" id="cb29-8" data-line-number="8"><span class="st">        </span><span class="co">#facet_wrap(~cluster_name_more_short, scale=&quot;free&quot;, ncol = 1)+</span></a>
+<a class="sourceLine" id="cb29-9" data-line-number="9"><span class="st">        </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Fig title&quot;</span>)</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:density-year-status-fig"></span>
+<img src="edav-final-project_files/figure-html/density-year-status-fig-1.png" alt="Here is a nice figure!" width="80%" />
+<p class="caption">
+Figure 4.5: Here is a nice figure!
+</p>
+</div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="co"># cleveland</span></a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw">library</span>(parcoords)</a>
+<a class="sourceLine" id="cb31-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb31-3" data-line-number="3"><span class="co">#df %&gt;%</span></a>
+<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="co">#        dplyr::select( ts_diameter, hu_diameter, min_pressure, max_wind, category, status) %&gt;% </span></a>
+<a class="sourceLine" id="cb31-5" data-line-number="5"><span class="co">#  drop_na() %&gt;% </span></a>
+<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="co">#        parcoords(alpha = 0.2,</span></a>
+<a class="sourceLine" id="cb31-7" data-line-number="7"><span class="co">#                  color = list(colorBy = &quot;category&quot;),</span></a>
+<a class="sourceLine" id="cb31-8" data-line-number="8"><span class="co">#                  withD3 = TRUE,</span></a>
+<a class="sourceLine" id="cb31-9" data-line-number="9"><span class="co">#                  rownames = FALSE,</span></a>
+<a class="sourceLine" id="cb31-10" data-line-number="10"><span class="co">#                  reorderable = TRUE,</span></a>
+<a class="sourceLine" id="cb31-11" data-line-number="11"><span class="co">#                  brushMode = &quot;1d-axes&quot;)</span></a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1">df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb32-2" data-line-number="2"><span class="st">  </span><span class="kw">drop_na</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(name <span class="op">==</span><span class="st">&quot;Katrina&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>longitude, <span class="dt">y=</span>latitude, <span class="dt">color=</span>ts_diameter))<span class="op">+</span></a>
+<a class="sourceLine" id="cb32-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_point</span>()</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:point-date-wind-fig1"></span>
+<img src="edav-final-project_files/figure-html/point-date-wind-fig-1.png" alt="Here is a nice figure!" width="80%" />
+<p class="caption">
+Figure 4.6: Here is a nice figure!
+</p>
+</div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="co">## need to add map</span></a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb33-3" data-line-number="3">df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb33-4" data-line-number="4"><span class="st">  </span><span class="kw">drop_na</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(name <span class="op">==</span><span class="st">&quot;Katrina&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb33-5" data-line-number="5"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>datetime, <span class="dt">y=</span>max_wind, <span class="dt">color=</span>category))<span class="op">+</span></a>
+<a class="sourceLine" id="cb33-6" data-line-number="6"><span class="st">  </span><span class="kw">geom_point</span>()</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:point-date-wind-fig2"></span>
+<img src="edav-final-project_files/figure-html/point-date-wind-fig-2.png" alt="Here is a nice figure!" width="80%" />
+<p class="caption">
+Figure 4.7: Here is a nice figure!
+</p>
+</div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="kw">library</span>(plotly)</a>
+<a class="sourceLine" id="cb34-2" data-line-number="2"><span class="co">#df %&gt;%</span></a>
+<a class="sourceLine" id="cb34-3" data-line-number="3"><span class="co">#  drop_na() %&gt;% </span></a>
+<a class="sourceLine" id="cb34-4" data-line-number="4"><span class="co">#  filter(name ==&quot;Katrina&quot;) %&gt;%</span></a>
+<a class="sourceLine" id="cb34-5" data-line-number="5"><span class="co">#  plot_ly(x=~datetime, y=~max_wind)</span></a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw">levels</span>(df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(completeish<span class="op">==</span><span class="st">&quot;yes&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>.<span class="op">$</span>status)</a></code></pre></div>
+<pre><code>## [1] &quot;tropical hurricane&quot;     &quot;tropical storm&quot;         &quot;Extratropical cyclone&quot; 
+## [4] &quot;tropical depression&quot;    &quot;a low&quot;                  &quot;disturbance&quot;           
+## [7] &quot;subtropical depression&quot; &quot;subtropical storm&quot;      &quot;tropical wave&quot;</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="co">#names(df)</span></a>
+<a class="sourceLine" id="cb37-2" data-line-number="2">df_selected &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb37-3" data-line-number="3"><span class="st">  </span><span class="co">#filter(completeish == &quot;yes&quot;) %&gt;% </span></a>
+<a class="sourceLine" id="cb37-4" data-line-number="4"><span class="st">  </span><span class="kw">filter</span>(year<span class="op">&gt;</span><span class="dv">1990</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb37-5" data-line-number="5"><span class="st">  </span><span class="co">#filter (status == c(&quot;hurricane&quot;,&quot;tropical storm&quot;,&quot;tropical depression&quot;)) %&gt;%</span></a>
+<a class="sourceLine" id="cb37-6" data-line-number="6"><span class="st">  </span><span class="kw">filter</span>(hu_diameter<span class="op">&gt;</span><span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb37-7" data-line-number="7"><span class="st">  </span><span class="kw">drop_na</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb37-8" data-line-number="8"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">decade=</span><span class="kw">cut</span>(year,</a>
+<a class="sourceLine" id="cb37-9" data-line-number="9">                           <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">2000</span>, <span class="dv">2005</span>, <span class="dv">2010</span>, <span class="dv">2015</span>, <span class="dv">2020</span>),</a>
+<a class="sourceLine" id="cb37-10" data-line-number="10">                           <span class="dt">lables =</span> <span class="kw">c</span>(<span class="st">&#39;00s&#39;</span>, <span class="st">&#39;05s&#39;</span>,<span class="st">&#39;10s&#39;</span>,<span class="st">&#39;15&#39;</span>, <span class="st">&#39;20s&#39;</span>),</a>
+<a class="sourceLine" id="cb37-11" data-line-number="11">                           <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>, <span class="dt">ordered=</span><span class="ot">TRUE</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw">library</span>(ggmosaic)</a>
+<a class="sourceLine" id="cb38-2" data-line-number="2"><span class="kw">ggplot</span>(<span class="dt">data =</span> df_selected) <span class="op">+</span></a>
+<a class="sourceLine" id="cb38-3" data-line-number="3"><span class="st">   </span><span class="kw">geom_mosaic</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">product</span>(category, decade), <span class="dt">fill=</span>category), <span class="dt">na.rm=</span><span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:mosaic-hdecade-category-fig"></span>
+<img src="edav-final-project_files/figure-html/mosaic-hdecade-category-fig-1.png" alt="Here is a nice figure!" width="80%" />
+<p class="caption">
+Figure 4.8: Here is a nice figure!
+</p>
+</div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="kw">library</span>(ggmosaic)</a>
+<a class="sourceLine" id="cb39-2" data-line-number="2"><span class="kw">ggplot</span>(<span class="dt">data =</span> df_selected) <span class="op">+</span></a>
+<a class="sourceLine" id="cb39-3" data-line-number="3"><span class="st">   </span><span class="kw">geom_mosaic</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">product</span>(category, month), <span class="dt">fill=</span>category), <span class="dt">na.rm=</span><span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:mosaic-category-month-fig"></span>
+<img src="edav-final-project_files/figure-html/mosaic-category-month-fig-1.png" alt="Here is a nice figure!" width="80%" />
+<p class="caption">
+Figure 4.9: Here is a nice figure!
+</p>
+</div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1">df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb40-2" data-line-number="2"><span class="st">  </span><span class="kw">select</span>(<span class="kw">c</span>(<span class="st">&quot;year&quot;</span>, <span class="st">&quot;id&quot;</span>, <span class="st">&quot;status&quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb40-3" data-line-number="3"><span class="st">  </span><span class="kw">unique</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb40-4" data-line-number="4"><span class="st">  </span><span class="kw">group_by</span>(year, status) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb40-5" data-line-number="5"><span class="st">  </span><span class="kw">drop_na</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb40-6" data-line-number="6"><span class="st">  </span><span class="kw">count</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb40-7" data-line-number="7"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb40-8" data-line-number="8"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>year, <span class="dt">y=</span>n))<span class="op">+</span></a>
+<a class="sourceLine" id="cb40-9" data-line-number="9"><span class="st">  </span><span class="kw">geom_line</span>()<span class="op">+</span></a>
+<a class="sourceLine" id="cb40-10" data-line-number="10"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>status, <span class="dt">scale=</span><span class="st">&quot;free&quot;</span>)</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:year-count-fig"></span>
+<img src="edav-final-project_files/figure-html/year-count-fig-1.png" alt="Here is a nice figure!" width="80%" />
+<p class="caption">
+Figure 4.10: Here is a nice figure!
+</p>
+</div>
+</div>
+<div id="tables" class="section level2">
+<h2><span class="header-section-number">4.3</span> Tables</h2>
+<p>Summary table if applicable</p>
+<p>We can reference tables generated from <code>knitr::kable()</code>, e.g., see Table <a href="results.html#tab:nice-tab">4.1</a>.
+And it works even the item is not in this chapter.</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(</a>
+<a class="sourceLine" id="cb41-2" data-line-number="2">  <span class="kw">head</span>(df_selected[<span class="dv">2</span><span class="op">:</span><span class="dv">3</span>], <span class="dv">10</span>), <span class="dt">caption =</span> <span class="st">&#39;Here is a nice table!&#39;</span>,</a>
+<a class="sourceLine" id="cb41-3" data-line-number="3">  <span class="dt">booktabs =</span> <span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb41-4" data-line-number="4">)</a></code></pre></div>
+<table>
+<caption><span id="tab:nice-tab">Table 4.1: </span>Here is a nice table!</caption>
+<thead>
+<tr class="header">
+<th align="left">name</th>
+<th align="left">datetime</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Alex</td>
+<td align="left">2004-08-03</td>
+</tr>
+<tr class="even">
+<td align="left">Alex</td>
+<td align="left">2004-08-03</td>
+</tr>
+<tr class="odd">
+<td align="left">Alex</td>
+<td align="left">2004-08-03</td>
+</tr>
+<tr class="even">
+<td align="left">Alex</td>
+<td align="left">2004-08-04</td>
+</tr>
+<tr class="odd">
+<td align="left">Alex</td>
+<td align="left">2004-08-04</td>
+</tr>
+<tr class="even">
+<td align="left">Alex</td>
+<td align="left">2004-08-04</td>
+</tr>
+<tr class="odd">
+<td align="left">Alex</td>
+<td align="left">2004-08-04</td>
+</tr>
+<tr class="even">
+<td align="left">Alex</td>
+<td align="left">2004-08-05</td>
+</tr>
+<tr class="odd">
+<td align="left">Alex</td>
+<td align="left">2004-08-05</td>
+</tr>
+<tr class="even">
+<td align="left">Alex</td>
+<td align="left">2004-08-05</td>
+</tr>
+</tbody>
+</table>
 
+</div>
 </div>
             </section>
 

@@ -1,3 +1,211 @@
 # Results
 
 Provide a short nontechnical but _significant_ summary of the most revealing findings of our analysis written for a nontechnical audience. Take extra care to clean up our graphs, ensuring that best practices for presentation are followed, as described in the audience ready style section below.
+
+
+```{r include=FALSE}
+ # keep this chunk in your .Rmd file
+ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+## Read tranformed data
+
+```{r echo=FALSE}
+library(tidyverse)
+library(stringr)
+```
+
+```{r}
+# Read in transformed data
+dfile<- "data/hurdat2_out.csv"
+#dfile <- "https://raw.githubusercontent.com/jqz300/edav_proj/master/data/storms_all_out.csv"
+df <- read_csv(dfile,
+                   na = c("NA", "-99", "-999"),
+                   col_types = list(
+                     id = col_character(),
+                   name = col_character(),
+                   year =col_integer(),
+                   month =col_integer(),
+                   day = col_integer(),
+                   hour  =col_integer(),
+                   latitude  = col_double(),
+                   longitude   = col_double(),
+                   status  = col_factor(),
+                   category = col_factor(),
+                   max_wind  = col_double(),
+                   min_pressure  = col_integer(),
+                   ts_diameter = col_double(),
+                   hu_diameter = col_double(),
+                   completeish = col_factor()))
+```
+
+```{r}
+tail(df)
+```
+
+## Figures
+
+```{r hex-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+df %>% 
+  #filter(completeish == "yes") %>% 
+  ggplot(aes(x=longitude, y=latitude))+
+  geom_hex()+
+  facet_wrap(~category, ncol=3)+
+  labs(title = "Fig title")
+
+# need to add map
+```
+
+Figure \@ref(fig:hex-fig) shows
+
+
+```{r boxplot-wind-category-lat-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+
+library(gridExtra)
+
+df %>%
+        ggplot()+
+        geom_boxplot(aes(x=reorder(category, max_wind, median), y=latitude), varwidth = TRUE)+
+        #coord_flip()
+        facet_wrap(~status, scale="free")
+```
+
+```{r boxplot-wind-category-hu-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+
+library(gridExtra)
+
+df %>%
+        ggplot()+
+        geom_boxplot(aes(x=reorder(category, max_wind, median), y=hu_diameter), varwidth = TRUE)+
+        #coord_flip()
+        #facet_wrap(~status)#, scale="free")+
+        labs(title = "Fig title")
+```
+
+
+```{r ridges-year-category-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+library(ggridges)
+library(viridis)
+df %>%
+        ggplot()+
+        geom_density_ridges_gradient(aes(x= year, y= category, group = category, fill = ..x.., scale = 0.9))+
+        scale_fill_viridis()+
+        #coord_flip()+
+        labs(title = "Fig title")
+```
+
+```{r density-year-status-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+library(ggridges)
+library(viridis)
+df %>%
+        ggplot()+
+        geom_density_ridges_gradient(aes(x= year, y= status, group = status, fill = ..x.., scale = 0.9))+
+        scale_fill_viridis()+
+        #coord_flip()+
+        #facet_wrap(~cluster_name_more_short, scale="free", ncol = 1)+
+        labs(title = "Fig title")
+```
+
+```{r cleveland-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+# cleveland
+
+```
+
+```{r parcoords-fig, fig.cap='Here is a nice figure!', fig.align='center'}
+library(parcoords)
+
+#df %>%
+#        dplyr::select( ts_diameter, hu_diameter, min_pressure, max_wind, category, status) %>% 
+#  drop_na() %>% 
+#        parcoords(alpha = 0.2,
+#                  color = list(colorBy = "category"),
+#                  withD3 = TRUE,
+#                  rownames = FALSE,
+#                  reorderable = TRUE,
+#                  brushMode = "1d-axes")
+```
+
+
+```{r point-date-wind-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+df %>%
+  drop_na() %>% filter(name =="Katrina") %>% 
+  ggplot(aes(x=longitude, y=latitude, color=ts_diameter))+
+  geom_point()
+
+## need to add map
+
+df %>%
+  drop_na() %>% filter(name =="Katrina") %>% 
+  ggplot(aes(x=datetime, y=max_wind, color=category))+
+  geom_point()
+  
+  
+```
+
+```{r plotly-date-wind-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+
+library(plotly)
+#df %>%
+#  drop_na() %>% 
+#  filter(name =="Katrina") %>%
+#  plot_ly(x=~datetime, y=~max_wind)
+```
+```{r}
+levels(df %>% filter(completeish=="yes") %>% .$status)
+```
+
+```{r mosaic-category-status-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+#names(df)
+df_selected <- df %>% 
+  #filter(completeish == "yes") %>% 
+  filter(year>1990) %>% 
+  #filter (status == c("hurricane","tropical storm","tropical depression")) %>%
+  filter(hu_diameter>0) %>% 
+  drop_na() %>% 
+  dplyr::mutate(decade=cut(year,
+                           breaks = c(2000, 2005, 2010, 2015, 2020),
+                           lables = c('00s', '05s','10s','15', '20s'),
+                           include.lowest = TRUE, ordered=TRUE))
+```
+
+
+```{r mosaic-hdecade-category-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+library(ggmosaic)
+ggplot(data = df_selected) +
+   geom_mosaic(aes(x = product(category, decade), fill=category), na.rm=TRUE)
+```
+
+```{r mosaic-category-month-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+library(ggmosaic)
+ggplot(data = df_selected) +
+   geom_mosaic(aes(x = product(category, month), fill=category), na.rm=TRUE)
+```
+
+```{r year-count-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+df %>%
+  select(c("year", "id", "status")) %>% 
+  unique() %>% 
+  group_by(year, status) %>% 
+  drop_na() %>% 
+  count() %>% 
+  ungroup() %>% 
+  ggplot(aes(x=year, y=n))+
+  geom_line()+
+  facet_wrap(~status, scale="free")
+```
+
+## Tables
+
+Summary table if applicable
+
+We can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab). 
+And it works even the item is not in this chapter.
+
+
+```{r nice-tab, tidy=FALSE}
+
+knitr::kable(
+  head(df_selected[2:3], 10), caption = 'Here is a nice table!',
+  booktabs = TRUE
+)
+```

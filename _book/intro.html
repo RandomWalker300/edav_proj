@@ -138,7 +138,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.2" data-path="methods.html"><a href="methods.html#data-transformat"><i class="fa fa-check"></i><b>3.2</b> Data transformat</a></li>
 <li class="chapter" data-level="3.3" data-path="methods.html"><a href="methods.html#missing-values"><i class="fa fa-check"></i><b>3.3</b> Missing values</a></li>
 </ul></li>
-<li class="chapter" data-level="4" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>4</b> Results</a></li>
+<li class="chapter" data-level="4" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>4</b> Results</a><ul>
+<li class="chapter" data-level="4.1" data-path="results.html"><a href="results.html#read-tranformed-data"><i class="fa fa-check"></i><b>4.1</b> Read tranformed data</a></li>
+<li class="chapter" data-level="4.2" data-path="results.html"><a href="results.html#figures"><i class="fa fa-check"></i><b>4.2</b> Figures</a></li>
+<li class="chapter" data-level="4.3" data-path="results.html"><a href="results.html#tables"><i class="fa fa-check"></i><b>4.3</b> Tables</a></li>
+</ul></li>
 <li class="chapter" data-level="5" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>5</b> Interactive Component</a></li>
 <li class="chapter" data-level="6" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>6</b> Conclusion</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
@@ -167,6 +171,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>As coastal shoreline counties create about 40% of the United States’s jobs and account for 46% of its GDP, hurricanes have a trumendous impact on the country’s economy.</p>
 <p>They are considered as one of the costliest natural disasters in the world : they currently cost the government over $28 billion each year, and that amount is expected to increase to over $39 billion a year due to the increased development of the U.S. coastlines and the global warming. The latter will indeed increase the proportion of cyclones of category 4 and 5, which lead to the most damages and therefore higher costs <span class="citation">(Amadeo <a href="#ref-Amadeo2019">2019</a>)</span>.</p>
 <p>Besides the government, several industries are heavily impacted by hurricanes, including the insurance industry. For example, according to Bloomberg, hurricane Dorian caused the insurance industry losses of up $25 billion, making it the most expensive natural disaster for the industry since 2017’s Hurricane Maria <span class="citation">(D’Souza <a href="#ref-DSouza2019">2019</a>)</span>.</p>
+<p>Reference a figure by its code chunk label with the <code>fig:</code> prefix, e.g., see Figure <a href="intro.html#fig:nice-fig">2.1</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(rvest)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(dplyr)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">library</span>(robotstxt)</a>
@@ -184,7 +189,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb1-15" data-line-number="15">df_clean[<span class="dv">2</span>]&lt;-<span class="kw">lapply</span>(df_clean[<span class="dv">2</span>],as.numeric.factor)</a>
 <a class="sourceLine" id="cb1-16" data-line-number="16">df_clean &lt;-<span class="st"> </span>df_clean <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(Season)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">top_n</span>(<span class="dv">6</span>)</a>
 <a class="sourceLine" id="cb1-17" data-line-number="17"><span class="kw">ggplot</span>(df_clean,<span class="kw">aes</span>(<span class="dt">x=</span>Name, <span class="dt">y=</span> Nominal_Damage)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>, <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">coord_flip</span>() <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Hurricane&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Damage (in Billion Dollars)&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Cost of Damage by Six Most Recent Hurricanes&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_classic</span>()</a></code></pre></div>
-<p><img src="edav-final-project_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<div class="figure" style="text-align: center"><span id="fig:nice-fig"></span>
+<img src="edav-final-project_files/figure-html/nice-fig-1.png" alt="Here is a nice figure!" width="80%" />
+<p class="caption">
+Figure 2.1: Here is a nice figure!
+</p>
+</div>
 <p>In addition, hurricane tracking data can provide Federal Emergency Management Agency (FEMA), local emergency managers, and first responders the information they need to be able to send out appropriate responses and help to the citizens at the affected areas <span class="citation">(GOES-r <a href="#ref-Newtools4H2019">2019</a>)</span>.</p>
 <p>For those reasons, hurricanes data is very interesting to analyze and will constitute the topic of this Exploratory Data Analysis and Vizualisation final project.</p>
 

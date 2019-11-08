@@ -7,12 +7,14 @@ Storm tracks data can be downloaded from [National Hurricane Center and Central 
 
 ## Data transformat
 
-Describe the process of getting the data into a form in which you could work with it in R.
+(Describe the process of getting the data into a form in which you could work with it in R.)
 
 ```{r include=FALSE}
  # keep this chunk in your .Rmd file
  knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
+
+** load libraries **
 
 ```{r}
 library(tidyverse)
@@ -20,50 +22,80 @@ library(stringr)
 # Read in data set
 #dfile <- read_lines("https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt")
 dfile<- "data/hurdat2-1851-2018-051019.txt"
-storm_strings <- read_lines(dfile)
+hurdat2_in <- read_lines(dfile)
+```
+
+The dataset is a combination of serveral subsets. Eeach subset is for a storm track record which incluedes header information and values.
+
+_For instance, the header has the following format:_
+
+AL162018,              OSCAR,     36,
+* AL – Basin – Atlantic
+* 16 – ATCF cyclone number for that year
+* 2018 – Year
+* OSCAR – Name, if available, or else “UNNAMED” 
+* 36  – Number of best track entries – rows – to follow
+
+_The header is followed by data, which has the following format:_
+
+20181026, 1800,  , SS, 25.4N,  45.3W,  35, 1006,   80,   80,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+
+* 2018 – Year
+* 10  – Month
+* 26  – Day
+* 09  – Hours in UTC (Universal Time Coordinate) 35 (Spaces 13-14, before 2nd comma) – Minutes
+...
+
+**please refer [this file]("https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf") for detail information.**
+
+```{r}
+header_locations <- (1:length(hurdat2_in))[str_count(hurdat2_in, "\\,") == 3]
+header_df <-readr::read_csv(hurdat2_in[header_locations], 
+                             col_names = FALSE) %>% 
+  dplyr::select(-c("X4"))
+names(header_df) <- c("id","name","n_entries")
 ```
 
 ```{r}
-
-# Identify the header lines that have three commas
+# read hearder information
 library(stringr)
-header_locations <- (1:length(storm_strings))[str_count(storm_strings, "\\,") == 3] # count # of strings for each line, the header line has only 3 strings.
+header_locations <- (1:length(hurdat2_in))[stringr::str_count(hurdat2_in, "\\,") == 3]
 
-headers <- as.list(storm_strings[header_locations])
-headers_df <- 
-  headers %>%
-  purrr::map(stringr::str_sub, start = 1L, end = -2L) %>% # to remove trailing comma
-  purrr::map(paste0, "\n") %>%                 # and replace final comma with \n
-  purrr::map_dfr(read_csv, col_names = c("id", "name", "n_obs")) %>%
-  dplyr::mutate(#name = dplyr::recode(name, "UNNAMED" = id), 
-                skip = header_locations) %>%
-  dplyr::select(id, name, skip, n_obs)
+header_df <- readr::read_csv(hurdat2_in[header_locations], 
+                             col_names = FALSE) %>% 
+  dplyr::select(-c("X4"))
+
+names(header_df) <- c("id","name","n_entries")
+
+header_df <-  header_df %>% mutate(header_loc = as.numeric(header_locations))
+
+#tail(header_df)
 ```
 
+
+
 ```{r}
-# Set data frames names
+# read data value
+
+hurdat2_df <- vector("list", nrow(header_df))
+names(hurdat2_df) <- header_df$id
 df_names <- c(
-  "date", "time", "record_type", "status", "lat", "long", "wind", "pressure",
+  "date", "time", "record_identifier", "status", "latitude", "longitude", "max_wind", "min_pressure",
   "extent_34_NE", "extent_34_SE", "extent_34_SW", "extent_34_NW",
   "extent_50_NE", "extent_50_SE", "extent_50_SW", "extent_50_NW",
   "extent_64_NE", "extent_64_SE", "extent_64_SW", "extent_64_NW", "nas"
 )
 
-storm_dfs <- vector("list", nrow(headers_df))
-names(storm_dfs) <- headers_df$id
-```
-
-```{r}
-# Read in the sub-datasets as data frames
-for (i in seq_along(headers_df$name)) {
-  storm_dfs[[i]] <- read_csv(dfile,
-    skip = headers_df$skip[i],
-    n_max = headers_df$n_obs[i],
+#
+for (i in seq_along(header_df$id)) {
+  hurdat2_df[[i]] <- read_csv(dfile,
+    skip = header_df$header_loc[i],
+    n_max = header_df$n_entries[i],
     col_names = df_names,
     na = c("", "-99", "-999"),
     col_types = list(
       time = col_character(),
-      pressure = col_integer(),
+      min_pressure = col_integer(),
       extent_34_NE = col_integer(),
       extent_34_SE = col_integer(),
       extent_34_SW = col_integer(),
@@ -80,12 +112,15 @@ for (i in seq_along(headers_df$name)) {
   )
 }
 ```
+```{r}
+#head(hurdat2_df)
+```
 
 ```{r}
 # Combine and clean the data sets
 library(lubridate)
-storms <- 
-  storm_dfs %>%
+hurdat2 <- 
+  hurdat2_df %>%
   dplyr::bind_rows(.id = "id") %>%
   dplyr::mutate(
     date = lubridate::ymd(date),
@@ -93,14 +128,15 @@ storms <-
     month = lubridate::month(date),
     day = lubridate::day(date),
     hour = as.numeric(stringr::str_sub(time, 1, 2)),
-    datetime = ISOdate(year, month, day, hour, min = 0, sec = 0, tz = "GMT"),
-    lat_hemisphere = stringr::str_sub(lat, -1),
-    lat_sign = dplyr::if_else(lat_hemisphere == "N", 1, -1),
-    lat = as.numeric(stringr::str_sub(lat, 1, -2)) * lat_sign,
-    long_hemisphere = stringr::str_sub(long, -1),
-    long_sign = dplyr::if_else(long_hemisphere == "E", 1, -1),
-    long = as.numeric(stringr::str_sub(long, 1, -2)) * long_sign,
-    category = cut(wind, #cut divides the range of x into intervals
+    datetime = as.Date(ISOdate(year, month, day, hour, min = 0, sec = 0, tz = "GMT")),
+    #lat_hemisphere = stringr::str_sub(latitude, -1),
+    latitude = dplyr::if_else(stringr::str_sub(latitude, -1) == "N",
+                              as.numeric(stringr::str_sub(latitude, 1, -2))*1, 
+                              as.numeric(stringr::str_sub(latitude, 1, -2))*(-1)),
+    longitude = dplyr::if_else(stringr::str_sub(longitude, -1) == "E",
+                              as.numeric(stringr::str_sub(longitude, 1, -2))*1, 
+                              as.numeric(stringr::str_sub(longitude, 1, -2))*(-1)),
+    category = cut(max_wind, # Saffir-Simpson Hurricane Wind Scale
       breaks = c(0, 34, 64, 83, 96, 113, 137, 500),
       labels = c(-1, 0, 1, 2, 3, 4, 5),
       include.lowest = TRUE, ordered = TRUE
@@ -111,7 +147,7 @@ storms <-
     ts_diameter = pmax(TSradius1, TSradius2) * 1.15078, # to convert from nautical miles to miles # pmax: returns the parallel maxima and minima of the input values
     HUradius1 = extent_64_NE + extent_64_SW,
     HUradius2 = extent_64_NW + extent_64_SE,
-    hu_diameter = pmax(HUradius1, HUradius2) * 1.15078, # to convert from nautical miles to miles
+    hu_diameter = pmax(HUradius1, HUradius2) * 1.15078, # to convert from nautical miles to miles # pmax: returns the parallel maxima and minima of the input values
     status = recode(status,
                     "TD" = "tropical depression",
                     "TS" = "tropical storm", 
@@ -126,85 +162,123 @@ storms <-
   ) 
 ```
 
+_Note_: category has been calculated based on [Saffir-Simpson Hurricane Wind Scale](https://www.nhc.noaa.gov/aboutsshws.php) to indicate "Types of Damage Due to Hurricane Winds". 
+
 ```{r}
-# data output
-headers_df_selected <- headers_df %>% select(c("id","name"))
+# absorb header information to data values
+header_df_selected <- header_df %>% select(c("id","name"))
 # headers_df_selected
-storms_with_name <- left_join(headers_df_selected, storms, by=c("id")) %>% 
-  select(id, name, datetime, year, month, day, hour, lat, long, status, category,
-         wind, pressure, 
-         extent_34_NE, extent_34_SW, extent_34_NW, extent_34_SE,
-         extent_50_NE, extent_50_SW, extent_50_NW, extent_50_SE,
-         extent_64_NE, extent_64_SW, extent_64_NW, extent_64_SE,
-         ts_diameter, hu_diameter)
+hurdat2_add_name <- left_join(header_df_selected, hurdat2, by=c("id")) %>% 
+  select(id, name, datetime, year, month, day, hour, latitude, longitude, status, category,
+         max_wind, min_pressure, ts_diameter, hu_diameter)
 ```
 
 ```{r}
-storms_all <- storms_with_name %>% 
+hurdat2_out <- hurdat2_add_name %>% 
   mutate(name= dplyr::if_else(grepl("UNNAMED", name), name,
                               stringr::str_to_title(name)))
+hurdat2_out$status <- factor(hurdat2_out$status)
+hurdat2_out$category <- factor(hurdat2_out$category)
 ```
 
 ```{r}
-storms_all$status <- factor(storms_all$status)
-storms_all$id <- factor(storms_all$id)
-storms_all$name <- factor(storms_all$name)
+levels(hurdat2_out$status)
+hurdat2_out %>% filter(status == "ET")
+```
+
+*Note: there is an "ET" in _Status of system_, which does not included in the description [HURDAT2](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf). This is a typo in the dataset, `recode` it into 'EX".*
+
+```{r}
+hurdat2_out$status <- dplyr::recode(hurdat2_out$status, ET = "Extratropical cyclone")
 ```
 
 
-```{r}
-levels(storms_all$status)
-storms_all %>% filter(status == "ET")
-```
-
-*Note: there is an "ET" in _Status of system_, however, there is no description in  [HURDAT2](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf), which is a typo in the dataset, `recode` it into 'EX".*
-
+** Mark storms that have complete pressure record**
 
 ```{r}
-storms_all$status <- dplyr::recode(storms_all$status, ET = "Extratropical cyclone")
-#levels(factor(storms_all$status))
-```
-
-
-**Narrow to storms that have complete pressure record**
-
-```{r}
-# Narrow to storms that have complete pressure record
-completeish <- storms_all %>%
+completeish <- hurdat2_out %>%
   dplyr::group_by(id) %>%
-  dplyr::summarise(n_pressure = sum(!is.na(pressure)), p_pressure = mean(!is.na(pressure))) %>%
+  dplyr::summarise(n_pressure = sum(!is.na(min_pressure)), p_pressure = mean(!is.na(min_pressure))) %>%
   dplyr::filter(p_pressure == 1) %>%
   .[["id"]]
 #length(completeish)
-dim(storms_all)[1]
+#dim(hurdat2_out)[1]
 ```
 
-Theare are `r length(completeish)` out of `r dim(storms_all)[1]`storms that have complete pressure record.
+Theare are `r length(completeish)` out of `r dim(hurdat2_out)[1]`storms that have complete pressure record.
 
 ```{r}
-storms_completish_selected <- storms_all %>%
+storms_completish_selected <- hurdat2_out %>%
   filter(
     status %in% c("hurricane", "tropical storm", "tropical depression"),
     id %in% completeish)
 ```
 
 ```{r}
-storms_all_add_com <- storms_all %>% mutate(completeish = if_else(status %in% c("hurricane", "tropical storm", "tropical depression") & id %in% completeish, "yes","no"))
-storms_all_add_com$completeish <- factor(storms_all_add_com$completeish)
+hurdat2_out_add_com <- hurdat2_out %>% mutate(completeish = if_else(status %in% c("hurricane", "tropical storm", "tropical depression") & id %in% completeish, "yes","no"))
+hurdat2_out_add_com$completeish <- factor(hurdat2_out_add_com$completeish)
 ```
 
-**Save transformed data**
+**Meaning for each variables**
+
+```{r}
+names(hurdat2_out_add_com)
+```
+**_id_**
+
+Storm id, which is unique. A id is a combination of 8 characters, for example, 'AL092011', 
+* AL (Spaces 1 and 2) – Basin – Atlantic
+* 09 (Spaces 3 and 4) – ATCF cyclone number for that year
+* 2011 (Spaces 5-8, before first comma) – Year
+for detail information, please see [dataformat](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf)
+
+**_name_**
+
+Storm Name, which is non-unique. There are six lists that are used in rotation and re-cycled every six years, i.e., the 2013 list is used again in 2019. For more information, please see [tropical cyclone names](https://www.nhc.noaa.gov/aboutnames.shtml).
+
+**_datetime, year, month, day, hour_**
+
+Date of report (in Universal Time Coordinate)
+
+**_latitude,longitude_**
+
+Location of storm center
+
+**_status_**
+
+Storm classification (Tropical Depression, Tropical Storm, or Hurricane)
+
+**_category_**
+
+[Saffir-Simpson storm category](https://www.nhc.noaa.gov/aboutsshws.php) (estimated from wind speed. -1 = Tropical Depression, 0 = Tropical Storm)
+
+**_max_wind_**
+
+storm's maximum sustained wind speed (in knots)
+
+**_min_pressure_**
+
+Air pressure at the storm's center (in millibars)
+
+**_ts_diameter_**
+
+Diameter of the area experiencing tropical storm strength winds (34 knots or above)
+
+**_hu_diameter_**
+
+Diameter of the area experiencing hurricane strength winds (64 knots or above)
+
+**_completeish_**
+
+whether storms that have complete pressure record, yes or no
+
+
+**Save transformed data** for further use.
 
 ```{r}
 dir <- 'data/'
-write_csv(storms_all_add_com, file.path(dir, "storms_all_out.csv"))
+write_csv(hurdat2_out_add_com, file.path(dir, "hurdat2_out.csv"))
 ```
-
-```{r}
-dir <- 'data/'
-write_csv(storms, file.path(dir, "storms_completish_selected.csv"))
-```
-
 
 ## Missing values
 
