@@ -17,8 +17,8 @@ library(stringr)
 
 ```{r}
 # Read in transformed data
-dfile<- "data/hurdat2_out.csv"
-#dfile <- "https://raw.githubusercontent.com/jqz300/edav_proj/master/data/storms_all_out.csv"
+#dfile<- "data/hurdat2_out.csv"
+dfile<- "https://github.com/jqz300/edav_proj/blob/master/data/hurdat2_out.csv"
 df <- read_csv(dfile,
                    na = c("NA", "-99", "-999"),
                    col_types = list(

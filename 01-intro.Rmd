@@ -8,6 +8,7 @@ Besides the government, several industries are heavily impacted by hurricanes, i
 
 Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). 
 
+![] (https://youtu.be/ezQxonSFCaU)
 
 ```{r include=FALSE}
  # keep this chunk in your .Rmd file
