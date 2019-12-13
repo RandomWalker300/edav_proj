@@ -275,22 +275,9 @@ dir <- '../data/clean/hurricanes.csv'
 readr::write_csv(df, dir)
 ```
 
-```{r echo=FALSE}
-#head(df)
-dfout <- df %>% dplyr::filter(status != "subtropical storm ") 
-#dfout
-```
 
 
-
-```{r echo=FALSE}
-dfoutshort <- df %>% drop_na
-dir <- 'data/'
-readr::write_csv(dfoutshort, "../data/clean/hurricanes_short.csv")
-```
-
-
-Finally, the ocean surface temperature and  the directly observed Atlantic Meridional Overturning Circulation (AMOC) index are `.nc` formate, we use `ncdf4` to read in data. Note that there is there is an "ET" typo in _Status_ of system in the [HURDAT2]( https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt), which has been corrected to `EX` in the output `data\clean\hurricanes.csv` file.
+Finally, the ocean surface temperature is `.nc` formate, we use `ncdf4` to read in data. Note that there is there is an "ET" typo in _Status_ of system in the [HURDAT2]( https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt), which has been corrected to `EX` in the output `data\clean\hurricanes.csv` file.
 <!--
 _read in atmospheric CO2_
 -->

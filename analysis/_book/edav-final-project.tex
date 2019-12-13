@@ -180,7 +180,7 @@ Secondly, we estimate \texttt{category} variable from wind speed based on \href{
 
 Thirdly, we estimate the storm duration \texttt{tc\_dur\_track} to those with maximum sustained surface winds of at least 35 knot and defined storms and define \texttt{tc\_dur\_type} for type of the duration. Here, \texttt{S} indicates storms with duration of 2.0 days or less and will be mentioned in the following text as \emph{short-lived} storms, and \texttt{L} represnts storms with duration of more than 2.0 days and will be referred as ``medium-to-long lived'' storms.
 
-Finally, the ocean surface temperature and the directly observed Atlantic Meridional Overturning Circulation (AMOC) index are \texttt{.nc} formate, we use \texttt{ncdf4} to read in data. Note that there is there is an ``ET'' typo in \emph{Status} of system in the \href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt}{HURDAT2}, which has been corrected to \texttt{EX} in the output \texttt{data\textbackslash{}clean\textbackslash{}hurricanes.csv} file.
+Finally, the ocean surface temperature is \texttt{.nc} formate, we use \texttt{ncdf4} to read in data. Note that there is there is an ``ET'' typo in \emph{Status} of system in the \href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt}{HURDAT2}, which has been corrected to \texttt{EX} in the output \texttt{data\textbackslash{}clean\textbackslash{}hurricanes.csv} file.
 
 \textbf{Meaning for each variables}
 
@@ -583,12 +583,18 @@ However, at the time, the focus was on storms that could have had an impact on s
 
 This means that the evolution of the number of cyclones over time follows a similar trend as the CO2 concentration and surface ocean temperature. This could mean that humans have had an impact on the increase of hurricane activity, but to prove that this is a causation and not only a correlation, deeper research and statistical tests should be performed.
 
-```
-
 \hypertarget{intercom}{%
 \chapter{Interactive Component}\label{intercom}}
 
-\href{https://hurricane.shinyapps.io/01_01/}{storm shinyapp}
+The following Shiny App that helps the user to assess hurricanes' features evolution across time and location as done in part 5.1 of this analysis.
+
+The graph on the left displays the hurricane path in the Atlantic Ocean and its change in category across locations. The category can be assessed by hovering on the path; the date at which the hurricane was at each location can be assessed by clicking on the path.
+
+The graph on the right displays the evolution of windspeed, barometric pressure and hurricane diameter across time of a hurricane. If values for the selected variable are missing, the graph will be blank.
+
+If the server is too slow and the app doesn't appear on your screen, follow this \href{https://github.com/jqz300/edav_proj}{Github link} to download the necessary files and run the app locally.
+
+\href{https://hurricane.shinyapps.io/01_01/}{Hurricane Shiny App}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -605,14 +611,6 @@ This means that the evolution of the number of cyclones over time follows a simi
 \caption{app}\label{fig:storm-track}
 \end{figure}
 
-The following Shiny App that helps the user to assess hurricanes' features evolution across time and location as done in part 5.1 of this analysis.
-
-The graph on the left displays the hurricane path in the Atlantic Ocean and its change in category across locations. The category can be assessed by hovering on the path; the date at which the hurricane was at each location can be assessed by clicking on the path.
-
-The graph on the right displays the evolution of windspeed, barometric pressure and hurricane diameter across time of a hurricane. If values for the selected variable are missing, the graph will be blank.
-
-If the server is too slow and the app doesn't appear on your screen, follow this \href{https://github.com/jqz300/edav_proj}{Github link} to download the necessary files and run the app locally.
-
 \hypertarget{conclusion}{%
 \chapter{Conclusion}\label{conclusion}}
 
@@ -621,7 +619,7 @@ In this analysis, we explore the century long storm records {[}HURDAT2: 1851-201
 \begin{enumerate}
 \def\labelenumi{(\arabic{enumi})}
 \item
-  The \href{https://www.nhc.noaa.gov/aboutsshws.php}{Saffir-Simpson scale} that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from \href{https://hurricane.shinyapps.io/01_01/}{storm shinyapp}.
+  The \href{https://www.nhc.noaa.gov/aboutsshws.php}{Saffir-Simpson scale} that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from \href{https://hurricane.shinyapps.io/01_01/}{Hurricane Shiny App}.
 \item
   While recent studies indicate a global North-ward shift in cyclones activity, we did not find strong evidence of this trend in our data. An increase of activity in the North was observed in the 1970s but seemed to decrease in the following decades. Besides, that shift seemed to be due to mostly an increase in frequency of cyclones of category 0 and 1, which are less worrying than cyclones of higher categories.
 \item

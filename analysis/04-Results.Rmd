@@ -89,6 +89,8 @@ data6 <- rbind(data3,data4,data5)
 
 data6$datetime <- as.Date(data6$datetime)
 
+#data6$category <- (as.numeric(data6$category)-1)
+
 ggplot(data6) +
   geom_sf(data=spData::world, fill = "grey85", col = 1) +
   coord_sf(xlim = c(-100, -20), ylim = c(0,60), expand = TRUE)+
@@ -106,15 +108,15 @@ From Figure \@ref(fig:each-track-develop-fig), it can be noted that both Irma an
 ```{r each-track-develop-time-fig,out.width='80%', fig.asp=.75, fig.cap='Time Series of Three Example Hurricanes in 2017', fig.align='center',echo = FALSE}
 #Time series of 3 hurricanes (In 2017, Irma hits Florida (category 5), Maria hits North Carolina (category 5?), Gert hits East Coast (category 2)) 
 
-Irma <- df %>% dplyr::select(category, datetime, storm_id) %>% dplyr::filter(storm_id=="Irma-2017")
-Maria <- df %>% dplyr::select(category, datetime, storm_id) %>% dplyr::filter(storm_id=="Maria-2017")
-Gert <- df %>% dplyr::select(category, datetime, storm_id) %>% dplyr::filter(storm_id=="Gert-2017")
+#Irma <- df %>% dplyr::select(category, datetime, storm_id) %>% dplyr::filter(storm_id=="Irma-2017")
+#Maria <- df %>% dplyr::select(category, datetime, storm_id) %>% dplyr::filter(storm_id=="Maria-2017")
+#Gert <- df %>% dplyr::select(category, datetime, storm_id) %>% dplyr::filter(storm_id=="Gert-2017")
 
-MaIrGer <- rbind(Maria, Irma, Gert)
+#MaIrGer <- rbind(Maria, Irma, Gert)
 
-MaIrGer$datetime <- as.Date(MaIrGer$datetime)
+#MaIrGer$datetime <- as.Date(MaIrGer$datetime)
 
-ggplot(MaIrGer, aes(datetime, category, color=storm_id)) +
+ggplot(data6, aes(datetime, category, color=storm_id)) +
   geom_line()+
   labs(x = "Time", y = "Category", color = "Hurricanes") +
   theme_grey(13)+
@@ -332,5 +334,3 @@ dfdur %>%
 ``` 
 
 This means that the evolution of the number of cyclones over time follows a similar trend as the CO2 concentration and surface ocean temperature. This could mean that humans have had an impact on the increase of hurricane activity, but to prove that this is a causation and not only a correlation, deeper research and statistical tests should be performed.
-
-```

@@ -60,9 +60,11 @@ Before the 1950s, it was not common practice to name tropical cyclones. This exp
 
 ```{r atlatnic-storms-unnamed-year-fig, fig.cap='Cyclones received names starting 1950s', out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
 
-df$category = factor(df$category, levels=c("0","1","2","3","4","5"))
+df_draw <- df
 
-df %>% 
+df_draw$category = factor(df_draw$category, levels=c("0","1","2","3","4","5"))
+
+df_draw %>% 
   dplyr::filter(category==c("0","1","2","3","4","5")) %>%
   dplyr::select(c("id","name","year","category")) %>% unique() %>% 
   mutate(name_id = if_else(name=="UNNAMED", "no", "yes")) %>%

@@ -1,0 +1,1085 @@
+--- 
+title: "Hurricane Analysis and Visualization Using R"
+author: "Romane Goldmuntz, Vy Tran, and Jianqiong Zhan"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: [proj.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: rstudio/bookdown-demo
+description: "This is an edav class final project"
+---
+
+
+# Introduction {#intro}
+
+Hurricanes have caused tremendous losses on the country’s economy (@Winkle2018): they currently cost the government over \$28 billion each year. Besides the government, several industries are heavily impacted by hurricanes, including the insurance industry. For example, according to Bloomberg, hurricane Dorian caused the insurance industry losses of up \$25 billion, making it the most expensive natural disaster for the industry since 2017’s Hurricane Maria (@DSouza2019). Therefore, the United States’ Sustainable Development has identified economic losses from hurricane as a key indicator for the economic growth (@SDG2018). Disentangling the relative roles of variability and changes in Hurricane could contribute information useful to sustainable development goals.
+
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+Key frequently asked questions are: how climate affects hurricane, and what of the future hurricanes are more likely to be. To gain insight on these questions, we first have to look into historical records to discern the variability and changes of hurricanes, the analysis of which will help us to build predictive understanding of the influencing of climate on hurricane. Our working hypothesis is that: if greenhouse warming has caused a substantial increase in Atlantic hurricane activity, then the century scale increase in Atlantic hurricane since 1851 should have produced a long-term rise in measures of Atlantic hurricanes activity, similar to that seen for global temperature, for example. Therefore, we aim to dig into the original storm track file with more than 150 years of records of Atlantic tropical storm activities in order to examine variability and changes of Atlantic hurricane under global warming conditions. Specifically, three important questions we would like to address in this analysis are:
+
+_(1)	What influences the change in category of hurricanes?_
+
+_(2) Has hurricane activity shifted north-ward?_
+
+_(3)	Have humans already caused a detectable increase in Atlantic hurricane activity?_
+
+
+
+<!--chapter:end:index.Rmd-->
+
+# Data Source {#datasource}
+
+The storm track data presented in the analysis is downloaded from [National Hurricane Center and Central Pacific Hurricane Center](https://www.nhc.noaa.gov/data/#hurdat), which is also known as the Atlantic hurricane database [HURDAT2: 1851-2018] (https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt) and the [HURDAT](https://www.aoml.noaa.gov/hrd/hurdat/comparison_table.html) data is downloaded from the [NOAA’s Atlantic Oceanographic and Meteorological Laboratory] (https://www.aoml.noaa.gov/). 
+
+We choose to work with these data because they provide us with updated, complete and accurate information about hurricanes over the past 150 years (1851 - 2018). Since the Atlantic hurricane activity has shown very strong year-to-year and decade-to-decade variability, longer records or hurricanes are much needed. 
+
+One important thing to note about the names of hurricanes is that there are six names lists that have been used in rotation and re-cycled every six years. This means that there can be more than one hurricanes having the same name but happened in different years. We have tackled this problem by giving each hurricane a unique `storm-id`.
+
+
+<!--chapter:end:01-DataSource.Rmd-->
+
+# Data Transformation {#datatrans}
+
+<!--test-->
+
+The ([HURDAT2](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf)) data has a comma-delimited, text format with six-hourly information on the location, maximum winds, central pressure, and (beginning in 2004) size of all known tropical cyclones and subtropical cyclones. The dataset is a combination of serveral subsets. Each subset is used for a storm track record which includes header information and values.
+please refer to [this file](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf) for detail information.
+
+
+```{r include=FALSE}
+ # keep this chunk in your .Rmd file
+ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+```{r echo=FALSE}
+library(tidyverse)
+library(stringr)
+library(GGally)
+# Read in data set
+#dfile <- read_lines("https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt")
+dfile<- "../data/raw/hurdat2-1851-2018-120319.txt"
+hurdat2_in <- read_lines(dfile)
+```
+
+Firstly, we extract storm `id`, `name`, and `subtext length` from each subtext header, then read in data according to each `subtext length`, and merge data subset by indexing it with storm `id`, `name`. In the original text, you will find that the `name` is non-unique. Currently, there are six lists that are used in rotation and re-cycled every six years, i.e., the 2013 list is used again in 2019. For more information, please see tropical cyclone names. To avoid the future confusion, we create `storm-id` variable by combining `name` and `year` together (e.g., _Sandy-2012_). In the original file, there are storms labeled with NAMEs but others labelled with `UNNAME`. Here, we use `name_id` variable to indicate whether a storm has a name or not. 
+
+
+```{r echo=FALSE}
+# read hearder information
+library(stringr)
+header_locations <- (1:length(hurdat2_in))[stringr::str_count(hurdat2_in, "\\,") == 3]
+
+header_df <- readr::read_csv(hurdat2_in[header_locations], 
+                             col_names = FALSE) %>% 
+  dplyr::select(-c("X4"))
+
+names(header_df) <- c("id","name","n_entries")
+
+header_df <-  header_df %>% mutate(header_loc = as.numeric(header_locations))
+```
+
+
+```{r echo=FALSE}
+#tail(header_df)
+```
+
+
+```{r echo=FALSE}
+# read data value
+hurdat2_df <- vector("list", nrow(header_df))
+names(hurdat2_df) <- header_df$id
+df_names <- c(
+  "date", "time", "record_identifier", "status", "latitude", "longitude", "max_wind", "min_pressure",
+  "extent_34_NE", "extent_34_SE", "extent_34_SW", "extent_34_NW",
+  "extent_50_NE", "extent_50_SE", "extent_50_SW", "extent_50_NW",
+  "extent_64_NE", "extent_64_SE", "extent_64_SW", "extent_64_NW", "nas"
+)
+```
+
+
+```{r echo=FALSE}
+#
+for (i in seq_along(header_df$id)) {
+  hurdat2_df[[i]] <- read_csv(dfile,
+    skip = header_df$header_loc[i],
+    n_max = header_df$n_entries[i],
+    col_names = df_names,
+    na = c("", "-99", "-999"),
+    col_types = list(
+      time = col_character(),
+      record_identifier = col_character(),
+      min_pressure = col_integer(),
+      extent_34_NE = col_integer(),
+      extent_34_SE = col_integer(),
+      extent_34_SW = col_integer(),
+      extent_34_NW = col_integer(),
+      extent_50_NE = col_integer(),
+      extent_50_SE = col_integer(),
+      extent_50_SW = col_integer(),
+      extent_50_NW = col_integer(),
+      extent_64_NE = col_integer(),
+      extent_64_SE = col_integer(),
+      extent_64_SW = col_integer(),
+      extent_64_NW = col_integer()
+    )
+  )
+}
+```
+
+
+```{r echo=FALSE}
+#hurdat2_df[[1]]
+```
+
+
+Secondly, we estimate `category` variable from wind speed based on [Saffir-Simpson storm category](https://www.nhc.noaa.gov/aboutsshws.php), calculate the diameter of the area experiencing hurricane strength winds (64 knots or above), `_ts_diameter_` from extent of 34 kt wind radii maximum extent in northeastern quadrant (in nautical miles, `extent_34_NE `), 34 kt wind radii maximum extent in southeastern quadrant (in nautical miles, `extent_34_SW`), 34 kt wind radii maximum extent in northeastern quadrant (in nautical miles, ` extent_34_NW `), and 34 kt wind radii maximum extent in southeastern quadrant (in nautical miles, ` extent_34_SE`), `_hu_diameter_` from extent of 64 kt wind radii maximum extent in northeastern quadrant - `extent_64_NE `, southeastern quadrant -  `extent_34_SW`, northeastern quadrant, ` extent_64_NW `), and southeastern quadrant - ` extent_64_SE`.
+
+```{r echo=FALSE}
+# Combine and clean the data sets
+library(lubridate)
+hurdat2 <- 
+  hurdat2_df %>%
+  dplyr::bind_rows(.id = "id") %>%
+  dplyr::mutate(
+    date = lubridate::ymd(date),
+    year = lubridate::year(date),
+    month = lubridate::month(date),
+    day = lubridate::day(date),
+    hour = as.numeric(stringr::str_sub(time, 1, 2)),
+    #datetime = as.Date(ISOdate(year, month, day, hour, min = 0, sec = 0, tz = "GMT")),
+    datetime = lubridate::ymd_h(paste(year, month, day, hour, sep="-")),
+    #lat_hemisphere = stringr::str_sub(latitude, -1),
+    latitude = dplyr::if_else(stringr::str_sub(latitude, -1) == "N",
+                              as.numeric(stringr::str_sub(latitude, 1, -2))*1, 
+                              as.numeric(stringr::str_sub(latitude, 1, -2))*(-1)),
+    longitude = dplyr::if_else(stringr::str_sub(longitude, -1) == "E",
+                              as.numeric(stringr::str_sub(longitude, 1, -2))*1, 
+                              as.numeric(stringr::str_sub(longitude, 1, -2))*(-1)),
+    category = cut(max_wind, # Saffir-Simpson Hurricane Wind Scale
+      breaks = c(0, 34, 64, 83, 96, 113, 137, 500),
+      labels = c(-1, 0, 1, 2, 3, 4, 5),
+      include.lowest = TRUE, ordered = TRUE
+    ),
+    # wind = wind * 1.15078, # transforms knots to mph,
+    TSradius1 = extent_34_NE + extent_34_SW,
+    TSradius2 = extent_34_NW + extent_34_SE,
+    ts_diameter = pmax(TSradius1, TSradius2) * 1.15078, # to convert from nautical miles to miles # pmax: returns the parallel maxima and minima of the input values
+    HUradius1 = extent_64_NE + extent_64_SW,
+    HUradius2 = extent_64_NW + extent_64_SE,
+    hu_diameter = pmax(HUradius1, HUradius2) * 1.15078, # to convert from nautical miles to miles # pmax: returns the parallel maxima and minima of the input values
+    status = recode(status,
+                    "TD" = "tropical depression", # maximum sustained winds below 39 mph
+                    "TS" = "tropical storm",  # 39-73 mph
+                    "HU" = "tropical hurricane", #74-95, 96-110, 111-130, 131-155, >156
+                    "EX" = "Extratropical cyclone", ##
+                    "SD" = "subtropical depression", #<18m/s or <35
+                    "SS" = "subtropical storm",
+                    "LO" = "a low",
+                    "WV" = "tropical wave",
+                    "DB" = "disturbance")
+  ) 
+```
+<!--test: category has been calculated based on [Saffir-Simpson Hurricane Wind Scale](https://www.nhc.noaa.gov/aboutsshws.php) to indicate "Types of Damage Due to Hurricane Winds". -->
+
+```{r echo=FALSE}
+# merge header information to data values
+header_df_selected <- header_df %>% dplyr::select(c("id","name"))
+# headers_df_selected
+hurdat2_add_name <- left_join(header_df_selected, hurdat2, by=c("id")) %>% 
+  dplyr::select(id, name, datetime, year, month, day, hour, record_identifier, latitude, longitude, status, category,
+         max_wind, min_pressure, ts_diameter, hu_diameter)
+```
+```{r echo=FALSE}
+hurdat2_out <- hurdat2_add_name %>% 
+  mutate(name= dplyr::if_else(grepl("UNNAMED", name), name,
+                              stringr::str_to_title(name)))
+hurdat2_out$status <- factor(hurdat2_out$status)
+hurdat2_out$category <- factor(hurdat2_out$category)
+```
+
+
+```{r echo=FALSE}
+# absorb header information to data values
+header_df_selected <- header_df %>% dplyr::select(c("id","name"))
+# headers_df_selected
+hurdat2_add_name <- left_join(header_df_selected, hurdat2, by=c("id")) %>% 
+  dplyr::select(id, name, datetime, year, month, day, hour, record_identifier, latitude, longitude, status, category,
+         max_wind, min_pressure, ts_diameter, hu_diameter)
+```
+
+```{r echo=FALSE}
+hurdat2_out <- hurdat2_add_name %>% 
+  mutate(name= dplyr::if_else(grepl("UNNAMED", name), name,
+                              stringr::str_to_title(name)))
+hurdat2_out$status <- factor(hurdat2_out$status)
+hurdat2_out$category <- factor(hurdat2_out$category)
+```
+
+```{r echo=FALSE}
+#levels(hurdat2_out$status)
+#hurdat2_out %>% dplyr::filter(status == "ET")
+```
+
+<!--test:*Note: there is an "ET" in _Status of system_, which does not included in the description [HURDAT2](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf). This is a typo in the dataset, `recode` it into 'EX".*-->
+
+```{r echo=FALSE}
+hurdat2_out$status <- dplyr::recode(hurdat2_out$status, ET = "Extratropical cyclone")
+```
+```{r echo=FALSE}
+#hurdat2_out$status %>% unique()
+```
+
+```{r echo=FALSE}
+hurdat2_out$category <- factor(hurdat2_out$category, levels=c("0","1","2","3","4","5"))
+```
+
+```{r echo=FALSE}
+hurdat2_out$storm_id <- paste(hurdat2_out$name, hurdat2_out$year, sep="-")
+#df$date <- lubridate::ymd_h(paste(df$year, df$month, df$day, df$hour, sep="-"))
+```
+
+
+```{r echo=FALSE}
+#names(df)
+```
+
+
+<!--Save transformed data** for further use.-->
+
+Thirdly, we estimate the storm duration `tc_dur_track` to those with maximum sustained surface winds of at least 35 knot and defined storms and define `tc_dur_type` for type of the duration. Here,  `S` indicates storms with duration of 2.0 days or less and will be mentioned in the following text as *short-lived* storms, and ` L` represnts storms with duration of more than 2.0 days and will be referred as “medium-to-long lived” storms.
+
+
+```{r echo=FALSE}
+hurdat2_out <- hurdat2_out %>% 
+  #dplyr::filter(status == c("tropical hurricane", "tropical storm")) %>% 
+  group_by(id) %>% mutate(dur_track=as.numeric(
+  max(datetime) - min(datetime), units = "days")) %>% ungroup() %>% 
+  mutate(dur_type = dplyr::if_else(dur_track<=2, "S","L"))%>% 
+                                   #if_else((dur_track<=4 & dur_track>2), "M", "S")
+                                   #)) %>%
+  mutate(dur_type=factor(dur_type, levels = c("S", "L")))
+```
+```{r echo=FALSE}
+#dim(hurdat2_out)
+```
+
+
+
+```{r echo=FALSE}
+tcs <- c("tropical storm", "tropical hurricane","subtropical storm")
+df <- hurdat2_out %>% dplyr::filter(status %in% tcs)
+#df$status <- factor(df$status, levels=tcs)
+df$status <- factor(df$status, levels=tcs)
+```
+```{r echo=FALSE}
+#dim(df)
+```
+
+```{r echo=FALSE}
+df <- df %>% 
+  dplyr::filter(status %in% tcs) %>% 
+  dplyr::group_by(id) %>% mutate(tc_dur_track=as.numeric(
+  max(datetime) - min(datetime), units = "days"))%>% 
+    ungroup() %>% 
+  mutate(tc_dur_type = dplyr::if_else(tc_dur_track<=2, "S",
+                                      "L"
+                                  # if_else((tc_dur_track<=4 & tc_dur_track>2), "M", "L")
+                                   )) %>%
+  mutate(tc_dur_type=factor(tc_dur_type, levels = c("S", "M", "L")))
+```
+
+```{r echo=FALSE}
+df$category <- (as.numeric(df$category)-1)
+#df$category %>% unique()
+```
+
+
+```{r echo=FALSE}
+df <- df %>% 
+  dplyr::filter(status %in% tcs) %>% 
+  dplyr::group_by(id) %>% 
+  mutate(unname_label = if_else(name=="UNNAMED", "no", "yes"),
+    max_category = max(category),
+         max_status_label = (category == max(category)),
+         max_max_wind = max(max_wind),
+         min_min_pressure = min(min_pressure),
+         max_ts_diameter = max(ts_diameter),
+         max_hu_diamter = max(hu_diameter)) %>%
+    ungroup()
+#names(df)
+#df$year %>% unique()
+```
+
+```{r echo=FALSE}
+dir <- '../data/clean/hurricanes.csv'
+readr::write_csv(df, dir)
+```
+
+
+Finally, the ocean surface temperature is `.nc` formate, we use `ncdf4` to read in data. Note that there is there is an "ET" typo in _Status_ of system in the [HURDAT2]( https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt), which has been corrected to `EX` in the output `data\clean\hurricanes.csv` file.
+<!--
+_read in atmospheric CO2_
+-->
+
+```{r echo=FALSE}
+d <- read.table('ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt',
+                na.strings = -99.99)
+names(d) <- c('year', 'month', 'decimalYear', 'average', 'interpolated', 'trend', 'ndays')
+d$time <- with(d, as.Date(paste(year, sprintf('%02d', month), '01', sep='-'), format='%Y-%m-%d', tz='UTC'))
+time <- d$time
+co2 <- d$interpolated
+df_aco2 <- data.frame(time, co2)
+#names(d)
+```
+```{r echo=FALSE}
+#d$year %>% unique()
+```
+
+<!--
+_read in HUDART (1970-2018)_
+-->
+
+```{r echo=FALSE}
+hurdat_names <- c("year","Original_Named_Storms","Revised_Named_Storms",
+                  "Original_Hurricanes", "Revised_Hurricanes",
+                  "Original_Major_Hurricanes","Revised_Major_Hurricanes","Original_ACE","Revised_ACE",
+                  "Original_US_Hurricanes","Original_US_Hurricanes_Category",
+                  "Revised_US_Hurricanes", "Revised_US_Hurricanes_Category")
+col_types = list(year = col_double(),
+                 Original_Named_Storms = col_double(),
+                 Revised_Named_Storms = col_double(),
+                 Original_Hurricanes = col_double(),
+                 Revised_Hurricanes = col_double(),
+                 Original_Major_Hurricanes = col_double(),
+                 Revised_Major_Hurricanes = col_double(),
+                 Original_ACE = col_double(),
+                 Revised_ACE = col_double(),
+                 Original_US_Hurricanes = col_double(),
+                 Original_US_Hurricanes_Category = col_character(),
+                 Revised_US_Hurricanes = col_double(),
+                 Revised_US_Hurricanes_Category = col_character())
+dfhurdatin<- "../data/raw/HURDAT.csv"
+df_hurdat <- read_csv(dfhurdatin, skip =7, n_max = 168, col_names = hurdat_names, na = c(""," "), col_types = col_types)
+#names(df_hurdat)
+#df_hurdat$year
+```
+
+<!--
+_read in ocean temperature (1870-2010)_
+-->
+
+```{r echo=FALSE}
+library(ncdf4)
+ 
+ncfname <- "../data/raw/AMO_HADLEY.1870-2010.CLM_1901-1970.nc"
+ncIn <- nc_open(ncfname)
+#print(ncIn)
+
+year <- ncvar_get(ncIn, "year")
+
+AMO_WARM <- ncvar_get(ncIn, "AMO_WARM")
+AMO_WARM_REMOVED <- ncvar_get(ncIn, "AMO_WARM_REMOVED")
+AMO_WARM_REMOVED_SMTH <- ncvar_get(ncIn, "AMO_WARM_REMOVED_SMTH")
+AMO_WARM_SMTH <- ncvar_get(ncIn, "AMO_WARM_SMTH")
+SST_GLOBAL_MEAN <- ncvar_get(ncIn, "SST_GLOBAL_MEAN")
+SST_GLOBAL_MEAN_SMTH <- ncvar_get(ncIn, "SST_GLOBAL_MEAN_SMTH")
+
+df_amo <- data.frame(year, AMO_WARM, AMO_WARM_REMOVED, AMO_WARM_REMOVED_SMTH,AMO_WARM_SMTH,
+                     SST_GLOBAL_MEAN, SST_GLOBAL_MEAN_SMTH)
+#names(df_amo)
+#df_amo$year
+```
+<!--_Save data for furture use_*-->
+
+
+```{r echo=FALSE}
+dir <- '../data/clean/'
+write_csv(hurdat2_out, file.path(dir, "hurdat2_out.csv"))
+```
+```{r echo=FALSE}
+#names(hurdat2_out)
+```
+
+```{r echo=FALSE}
+#names(df)
+```
+```{r echo=FALSE}
+#df$max_max_wind %>% unique()
+```
+
+**Meaning for each variables**
+
+`_id_`
+
+Storm id, which is unique. An id is a combination of 8 characters, 
+
+for example, 'AL092011', 
+
+* AL (Spaces 1 and 2) – Basin – Atlantic
+
+* 09 (Spaces 3 and 4) – ATCF cyclone number for that year
+
+* 2011 (Spaces 5-8, before first comma) – Year
+
+for detail information, please see [dataformat](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf)
+
+`_name_`
+
+Storm Name, which is non-unique. There are six lists that are used in rotation and re-cycled every six years, i.e., the 2013 list is used again in 2019. For more information, please see [tropical cyclone names](https://www.nhc.noaa.gov/aboutnames.shtml).
+
+`_storm_id_`
+
+Storm name and id combined,  i.e., Sandy-2012  
+
+`_unname_label_`   
+
+Storms have name or not (“yes”, “no”)
+
+`_datetime, year, month, day, hour_`
+
+Date of report (in Universal Time Coordinate)
+
+`_record_identifier_`
+
+C – Closest approach to a coast, not followed by a landfall
+
+G – Genesis
+
+I – An intensity peak in terms of both pressure and wind
+
+L – Landfall (center of system crossing a coastline)
+
+P – Minimum in central pressure
+
+R – Provides additional detail on the intensity of the cyclone when rapid changes are underway
+
+S – Change of status of the system
+
+T – Provides additional detail on the track (position) of the cyclone
+
+W – Maximum sustained wind speed
+
+`_latitude,longitude_`
+
+Location of storm center
+
+`_status_`
+
+Storm classification (Tropical Depression, Tropical Storm, or Hurricane)
+
+TD – Tropical cyclone of tropical depression intensity (< 34 knots)
+
+TS – Tropical cyclone of tropical storm intensity (34-63 knots)
+
+HU – Tropical cyclone of hurricane intensity (> 64 knots)
+
+EX – Extratropical cyclone (of any intensity)
+
+SD – Subtropical cyclone of subtropical depression intensity (< 34 knots)
+
+SS – Subtropical cyclone of subtropical storm intensity (> 34 knots)
+
+LO – A low that is neither a tropical cyclone, a subtropical cyclone, nor an extratropical cyclone (of any intensity)
+
+WV – Tropical Wave (of any intensity)
+
+DB – Disturbance (of any intensity) 
+
+`_category_`
+
+[Saffir-Simpson storm category](https://www.nhc.noaa.gov/aboutsshws.php) (estimated from wind speed. -1 = Tropical Depression, 0 = Tropical Storm)
+
+`_max_wind_`
+
+storm's maximum sustained wind speed (in knots)
+
+`_min_pressure_`
+
+Air pressure at the storm's center (in millibars)
+
+`_ts_diameter_`
+
+Diameter of the area experiencing tropical storm strength winds (34 knots or above)
+
+`_hu_diameter_`
+
+Diameter of the area experiencing hurricane strength winds (64 knots or above)
+
+`_max_category_`
+
+Maximum category of each storm track
+
+`_max_status_label_`
+
+Label (“TRUE”, “FALSE”) to indicate whether the measurement is for the maximum status of each track
+
+`_max_max_wind_`  
+
+The maximum value of the ` max_wind ` for each track
+
+`_min_min_pressure_` 
+
+The minimum value of the ` min_pressure ` for each track
+
+`_max_ts_diameter_`
+
+The maximum value of the ` ts_diameter ` for each track
+
+`_max_hu_diamter_`
+
+The maximum value of the ` hu_diameter ` for each track
+
+!--test-->
+
+```{r echo=FALSE}
+d <- read.table('ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt',
+                na.strings = -99.99)
+names(d) <- c('year', 'month', 'decimalYear', 'average', 'interpolated', 'trend', 'ndays')
+d$time <- with(d, as.Date(paste(year, sprintf('%02d', month), '01', sep='-'), format='%Y-%m-%d', tz='UTC'))
+time <- d$time
+co2 <- d$interpolated
+df_aco2 <- data.frame(time, co2)
+#names(d)
+```
+```{r echo=FALSE}
+#d$year %>% unique()
+```
+
+
+
+```{r echo=FALSE}
+hurdat_names <- c("year","Original_Named_Storms","Revised_Named_Storms",
+                  "Original_Hurricanes", "Revised_Hurricanes",
+                  "Original_Major_Hurricanes","Revised_Major_Hurricanes","Original_ACE","Revised_ACE",
+                  "Original_US_Hurricanes","Original_US_Hurricanes_Category",
+                  "Revised_US_Hurricanes", "Revised_US_Hurricanes_Category")
+col_types = list(year = col_double(),
+                 Original_Named_Storms = col_double(),
+                 Revised_Named_Storms = col_double(),
+                 Original_Hurricanes = col_double(),
+                 Revised_Hurricanes = col_double(),
+                 Original_Major_Hurricanes = col_double(),
+                 Revised_Major_Hurricanes = col_double(),
+                 Original_ACE = col_double(),
+                 Revised_ACE = col_double(),
+                 Original_US_Hurricanes = col_double(),
+                 Original_US_Hurricanes_Category = col_character(),
+                 Revised_US_Hurricanes = col_double(),
+                 Revised_US_Hurricanes_Category = col_character())
+dfhurdatin<- "../data/raw/HURDAT.csv"
+df_hurdat <- read_csv(dfhurdatin, skip =7, n_max = 168, col_names = hurdat_names, na = c(""," "), col_types = col_types)
+#names(df_hurdat)
+#df_hurdat$year
+```
+
+
+```{r echo=FALSE}
+library(ncdf4)
+ 
+ncfname <- "../data/raw/AMO_HADLEY.1870-2010.CLM_1901-1970.nc"
+ncIn <- nc_open(ncfname)
+#print(ncIn)
+
+year <- ncvar_get(ncIn, "year")
+
+AMO_WARM <- ncvar_get(ncIn, "AMO_WARM")
+AMO_WARM_REMOVED <- ncvar_get(ncIn, "AMO_WARM_REMOVED")
+AMO_WARM_REMOVED_SMTH <- ncvar_get(ncIn, "AMO_WARM_REMOVED_SMTH")
+AMO_WARM_SMTH <- ncvar_get(ncIn, "AMO_WARM_SMTH")
+SST_GLOBAL_MEAN <- ncvar_get(ncIn, "SST_GLOBAL_MEAN")
+SST_GLOBAL_MEAN_SMTH <- ncvar_get(ncIn, "SST_GLOBAL_MEAN_SMTH")
+
+df_amo <- data.frame(year, AMO_WARM, AMO_WARM_REMOVED, AMO_WARM_REMOVED_SMTH,AMO_WARM_SMTH,
+                     SST_GLOBAL_MEAN, SST_GLOBAL_MEAN_SMTH)
+#names(df_amo)
+#df_amo$year
+```
+<!--_Save data for furture use_*-->
+
+
+```{r echo=FALSE}
+dir <- '../data/clean/'
+write_csv(hurdat2_out, file.path(dir, "hurdat2_out.csv"))
+```
+```{r echo=FALSE}
+#names(hurdat2_out)
+```
+
+
+
+
+
+
+
+
+
+<!--chapter:end:02-DataTransformation.Rmd-->
+
+# Missing Values{#missingval}
+
+Here, we use `visna::extract` to look at the missing value patterns.  _The bars_ beneath the columns in Figure \@ref(fig:missingvalue-extracat-fig) show the proportions of missingness by variable, suggesting hurricane diameter _(`hu_diameter`)_ and storm diameter _(`ts_diameter`)_ both have the highest number of missing value and the columns suggest that they follow the same missing pattern, meaning when hurricane diameter is missing, storm diameter is also missing. 
+
+The third most missing variable is Pressure _(`min_pressure`)_ and _the columns_ show that Pressure is missing only when hurricane diameter and storm diameter are missing. The _bars_ on the right show the relative frequencies of the missing patterns, which suggest the most frequent missing patterns are in the combination of hurricane diameter, storm diameter and pressure, followed by the combination of hurricane diameter and storm diameter. Non-missing data are in the third meaning most of rows are completeness. 
+
+Finally, hurricane diameter and storm diameter are the most missing values because they are calculated from _Wind Raddii_ but _Wind Raddii_ values were not used before 2004. 
+
+
+```{r echo=FALSE}
+ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+```{r echo=FALSE}
+library(tidyverse)
+library(stringr)
+library(naniar)
+library(mi)
+#devtools::install_github("cran/extracat", force = TRUE)
+#devtools::install_github("coatless/ucidata", force = TRUE)
+library(extracat)
+library(visdat)
+library(ggthemes)
+```
+
+```{r echo=FALSE}
+tcs <- c("tropical storm", "tropical hurricane","subtropical storm")
+df <- df %>% dplyr::filter(status %in% tcs)
+#names(df)
+```
+
+
+```{r missingvalue-extracat-fig, fig.cap='Missing Values Patterns', out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+# review missingness patterns
+df_new_name <- df %>% dplyr::select(min_pressure, max_wind, longitude, latitude, ts_diameter, hu_diameter) %>% 
+  dplyr::rename(Pressure = min_pressure, Wind = max_wind, Longitude = longitude, Latitude = latitude, TS_Diam= ts_diameter, HU_Diam = hu_diameter)
+
+extracat::visna(df_new_name, sort = "b")
+
+```
+
+It is worth noting that almost all Pressure data are missing from 1850s to 1940s. The number of missing data is then decreasing from the 1940s, and there are no missing Pressure starting the 2000s (see Figure \@ref(fig:missingvalue-pressure-year-fig)). The reasons for this are are the following: (1) in the early years, information about pressure was recorded by ships; those were few in numbers and thus a lot of pressure data could not be recorded (2) in more recent years, it became a common habit to replace missing pressure values by an analytical product such as sattelite data; (3) improvements in modern tools and technologies have provided us with a more powerful observation network than that in the early years.
+
+
+```{r missingvalue-pressure-year-fig, fig.cap="Proportion of Missing Air Pressure at the Storm\'s Center By Year", out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+df_completeish <- 
+  df %>% group_by(year) %>% summarize(num_completeish = n(), num_na = sum(is.na(min_pressure))) %>% mutate(percent_na = num_na/num_completeish) %>% arrange(-percent_na)
+
+ggplot(df_completeish, aes(x=year, y =percent_na))+
+  geom_line()+
+  xlab('Year')+
+  ylab("Proportion of Missing Air Pressure (in millibars)") + theme_grey(13)+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+Another noticeable pattern in missing value relates to the name of tropical cyclones  (see Figure \@ref(fig:atlatnic-storms-unnamed-year-fig)). 
+
+Before the 1950s, it was not common practice to name tropical cyclones. This explains why we cannot find any cyclone with a name before that time. A couple were still not named after that, and the reason can be linked to the category: those cyclones are of category 0 and 1 (more information about categories can be found in part 5), which means that they could have been overlooked and therefore didn't receive any name. 
+
+```{r atlatnic-storms-unnamed-year-fig, fig.cap='Cyclones received names starting 1950s', out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+
+df$category = factor(df$category, levels=c("0","1","2","3","4","5"))
+
+df %>% 
+  dplyr::filter(category==c("0","1","2","3","4","5")) %>%
+  dplyr::select(c("id","name","year","category")) %>% unique() %>% 
+  mutate(name_id = if_else(name=="UNNAMED", "no", "yes")) %>%
+  #group_by(name_id, year, category) %>% summarise(name_id_num = n()) %>% ungroup() %>% 
+  ggplot(aes(x=year, y=name_id, color=name_id))+
+  geom_point()+
+  facet_wrap(~category)+
+  #geom_smooth()+
+  labs(x = "Year", y = "",color = "Is the cyclone named?")+
+  theme_grey(13)+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_color_colorblind()
+```
+
+
+
+
+<!--chapter:end:03-MissingValues.Rmd-->
+
+# Results {#result}
+
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+## What influences the change in category of a hurricane?
+
+Hurricanes are classified in different categories based on the [Saffir-Simpson](https://www.nhc.noaa.gov/aboutsshws.php) Hurricane Wind Scale, which classifies hurricanes with regards to their wind speeds and estimates potential property damages. The hurricanes categories come under five items:
+
+
+(1) Category 1: 
+
+Very dangerous winds from 64 to 82 knot (kt) that will lead to some damage such as roof damage or snapped tree branches. A famous hurricane of category 1 is [Danny](https://en.wikipedia.org/wiki/Hurricane_Danny_(1985)), which hit Cuba and the Gulf of Mexico in 1985.
+
+
+(2) Category 2:
+
+Extremely dangerous winds from 83 to 95 kt that will produce extensive damage such as roof damage and siding, many toppled shallowly rooted trees and near-total power outage. A famous hurricane of category 2 is [Erin](https://en.wikipedia.org/wiki/Hurricane_Erin_(1995)) which hit Florida in 1995 and caused 5 people to die and cost $700 million (1995 USD).
+
+
+(3) Category 3:
+
+Extremely dangerous winds from 96 to 112 kt will cause devastating damage such as removal of roof decking, power outage and power outage for days to weeks after the storm passes. [Katrina](https://en.wikipedia.org/wiki/Hurricane_Katrina) is a famous hurricane of category 3 that lead to 1,836 deaths and $81 billion (2005 USD) in property damage in 2005. Major states impacted were Louisiana and Mississippi. 
+
+
+(4) Category 4: 
+
+Extremely dangerous winds from 113 to 136 kt that will cause catastrophic damage such as loss of most of the roof structure and exterior walls, fallen trees and power outage for weeks to months. A famous hurricane of category 4 is [Harvey](https://en.wikipedia.org/wiki/Hurricane_Harvey) which hit Texas and Louisiana in 2017 with damage estimated to $125 billion (2017 USD) and 107 deaths in the United States.
+
+
+(5) Category 5: 
+
+Extremely dangerous winds of 137 kt or higher that will cause catastrophic damage such as total roof and wall collapse, fallen trees, power outage for weeks to months and uninhabitable regions for weeks or months. A famous hurricane of category 5 is [Andrew](https://en.wikipedia.org/wiki/Hurricane_Andrew), which hit Louisiana and Florida in 1992 and whose damage accounts for $41.5 billion (2011 USD) and 54 deaths (approximately 1 million people were evacuated before the storm).
+
+
+Besides, it is also worth distinguishing hurricanes from tropical storms, whose maximum sustained surface winds range from 34 to 63 kt. They are labeled category 0 in our dataset. 
+
+The strength of a hurricane can also be assessed by its barometric pressure, that is the pressure at its center: the lower the barometric pressure, the stronger the hurricane.
+
+Finally, the size of a hurricane is defined by its diameter. 
+
+Let's now examine those features on a parallel coordinate plot and see how they relate to each other.
+
+```{r pcp-category-wind-pressure-fig, fig.cap="Windspeed and Pressure are indicators of cyclone category", out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+#PCP plot showing features of high category hurricane (high wind, low pressure)
+data2<- df %>% dplyr::select(max_wind, min_pressure, hu_diameter,category)
+
+colnames(data2) <- c("Windspeed", "Pressure", "Diameter", "category")
+data2$category <- as.factor(data2$category)
+
+ggparcoord(data2,columns=1:3,alphaLines=1,
+           groupColumn=4)+
+  geom_vline(xintercept=1:3,color="grey")+
+  labs(x = "Features", y = "Standardized scale", color = "Category")+
+  theme_grey(13)+
+  scale_color_viridis_d()+
+  scale_color_colorblind()
+
+```
+
+First of all, as showing in Figure \@ref(fig:pcp-category-wind-pressure-fig), categories are clearly distinct in terms of windspeed and increase proportionally to this feature. This is consistent with the definition of the [Saffir-Simpson Scale](https://www.nhc.noaa.gov/aboutsshws.php). The same conclusion can be drawn for the [barometric pressure measured at the center of the hurricane]( https://sciencing.com/barometric-pressure-hurricanes-22734.html): for low pressures, the hurricane will be overall of a higher category. The distinction is however not as clear as for windspeed and some overlap can be noticed. 
+
+Furthermore, no relationship can be established between the diameter of the area experiencing hurricane strength winds of 64 knots or above hurricane diameter _(`hu_diameter`)_, which would mean that the category, wind speed and min pressure will not determine the potential areas that will be affected by hurricane. 
+
+Note that all tropical storm have a diameter equal to 0: this is because the variable used for the graph is hurricane diameter, which accounts for the diameter of hurricanes. The diameter of the area experiencing tropical storm strength winds (34 knots or above) is reported in a separated variable called storm diameter _(`ts_diameter`)_. As this project focuses on hurricanes, and these two parameters are highly correlated to each other, the decision was made to not include it in the graph. 
+
+### A first look into the evolution of the category of hurricanes  
+
+Let's now check whether a hurricane sticks to one category in its lifetime or if it changes overtime. To do so, we select three hurricanes of the same year: Irma (Florida), Maria (North Carolina) and Gert (North of Atlantic Ocean), which all occurred in 2017.
+
+```{r echo=FALSE}
+
+data3 <- df %>% dplyr::filter(name =="Irma",year == 2017) 
+
+data4 <- df %>% dplyr::filter(name == "Maria",year == 2017)
+
+data5 <- df %>% dplyr::filter(name == "Gert",year == 2017)
+
+
+```
+
+
+```{r each-track-develop-fig, fig.cap='Three Example Hurricanes in 2017', out.width='100%', fig.asp=.75,fig.align='center',echo=FALSE}
+#Plots that shows the evolution of category of hurricane over time (x: longitude, y: latitude, each point represent the data and category)
+
+data6 <- rbind(data3,data4,data5)
+
+data6$datetime <- as.Date(data6$datetime)
+
+data6$category <- (as.numeric(data6$category)-1)
+
+ggplot(data6) +
+  geom_sf(data=spData::world, fill = "grey85", col = 1) +
+  coord_sf(xlim = c(-100, -20), ylim = c(0,60), expand = TRUE)+
+  geom_point(aes(y=latitude, x=longitude, color= hu_diameter, size=category))+
+  facet_wrap(~name)+
+  labs(x = "Longitude", y = "Latitude", color = "Diameter (miles)", size = "Category")+
+  theme_grey(13)+
+  theme(axis.text.x = element_text(size=8, angle=45))
+```
+
+
+From Figure \@ref(fig:each-track-develop-fig), it can be noted that both Irma and Maria grew in intensity to reach category 5, while Gert **only** reached category 2 as a maximum. A difference in lifetime can also be highlighted (almost 2 weeks vs a couple days). As both Irma and Maria hit Southern states and Gert occured at a Northern location, the following hypothesis is stated: is the maximum category reached by a hurricane dependent on its location? That is, *is there a difference between the maximum category reached by Southern and Northern hurricanes?* 
+
+
+
+```{r each-track-develop-time-fig,out.width='80%', fig.asp=.75, fig.cap='Time Series of Three Example Hurricanes in 2017', fig.align='center',echo = FALSE}
+#Time series of 3 hurricanes (In 2017, Irma hits Florida (category 5), Maria hits North Carolina (category 5?), Gert hits East Coast (category 2)) 
+
+#Irma <- df %>% dplyr::select(category, datetime, storm_id) %>% dplyr::filter(storm_id=="Irma-2017")
+#Maria <- df %>% dplyr::select(category, datetime, storm_id) %>% dplyr::filter(storm_id=="Maria-2017")
+#Gert <- df %>% dplyr::select(category, datetime, storm_id) %>% dplyr::filter(storm_id=="Gert-2017")
+
+#MaIrGer <- rbind(Maria, Irma, Gert)
+
+#MaIrGer$datetime <- as.Date(MaIrGer$datetime)
+
+ggplot(data6, aes(datetime, category, color=name)) +
+  geom_line()+
+  labs(x = "Time", y = "Category", color = "Hurricanes") +
+  theme_grey(13)+
+  scale_color_viridis_d()+ 
+  scale_color_colorblind()
+```
+
+
+Before testing that hypothesis, it is worthy to note that the vertical jumping lines in the time series of hurricanes (Figure \@ref(fig:each-track-develop-time-fig)). These suggest that hurricanes are highly dynamic and can lose/gain energy in only a couple hours. This concept is illustrated by the following time series (Figure \@ref(fig:tc-dramatic-fig)), showing a close up of hurricane Irma evolution on September 9th 2017; in a couple hours, the hurricane when from category 5 to category 2.
+
+```{r tc-dramatic-fig, fig.cap = 'Close Up of Time Series of Hurricane Irma in 2017',out.width='80%', fig.asp=.75,fig.align='center', echo=FALSE}
+
+IrSep9 <- df %>% dplyr::select(category, datetime, storm_id, day, hour) %>% dplyr::filter(storm_id=="Irma-2017", day == 9)
+
+scaleFUN <- function(x) sprintf("%.2f", x)
+
+Ir_hour <- ggplot(IrSep9, aes(hour, category)) +
+  geom_line()+
+  labs(x = "Hours", y = "Category") +
+  theme_grey(13)
+
+Ir_hour + scale_x_continuous(labels=scaleFUN)
+```
+
+
+### Is there a difference between the maximum category reached by Southern and Northern hurricanes? 
+
+Let's now verify whether the hypothesis holds. The Figure \@ref(fig:each-track-develop-fig) depicts the path of each hurricane across time and also colors the diameter the area experiencing hurricane strength winds of 64 knots or above and sized according their categories.
+
+Each hurricane formed in the low latitude east with a low category, then intensified (large circle and bluer) as it extracted energy from the warm/moist air over the oceans. As a result, its category evolved with time until it reached a certain point then dissipated. The hurricanes then broke apart because they move through cold water (e.g, Maria) or move over land (e.g., Irma) which made them losing touch with the hot water that powered them. 
+
+When hurricanes start at different location point, they absorb different amount of energy throughout their progression towards the west or northwest. This will lead to different energy formation that will determine the highest wind level measured, and in turn decide what that category of that hurricane will be. 
+
+The comparison of the hurricane track and intensity indicates that the longer the hurricane stay over the southern warm water, the stronger it gets to be (see Irma), while the northern formed storms, like Gert, could not reach high category and they die out a few hours after they start because they do not have enough energy to become a hurricane.
+
+This seems to confirm the hypothesis stated above: there seems to be an interesting relationship between location and category of a hurricane. In addition, hurricanes seem to reach higher categories when located in the South of the Atlantic Ocean than in the North.
+
+
+```{r co2-year-fig, fig.cap ='Frequency of Hurricanes across the United States',out.width='80%', fig.asp=.75,fig.align='center', echo=FALSE}
+ggplot(data=df)+
+  geom_sf(data=spData::world, fill = "grey85", col = 1) +
+  coord_sf(xlim = c(-100, -20), ylim = c(0,60))+
+  geom_hex(aes(x=longitude, y=latitude), binwidth = c(1,1))+
+  scale_fill_gradientn(colours=c("orange","black"),name = "Frequency",na.value=NA)+
+  facet_wrap(~category)+
+  theme_bw(12)+xlab("Longitude")+ylab("Latitude")+
+  theme_grey(13)+
+  theme(axis.text.x = element_text(size=8, angle=45))
+```
+
+```{r echo=FALSE}
+df_maxcate_only <- df %>% dplyr::filter(max_status_label == "TRUE")
+```
+
+Let's now check whether the hypothesis can be extended in terms of frequency. The frequency of hurricane by location for each category. Figure \@ref(fig:co2-year-fig) shows that storms and hurricanes disappear when they reach the land or the northern water. 
+
+The low category storms (e.g., category 0 and 1) with the highest density along the coastline can reach further North, while the high category hurricanes (4 and 5) only appear in the South. The highest density along the coastline is related to the progress of the small tropical depressions. When these small depressions travel over the ocean to the US eastern coast, they gain energy and update to the category 0 storm. It is worth to note that as category increases, their north boundary seems to shift toward the south, suggesting the feature of storms and hurricanes are location-related.
+
+We build a Shiny Web Application for the Interactive Component in order to assist with visualizing this result. 
+
+## Does hurricane activity shift north-ward?
+
+#```{r echo=FALSE}
+#df <- read.csv("../data/clean/hurricanes.csv")
+#```
+
+
+```{r echo=FALSE}
+library(tidyverse)
+library(dplyr)
+library(tidyverse)
+library(parcoords)
+library(ggplot2)
+library(GGally)
+library(vcd)
+library(sf)
+library(maps)
+#View(data)
+```
+Next, we want to assess whether hurricane activity is shifting North. A recent study showed that the locations of tropical cyclones is shifting poleward (i.e. north-ward) globally ([Thompson](https://www.climatecentral.org/news/warming-may-shift-hurricane-impacts-17437)). If true, this implies heavy consequences for the Northern part of the United States. Southern states such as Florida have already taken steps to improve its approach to hurricanes, such as property structure improvements, rescue boats and vehicles investments, and emergency workers trainings; if the frequency of tropical cyclones is indeed shifting North, Northern states should consider taking similar actions. 
+
+Before exploring the above hypothesis, it is worth redefining latitude and longitude:
+
+**Latitude** is the measurement of a place on Earth with regards to its distance north or south-wise from the Earth's equator. Latitude is expressed in degrees followed by the letter N or S whether the location measured is North or South from the equator. Interesting examples for this project are Miami's latitude (~26°N) and New York City's latitude (~41°N). 
+
+**Longitude** is the measurement of a place on Earth with regards to its distance west or east-wise from the meridian at Greenwich, England. It is also measured in degrees and followed by the letter W or E depending on whether the location of interest is West or East from the meridian. 
+
+We will focus on latitude to verify whether hurricane activity seems to be changing directions. 
+
+
+```{r echo=FALSE}
+df_maxcate_only <- df %>% dplyr::filter(max_status_label == "TRUE")
+```
+
+```{r hurricane-north-fig, fig.cap='Frequency of Hurricanes by Latitude over Years', out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+df_maxcate_only %>% 
+  #dplyr::filter(year>1950) %>%
+  #dplyr::filter(year<2000) %>% 
+
+ggplot()+
+  geom_hex(aes(x=year, y=latitude))+#, binwidth = c(1,1))+
+  scale_fill_gradientn(colours=c("orange","black"),name = "Frequency",na.value=NA)+
+  #facet_wrap(~category)+
+  xlab("Year")+
+  ylab("Latitude")+
+  theme_bw(12)+
+  theme_grey(13)
+```
+
+Figure \@ref(fig:hurricane-north-fig) shows a heatmap of hurricane activity based on time and location.
+
+While tropical cyclones frequency seems to be consistently higher at lower latitudes, one can observe an increase in cyclones activity at higher latitudes in the 1970s. However, this shift does not seem to be permanent as the frequency of tropical cyclones seems to decrease again in the following decades. 
+
+Besides, if we look at the tropical cyclones activity faceted on category (Figure \@ref(fig:hurricane-north-category-fig)), the shift in location seems to be focused on tropical storms (category 0) and hurricanes of category 1. Hurricanes of category 4 are also more frequent on higher latitudes in the 1970s but the frequency remains at a low level and the activity returns to lower latitudes in the following decades. These observed trends would therefore not justify investments in hurricane-proofed facilities for Northern States.  
+
+```{r hurricane-north-category-fig, fig.cap='Frequency of each Hurricane Category over Years', out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+
+df_maxcate_only %>% 
+  #dplyr::filter(year>1950) %>%
+  #dplyr::filter(year<2000) %>% 
+ggplot()+
+  geom_hex(aes(x=year, y=latitude))+#, binwidth = c(1,1))+
+  scale_fill_gradientn(colours=c("orange","black"),name = "Frequency",na.value=NA)+
+  facet_wrap(~category)+
+  theme_bw(12)+
+  xlab("Year")+
+  ylab("Latitude")+
+  theme_bw(12)+
+  theme_grey(13)
+```
+
+## Have humans already caused a detectable long-term increase in Atlantic hurricane activity?
+
+
+As we can see from Figure \@ref(fig:ts-co2-year-fig), the global CO2 concentration has increased, and the tropical Atlantic sea surface temperature show significant warming trends (Figure \@ref(fig:ts-sst-year-fig)). 
+
+
+
+```{r echo=FALSE}
+
+#HM filter
+library(signal)
+n <- 10
+hm <- fir1(n, 0.1, type = c("low"),  window = hamming(n + 1), scale = TRUE)
+```
+
+<!--CO2-->
+```{r ts-co2-year-fig, fig.cap='Time Series of Atmospheric CO2 (ppm)', out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+df_aco2 %>% ggplot(aes(x=time, y=co2))+
+  geom_line()+
+  geom_smooth()+
+  xlab("Year")+ylab("CO2 concentration (ppm)")+theme_grey(16)#ggtitle("Time Series of Atmospheric CO2 (ppm)")+
+  #+theme(plot.title = element_text(hjust = 0.5))
+```
+
+<!--SST-->
+
+```{r ts-sst-year-fig, fig.cap='Time Series of Ocean Surface Temperature', out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+
+df_amo$SST_GLOBAL_MEAN_lp <- signal::filtfilt(hm, df_amo$SST_GLOBAL_MEAN)
+
+df_amo %>% 
+  #dplyr::filter(year >1940) %>% 
+  ggplot(aes(x=year, y=SST_GLOBAL_MEAN))+
+  geom_point()+
+  #geom_line(aes(x=year, y=SST_GLOBAL_MEAN_lp))
+  geom_smooth(method = "lm")+xlab("Year")+ylab("Surface Ocean Temperature (in Celsius)")+
+#ggtitle("Time Series of Ocean Surface Temperature")+
+theme(plot.title = element_text(hjust = 0.5))+
+theme_gray(16)
+```
+
+Besides, one can also observed an increase in the number of storms and hurricanes in the Atlantic from 1851 to 2018 (Figure \@ref(fig:ts-storm-year-fig)). We used this finding to ask the following question: *is there a link between greenhouse-induced warming and changes in the Atlantic storms frequency (Figure \@ref(fig:ts-storms-duration-year-fig))?*.
+<!--ts-storm-->
+
+```{r ts-storm-year-fig, fig.cap='Number of Atlantic Storms and Hurricanes Over Time', out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+dfhcount <- df %>%
+  #dplyr::filter(status %in% c("hurricane")) %>% 
+  dplyr::select(id, year) %>% unique() %>% 
+  group_by(year) %>% summarise(hcount = n()) %>% ungroup()
+
+dfhcount %>% 
+  ggplot(aes(x=year, y=hcount))+
+  geom_line()+
+  geom_smooth()+
+  xlab('Year')+ylab("Number of Atlantic Storms and Hurricanes")+theme(plot.title = element_text(hjust = 0.5))
+  #labs(title = "Number of Hurricanes Over Time")
+  
+```
+
+Based on past Atlantic hurricanes records from 1878-2006, scientists concluded that the increasing trend in the number of Atlantic storms is almost completely due to the increase in short-duration storms (less than 2 days) (@Landsea2010), suggesting that only the count of short-duration storms follow a similar trend as the CO2 concentration and surface ocean temperature.
+
+However, at the time, the focus was on storms that could have had an impact on ship traffic and, therefore, it is very likely that short-lived storms were overlooked in the earlier parts of the record. Besides, once our group explored the dataset with extra ten years’ record, we found that there is an increase trend on both short-lived and long-lived storms. 
+
+<!--ts-duration-->
+
+```{r ts-storms-duration-year-fig, fig.cap='Time Series of Atlantic Short-lived (`S`) and Long-lived (`L`) Storms and Hurricanes Number', out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+dfdur <- df %>%
+  #dplyr::filter(year>1878) %>% 
+  #dplyr::filter(year<2008) %>% 
+  dplyr::select(c("id","year","tc_dur_type")) %>% unique() %>% 
+  group_by(year, tc_dur_type) %>% mutate(tc_dur_num = length(tc_dur_type)) %>% 
+  ungroup()
+  
+dfdur %>%   
+  ggplot(aes(x=year, y=tc_dur_num))+#, color=dur_track))+
+  geom_point()+
+  facet_wrap(~tc_dur_type)+
+  #geom_smooth(method = "lm")+
+  geom_smooth(method = "lm")+
+  xlab('Year')+ylab("Counts")#+theme(plot.title = element_text(hjust = 0.5))
+  #geom_smooth()+
+  #labs(title = "Time series of HURDAT Atlantic Storm Counts by Storm\'s Duration")+
+  
+``` 
+
+This means that the evolution of the number of cyclones over time follows a similar trend as the CO2 concentration and surface ocean temperature. This could mean that humans have had an impact on the increase of hurricane activity, but to prove that this is a causation and not only a correlation, deeper research and statistical tests should be performed.
+
+<!--chapter:end:04-Results.Rmd-->
+
+# Interactive Component {#intercom}
+
+[storm shinyapp](https://hurricane.shinyapps.io/01_01/)
+
+```{r storm-track, fig.cap='app', screenshot.opts=list(delay=20,zoom=2), dev='png', cache=TRUE, fig.align='center', fig.width=8, fig.height=6}
+knitr::include_app('https://hurricane.shinyapps.io/01_01/', height = '600px')
+```
+
+The following  Shiny App that helps the user to assess hurricanes' features evolution across time and location as done in part 5.1 of this analysis.
+
+The graph on the left displays the hurricane path in the Atlantic Ocean and its change in category across locations. The category can be assessed by hovering on the path; the date at which the hurricane was at each location can be assessed by clicking on the path.
+
+The graph on the right displays the evolution of windspeed, barometric pressure and hurricane diameter across time of a hurricane. If values for the selected variable are missing, the graph will be blank.
+
+If the server is too slow and the app doesn't appear on your screen, follow this [Github link](https://github.com/jqz300/edav_proj) to download the necessary files and run the app locally.
+
+<!--chapter:end:06-interactive.Rmd-->
+
+# Conclusion
+
+In this analysis, we explore the century long storm records [HURDAT2: 1851-2018] (https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt) to investigate the characteristics of Atlantic storms and hurricanes and examine their changes under global warming conditions. The analysis results indicate that:
+
+(1)	The [Saffir-Simpson scale](https://www.nhc.noaa.gov/aboutsshws.php) that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from [storm shinyapp](https://hurricane.shinyapps.io/01_01/). 
+
+(2)	 While recent studies indicate a global North-ward shift in cyclones activity, we did not find strong evidence of this trend in our data. An increase of activity in the North was observed in the 1970s but seemed to decrease in the following decades. Besides, that shift seemed to be due to mostly an increase in frequency of cyclones of category 0 and 1, which are less worrying than cyclones of higher categories.
+
+(3)	Human activities may have already caused the changes in the Atlantic storm and hurricane activity, reflected by the increasing number of the Atlantic cyclones. However, exploratory analysis can only help us identify similarity in trends and not confirm that one is the cause of the other. In order to do the latter, further research and statistical testing should be performed.
+
+
+<!--chapter:end:07-Conclusion.Rmd-->
+
+`r if (knitr:::is_html_output()) '
+# References {-}
+'`
+
+<!--chapter:end:08-references.Rmd-->
+
