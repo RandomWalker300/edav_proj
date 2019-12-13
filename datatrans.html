@@ -177,7 +177,7 @@ please refer to <a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atl
 <!--test:*Note: there is an "ET" in _Status of system_, which does not included in the description [HURDAT2](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf). This is a typo in the dataset, `recode` it into 'EX".*-->
 <!--Save transformed data** for further use.-->
 <p>Thirdly, we estimate the storm duration <code>tc_dur_track</code> to those with maximum sustained surface winds of at least 35 knot and defined storms and define <code>tc_dur_type</code> for type of the duration. Here, <code>S</code> indicates storms with duration of 2.0 days or less and will be mentioned in the following text as <em>short-lived</em> storms, and <code>L</code> represnts storms with duration of more than 2.0 days and will be referred as “medium-to-long lived” storms.</p>
-<p>Finally, the ocean surface temperature and the directly observed Atlantic Meridional Overturning Circulation (AMOC) index are <code>.nc</code> formate, we use <code>ncdf4</code> to read in data. Note that there is there is an “ET” typo in <em>Status</em> of system in the <a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt">HURDAT2</a>, which has been corrected to <code>EX</code> in the output <code>data\clean\hurricanes.csv</code> file.
+<p>Finally, the ocean surface temperature is <code>.nc</code> formate, we use <code>ncdf4</code> to read in data. Note that there is there is an “ET” typo in <em>Status</em> of system in the <a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt">HURDAT2</a>, which has been corrected to <code>EX</code> in the output <code>data\clean\hurricanes.csv</code> file.
 <!--
 _read in atmospheric CO2_
 --></p>
