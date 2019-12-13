@@ -498,8 +498,6 @@ We build a Shiny Web Application for the Interactive Component in order to assis
 \hypertarget{does-hurricane-activity-shift-north-ward}{%
 \section{Does hurricane activity shift north-ward?}\label{does-hurricane-activity-shift-north-ward}}
 
-\#\texttt{\{r\ echo=FALSE\}\ \#df\ \textless{}-\ read.csv("../data/clean/hurricanes.csv")\ \#}
-
 Next, we want to assess whether hurricane activity is shifting North. A recent study showed that the locations of tropical cyclones is shifting poleward (i.e.~north-ward) globally (\href{https://www.climatecentral.org/news/warming-may-shift-hurricane-impacts-17437}{Thompson}). If true, this implies heavy consequences for the Northern part of the United States. Southern states such as Florida have already taken steps to improve its approach to hurricanes, such as property structure improvements, rescue boats and vehicles investments, and emergency workers trainings; if the frequency of tropical cyclones is indeed shifting North, Northern states should consider taking similar actions.
 
 Before exploring the above hypothesis, it is worth redefining latitude and longitude:
@@ -507,8 +505,6 @@ Before exploring the above hypothesis, it is worth redefining latitude and longi
 \textbf{Latitude} is the measurement of a place on Earth with regards to its distance north or south-wise from the Earth's equator. Latitude is expressed in degrees followed by the letter N or S whether the location measured is North or South from the equator. Interesting examples for this project are Miami's latitude (\textasciitilde{}26°N) and New York City's latitude (\textasciitilde{}41°N).
 
 \textbf{Longitude} is the measurement of a place on Earth with regards to its distance west or east-wise from the meridian at Greenwich, England. It is also measured in degrees and followed by the letter W or E depending on whether the location of interest is West or East from the meridian.
-
-We will focus on latitude to verify whether hurricane activity seems to be changing directions.
 
 \begin{figure}
 
@@ -519,9 +515,7 @@ We will focus on latitude to verify whether hurricane activity seems to be chang
 \caption{Frequency of Hurricanes by Latitude over Years}\label{fig:hurricane-north-fig}
 \end{figure}
 
-Figure \ref{fig:hurricane-north-fig} shows a heatmap of hurricane activity based on time and location.
-
-While tropical cyclones frequency seems to be consistently higher at lower latitudes, one can observe an increase in cyclones activity at higher latitudes in the 1970s. However, this shift does not seem to be permanent as the frequency of tropical cyclones seems to decrease again in the following decades.
+We will focus on latitude to verify whether hurricane activity seems to be changing directions. Figure \ref{fig:hurricane-north-fig} shows a heatmap of hurricane activity based on time and location. While tropical cyclones frequency seems to be consistently higher at lower latitudes, one can observe an increase in cyclones activity at higher latitudes in the 1970s. However, this shift does not seem to be permanent as the frequency of tropical cyclones seems to decrease again in the following decades.
 
 Besides, if we look at the tropical cyclones activity faceted on category (Figure \ref{fig:hurricane-north-category-fig}), the shift in location seems to be focused on tropical storms (category 0) and hurricanes of category 1. Hurricanes of category 4 are also more frequent on higher latitudes in the 1970s but the frequency remains at a low level and the activity returns to lower latitudes in the following decades. These observed trends would therefore not justify investments in hurricane-proofed facilities for Northern States.
 
@@ -594,7 +588,7 @@ The graph on the right displays the evolution of windspeed, barometric pressure 
 
 If the server is too slow and the app doesn't appear on your screen, follow this \href{https://github.com/jqz300/edav_proj}{Github link} to download the necessary files and run the app locally.
 
-\href{https://hurricane.shinyapps.io/01_01/}{Hurricane Shiny App}
+\href{https://hurricane.shinyapps.io/01_01/}{\textbf{Hurricane Shiny App}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -619,7 +613,7 @@ In this analysis, we explore the century long storm records {[}HURDAT2: 1851-201
 \begin{enumerate}
 \def\labelenumi{(\arabic{enumi})}
 \item
-  The \href{https://www.nhc.noaa.gov/aboutsshws.php}{Saffir-Simpson scale} that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from \href{https://hurricane.shinyapps.io/01_01/}{Hurricane Shiny App}.
+  The \href{https://www.nhc.noaa.gov/aboutsshws.php}{Saffir-Simpson scale} that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from \href{https://hurricane.shinyapps.io/01_01/}{\textbf{Hurricane Shiny App}}.
 \item
   While recent studies indicate a global North-ward shift in cyclones activity, we did not find strong evidence of this trend in our data. An increase of activity in the North was observed in the 1970s but seemed to decrease in the following decades. Besides, that shift seemed to be due to mostly an increase in frequency of cyclones of category 0 and 1, which are less worrying than cyclones of higher categories.
 \item

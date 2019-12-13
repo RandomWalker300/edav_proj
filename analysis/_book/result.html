@@ -248,20 +248,17 @@ Figure 5.5: Frequency of Hurricanes across the United States
 </div>
 <div id="does-hurricane-activity-shift-north-ward" class="section level2">
 <h2><span class="header-section-number">5.2</span> Does hurricane activity shift north-ward?</h2>
-<p>#<code>{r echo=FALSE} #df &lt;- read.csv(&quot;../data/clean/hurricanes.csv&quot;) #</code></p>
 <p>Next, we want to assess whether hurricane activity is shifting North. A recent study showed that the locations of tropical cyclones is shifting poleward (i.e. north-ward) globally (<a href="https://www.climatecentral.org/news/warming-may-shift-hurricane-impacts-17437">Thompson</a>). If true, this implies heavy consequences for the Northern part of the United States. Southern states such as Florida have already taken steps to improve its approach to hurricanes, such as property structure improvements, rescue boats and vehicles investments, and emergency workers trainings; if the frequency of tropical cyclones is indeed shifting North, Northern states should consider taking similar actions.</p>
 <p>Before exploring the above hypothesis, it is worth redefining latitude and longitude:</p>
 <p><strong>Latitude</strong> is the measurement of a place on Earth with regards to its distance north or south-wise from the Earth’s equator. Latitude is expressed in degrees followed by the letter N or S whether the location measured is North or South from the equator. Interesting examples for this project are Miami’s latitude (~26°N) and New York City’s latitude (~41°N).</p>
 <p><strong>Longitude</strong> is the measurement of a place on Earth with regards to its distance west or east-wise from the meridian at Greenwich, England. It is also measured in degrees and followed by the letter W or E depending on whether the location of interest is West or East from the meridian.</p>
-<p>We will focus on latitude to verify whether hurricane activity seems to be changing directions.</p>
 <div class="figure" style="text-align: center"><span id="fig:hurricane-north-fig"></span>
 <img src="edav-final-project_files/figure-html/hurricane-north-fig-1.png" alt="Frequency of Hurricanes by Latitude over Years" width="80%" />
 <p class="caption">
 Figure 5.6: Frequency of Hurricanes by Latitude over Years
 </p>
 </div>
-<p>Figure <a href="result.html#fig:hurricane-north-fig">5.6</a> shows a heatmap of hurricane activity based on time and location.</p>
-<p>While tropical cyclones frequency seems to be consistently higher at lower latitudes, one can observe an increase in cyclones activity at higher latitudes in the 1970s. However, this shift does not seem to be permanent as the frequency of tropical cyclones seems to decrease again in the following decades.</p>
+<p>We will focus on latitude to verify whether hurricane activity seems to be changing directions. Figure <a href="result.html#fig:hurricane-north-fig">5.6</a> shows a heatmap of hurricane activity based on time and location. While tropical cyclones frequency seems to be consistently higher at lower latitudes, one can observe an increase in cyclones activity at higher latitudes in the 1970s. However, this shift does not seem to be permanent as the frequency of tropical cyclones seems to decrease again in the following decades.</p>
 <p>Besides, if we look at the tropical cyclones activity faceted on category (Figure <a href="result.html#fig:hurricane-north-category-fig">5.7</a>), the shift in location seems to be focused on tropical storms (category 0) and hurricanes of category 1. Hurricanes of category 4 are also more frequent on higher latitudes in the 1970s but the frequency remains at a low level and the activity returns to lower latitudes in the following decades. These observed trends would therefore not justify investments in hurricane-proofed facilities for Northern States.</p>
 <div class="figure" style="text-align: center"><span id="fig:hurricane-north-category-fig"></span>
 <img src="edav-final-project_files/figure-html/hurricane-north-category-fig-1.png" alt="Frequency of each Hurricane Category over Years" width="80%" />

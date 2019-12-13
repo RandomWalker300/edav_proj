@@ -1,6 +1,6 @@
 # Interactive Component {#intercom}
 
-The following  Shiny App that helps the user to assess hurricanes' features evolution across time and location as done in part 5.1 of this analysis.
+The following Shiny App that helps the user to assess hurricanes' features evolution across time and location as done in part 5.1 of this analysis.
 
 The graph on the left displays the hurricane path in the Atlantic Ocean and its change in category across locations. The category can be assessed by hovering on the path; the date at which the hurricane was at each location can be assessed by clicking on the path.
 
@@ -9,7 +9,7 @@ The graph on the right displays the evolution of windspeed, barometric pressure 
 If the server is too slow and the app doesn't appear on your screen, follow this [Github link](https://github.com/jqz300/edav_proj) to download the necessary files and run the app locally.
 
 
-[Hurricane Shiny App](https://hurricane.shinyapps.io/01_01/)
+[**Hurricane Shiny App**](https://hurricane.shinyapps.io/01_01/)
 
 ```{r storm-track, fig.cap='app', screenshot.opts=list(delay=20,zoom=2), dev='png', cache=TRUE, fig.align='center', fig.width=8, fig.height=6}
 knitr::include_app('https://hurricane.shinyapps.io/01_01/', height = '600px')

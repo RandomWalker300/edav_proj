@@ -179,10 +179,6 @@ We build a Shiny Web Application for the Interactive Component in order to assis
 
 ## Does hurricane activity shift north-ward?
 
-#```{r echo=FALSE}
-#df <- read.csv("../data/clean/hurricanes.csv")
-#```
-
 
 ```{r echo=FALSE}
 library(tidyverse)
@@ -204,8 +200,6 @@ Before exploring the above hypothesis, it is worth redefining latitude and longi
 
 **Longitude** is the measurement of a place on Earth with regards to its distance west or east-wise from the meridian at Greenwich, England. It is also measured in degrees and followed by the letter W or E depending on whether the location of interest is West or East from the meridian. 
 
-We will focus on latitude to verify whether hurricane activity seems to be changing directions. 
-
 
 ```{r echo=FALSE}
 df_maxcate_only <- df %>% dplyr::filter(max_status_label == "TRUE")
@@ -226,9 +220,7 @@ ggplot()+
   theme_grey(13)
 ```
 
-Figure \@ref(fig:hurricane-north-fig) shows a heatmap of hurricane activity based on time and location.
-
-While tropical cyclones frequency seems to be consistently higher at lower latitudes, one can observe an increase in cyclones activity at higher latitudes in the 1970s. However, this shift does not seem to be permanent as the frequency of tropical cyclones seems to decrease again in the following decades. 
+We will focus on latitude to verify whether hurricane activity seems to be changing directions. Figure \@ref(fig:hurricane-north-fig) shows a heatmap of hurricane activity based on time and location. While tropical cyclones frequency seems to be consistently higher at lower latitudes, one can observe an increase in cyclones activity at higher latitudes in the 1970s. However, this shift does not seem to be permanent as the frequency of tropical cyclones seems to decrease again in the following decades. 
 
 Besides, if we look at the tropical cyclones activity faceted on category (Figure \@ref(fig:hurricane-north-category-fig)), the shift in location seems to be focused on tropical storms (category 0) and hurricanes of category 1. Hurricanes of category 4 are also more frequent on higher latitudes in the 1970s but the frequency remains at a low level and the activity returns to lower latitudes in the following decades. These observed trends would therefore not justify investments in hurricane-proofed facilities for Northern States.  
 
