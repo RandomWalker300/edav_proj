@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 7 Conclusion | Hurricane Analysis and Visulization Using R</title>
+  <title>Chapter 3 Data Transformation | Hurricane Analysis and Visulization Using R</title>
   <meta name="description" content="This is an edav class final project" />
   <meta name="generator" content="bookdown 0.15 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 7 Conclusion | Hurricane Analysis and Visulization Using R" />
+  <meta property="og:title" content="Chapter 3 Data Transformation | Hurricane Analysis and Visulization Using R" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="rstudio/bookdown-demo" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 7 Conclusion | Hurricane Analysis and Visulization Using R" />
+  <meta name="twitter:title" content="Chapter 3 Data Transformation | Hurricane Analysis and Visulization Using R" />
   
   <meta name="twitter:description" content="This is an edav class final project" />
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="intercom.html"/>
-<link rel="next" href="references.html"/>
+<link rel="prev" href="datasource.html"/>
+<link rel="next" href="missingval.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -166,14 +166,91 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="conclusion" class="section level1">
-<h1><span class="header-section-number">Chapter 7</span> Conclusion</h1>
-<p>In this analysis, we explore the century long storm records [HURDAT2: 1851-2018] (<a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt" class="uri">https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt</a>) to investigate the characteristics of Atlantic storms and hurricanes and examine their changes under global warming conditions. The analysis results indicate that:</p>
-<ol style="list-style-type: decimal">
-<li><p>The [Saffir-Simpson] scale (<a href="https://www.nhc.noaa.gov/aboutsshws.php" class="uri">https://www.nhc.noaa.gov/aboutsshws.php</a>) that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from <a href="https://hurricane.shinyapps.io/shinyapp/">storm shinyapp</a>.</p></li>
-<li><p>While recent studies indicate a global North-ward shift in cyclones activity, we did not find strong evidence of this trend in our data. An increase of activity in the North was observed in the 1970s but seemed to decrease in the following decades. Besides, that shift seemed to be due to mostly an increase in frequency of cyclones of category 0 and 1, which are less worrying than cyclones of higher categories.</p></li>
-<li><p>Human activities may have already caused the changes in the Atlantic storm and hurricane activity, reflected by the increasing number of the Atlantic cyclones. However, exploratory analysis can only help us identify similarity in trends and not confirm that one is the cause of the other. In order to do the latter, further research and statistical testing should be performed.</p></li>
-</ol>
+<div id="datatrans" class="section level1">
+<h1><span class="header-section-number">Chapter 3</span> Data Transformation</h1>
+<!--test-->
+<p>The (<a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf">HURDAT2</a>) data has a comma-delimited, text format with six-hourly information on the location, maximum winds, central pressure, and (beginning in 2004) size of all known tropical cyclones and subtropical cyclones. The dataset is a combination of serveral subsets. Each subset is used for a storm track record which includes header information and values.
+please refer to <a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf">this file</a> for detail information.</p>
+<p>Firstly, we extract storm <code>id</code>, <code>name</code>, and <code>subtext length</code> from each subtext header, then read in data according to each <code>subtext length</code>, and merge data subset by indexing it with storm <code>id</code>, <code>name</code>. In the original text, you will find that the <code>name</code> is non-unique. Currently, there are six lists that are used in rotation and re-cycled every six years, i.e., the 2013 list is used again in 2019. For more information, please see tropical cyclone names. To avoid the future confusion, we create <code>storm-id</code> variable by combining <code>name</code> and <code>year</code> together (e.g., <em>Sandy-2012</em>). In the original file, there are storms labeled with NAMEs but others labelled with <code>UNNAME</code>. Here, we use <code>name_id</code> variable to indicate whether a storm has a name or not.</p>
+<p>Secondly, we estimate <code>category</code> variable from wind speed based on <a href="https://www.nhc.noaa.gov/aboutsshws.php">Saffir-Simpson storm category</a>, calculate the diameter of the area experiencing hurricane strength winds (64 knots or above), <code>_ts_diameter_</code> from extent of 34 kt wind radii maximum extent in northeastern quadrant (in nautical miles, <code>extent_34_NE</code>), 34 kt wind radii maximum extent in southeastern quadrant (in nautical miles, <code>extent_34_SW</code>), 34 kt wind radii maximum extent in northeastern quadrant (in nautical miles, <code>extent_34_NW</code>), and 34 kt wind radii maximum extent in southeastern quadrant (in nautical miles, <code>extent_34_SE</code>), <code>_hu_diameter_</code> from extent of 64 kt wind radii maximum extent in northeastern quadrant - <code>extent_64_NE</code>, southeastern quadrant - <code>extent_34_SW</code>, northeastern quadrant, <code>extent_64_NW</code>), and southeastern quadrant - <code>extent_64_SE</code>.</p>
+<!--test: category has been calculated based on [Saffir-Simpson Hurricane Wind Scale](https://www.nhc.noaa.gov/aboutsshws.php) to indicate "Types of Damage Due to Hurricane Winds". -->
+<!--test:*Note: there is an "ET" in _Status of system_, which does not included in the description [HURDAT2](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf). This is a typo in the dataset, `recode` it into 'EX".*-->
+<!--Save transformed data** for further use.-->
+<p>Thirdly, we estimate the storm duration <code>tc_dur_track</code> to those with maximum sustained surface winds of at least 35 knot and defined storms and define <code>tc_dur_type</code> for type of the duration. Here, <code>S</code> indicates storms with duration of 2.0 days or less and will be mentioned in the following text as <em>short-lived</em> storms, and <code>L</code> represnts storms with duration of more than 2.0 days and will be referred as “medium-to-long lived” storms.</p>
+<p>Finally, the ocean surface temperature and the directly observed Atlantic Meridional Overturning Circulation (AMOC) index are <code>.nc</code> formate, we use <code>ncdf4</code> to read in data. Note that there is there is an “ET” typo in <em>Status</em> of system in the <a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt">HURDAT2</a>, which has been corrected to <code>EX</code> in the output <code>data\clean\hurricanes.csv</code> file.
+<!--
+_read in atmospheric CO2_
+--></p>
+<!--
+_read in HUDART (1970-2018)_
+-->
+<!--
+_read in ocean temperature (1870-2010)_
+-->
+<!--_Save data for furture use_*-->
+<p><strong>Meaning for each variables</strong></p>
+<p><code>_id_</code></p>
+<p>Storm id, which is unique. An id is a combination of 8 characters,</p>
+<p>for example, ‘AL092011’,</p>
+<ul>
+<li><p>AL (Spaces 1 and 2) – Basin – Atlantic</p></li>
+<li><p>09 (Spaces 3 and 4) – ATCF cyclone number for that year</p></li>
+<li><p>2011 (Spaces 5-8, before first comma) – Year</p></li>
+</ul>
+<p>for detail information, please see <a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf">dataformat</a></p>
+<p><code>_name_</code></p>
+<p>Storm Name, which is non-unique. There are six lists that are used in rotation and re-cycled every six years, i.e., the 2013 list is used again in 2019. For more information, please see <a href="https://www.nhc.noaa.gov/aboutnames.shtml">tropical cyclone names</a>.</p>
+<p><code>_storm_id_</code></p>
+<p>Storm name and id combined, i.e., Sandy-2012</p>
+<p><code>_unname_label_</code></p>
+<p>Storms have name or not (“yes”, “no”)</p>
+<p><code>_datetime, year, month, day, hour_</code></p>
+<p>Date of report (in Universal Time Coordinate)</p>
+<p><code>_record_identifier_</code></p>
+<p>C – Closest approach to a coast, not followed by a landfall</p>
+<p>G – Genesis</p>
+<p>I – An intensity peak in terms of both pressure and wind</p>
+<p>L – Landfall (center of system crossing a coastline)</p>
+<p>P – Minimum in central pressure</p>
+<p>R – Provides additional detail on the intensity of the cyclone when rapid changes are underway</p>
+<p>S – Change of status of the system</p>
+<p>T – Provides additional detail on the track (position) of the cyclone</p>
+<p>W – Maximum sustained wind speed</p>
+<p><code>_latitude,longitude_</code></p>
+<p>Location of storm center</p>
+<p><code>_status_</code></p>
+<p>Storm classification (Tropical Depression, Tropical Storm, or Hurricane)</p>
+<p>TD – Tropical cyclone of tropical depression intensity (&lt; 34 knots)</p>
+<p>TS – Tropical cyclone of tropical storm intensity (34-63 knots)</p>
+<p>HU – Tropical cyclone of hurricane intensity (&gt; 64 knots)</p>
+<p>EX – Extratropical cyclone (of any intensity)</p>
+<p>SD – Subtropical cyclone of subtropical depression intensity (&lt; 34 knots)</p>
+<p>SS – Subtropical cyclone of subtropical storm intensity (&gt; 34 knots)</p>
+<p>LO – A low that is neither a tropical cyclone, a subtropical cyclone, nor an extratropical cyclone (of any intensity)</p>
+<p>WV – Tropical Wave (of any intensity)</p>
+<p>DB – Disturbance (of any intensity)</p>
+<p><code>_category_</code></p>
+<p><a href="https://www.nhc.noaa.gov/aboutsshws.php">Saffir-Simpson storm category</a> (estimated from wind speed. -1 = Tropical Depression, 0 = Tropical Storm)</p>
+<p><code>_max_wind_</code></p>
+<p>storm’s maximum sustained wind speed (in knots)</p>
+<p><code>_min_pressure_</code></p>
+<p>Air pressure at the storm’s center (in millibars)</p>
+<p><code>_ts_diameter_</code></p>
+<p>Diameter of the area experiencing tropical storm strength winds (34 knots or above)</p>
+<p><code>_hu_diameter_</code></p>
+<p>Diameter of the area experiencing hurricane strength winds (64 knots or above)</p>
+<p><code>_max_category_</code></p>
+<p>Maximum category of each storm track</p>
+<p><code>_max_status_label_</code></p>
+<p>Label (“TRUE”, “FALSE”) to indicate whether the measurement is for the maximum status of each track</p>
+<p><code>_max_max_wind_</code></p>
+<p>The maximum value of the <code>max_wind</code> for each track</p>
+<p><code>_min_min_pressure_</code></p>
+<p>The minimum value of the <code>min_pressure</code> for each track</p>
+<p><code>_max_ts_diameter_</code></p>
+<p>The maximum value of the <code>ts_diameter</code> for each track</p>
+<p><code>_max_hu_diamter_</code></p>
+<p>The maximum value of the <code>hu_diameter</code> for each track</p>
 
 </div>
             </section>
@@ -181,8 +258,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           </div>
         </div>
       </div>
-<a href="intercom.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="datasource.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="missingval.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -212,7 +289,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/jqz300/edav_proj.git07-Conclusion.Rmd",
+"link": "https://github.com/jqz300/edav_proj.git02-DataTransformation.Rmd",
 "text": "Edit"
 },
 "history": {

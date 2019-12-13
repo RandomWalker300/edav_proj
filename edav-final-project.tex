@@ -71,7 +71,11 @@
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \usepackage{longtable,booktabs}
-\usepackage{graphicx,grffile}
+\usepackage{graphicx}
+% grffile has become a legacy package: https://ctan.org/pkg/grffile
+\IfFileExists{grffile.sty}{%
+\usepackage{grffile}
+}{}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
@@ -124,7 +128,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-11-07}
+    \date{2019-12-12}
 
 \usepackage{booktabs}
 \usepackage{amsthm}
@@ -142,786 +146,491 @@
 \setcounter{tocdepth}{1}
 \tableofcontents
 }
-\hypertarget{preface}{%
-\chapter{Preface}\label{preface}}
-
-This is a class project written in \textbf{Markdown}. We are still working on it.
-
-We are using the \textbf{bookdown} package \citep{R-bookdown} in this project, which was built on top of R Markdown and \textbf{knitr} \citep{xie2015}.
-
 \hypertarget{intro}{%
 \chapter{Introduction}\label{intro}}
 
-As coastal shoreline counties create about 40\% of the United States's jobs and account for 46\% of its GDP, hurricanes have a trumendous impact on the country's economy.
-
-They are considered as one of the costliest natural disasters in the world : they currently cost the government over \$28 billion each year, and that amount is expected to increase to over \$39 billion a year due to the increased development of the U.S. coastlines and the global warming. The latter will indeed increase the proportion of cyclones of category 4 and 5, which lead to the most damages and therefore higher costs \citep{Amadeo2019}.
-
-Besides the government, several industries are heavily impacted by hurricanes, including the insurance industry. For example, according to Bloomberg, hurricane Dorian caused the insurance industry losses of up \$25 billion, making it the most expensive natural disaster for the industry since 2017's Hurricane Maria \citep{DSouza2019}.
-
-Reference a figure by its code chunk label with the \texttt{fig:} prefix, e.g., see Figure \ref{fig:nice-fig}.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(rvest)}
-\KeywordTok{library}\NormalTok{(dplyr)}
-\KeywordTok{library}\NormalTok{(robotstxt)}
-\KeywordTok{library}\NormalTok{(ggplot2)}
-\NormalTok{url <-}\StringTok{ "https://en.wikipedia.org/wiki/List_of_costliest_Atlantic_hurricanes"}
-\CommentTok{#paths_allowed(url)}
-
-\NormalTok{df<-}\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{read_html}\NormalTok{(url) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{html_table}\NormalTok{(}\DataTypeTok{fill =} \OtherTok{TRUE}\NormalTok{))}
-
-\NormalTok{df_clean <-}\StringTok{ }\NormalTok{df }\OperatorTok{%>%}\StringTok{ }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{Nominal_Damage =} \KeywordTok{as.factor}\NormalTok{(}\KeywordTok{gsub}\NormalTok{(}\StringTok{"[$><]"}\NormalTok{, }\StringTok{""}\NormalTok{,Nominal.damage.Billions.USD.)))}\OperatorTok{%>%}
-\StringTok{  }\KeywordTok{select}\NormalTok{(Name, Season, Storm.classificationat.peak.intensity,Nominal_Damage) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{rename}\NormalTok{(}\DataTypeTok{Classification =}\NormalTok{ Storm.classificationat.peak.intensity)}
-\NormalTok{df_clean}\OperatorTok{$}\NormalTok{Season<-}\KeywordTok{as.factor}\NormalTok{(df_clean}\OperatorTok{$}\NormalTok{Season)}
-\NormalTok{as.numeric.factor <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(x) \{}\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{levels}\NormalTok{(x))[x]\}}
-\NormalTok{df_clean[}\DecValTok{4}\NormalTok{]<-}\KeywordTok{lapply}\NormalTok{(df_clean[}\DecValTok{4}\NormalTok{],as.numeric.factor)}
-\NormalTok{df_clean[}\DecValTok{2}\NormalTok{]<-}\KeywordTok{lapply}\NormalTok{(df_clean[}\DecValTok{2}\NormalTok{],as.numeric.factor)}
-\NormalTok{df_clean <-}\StringTok{ }\NormalTok{df_clean }\OperatorTok{%>%}\StringTok{ }\KeywordTok{arrange}\NormalTok{(}\KeywordTok{desc}\NormalTok{(Season)) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{top_n}\NormalTok{(}\DecValTok{6}\NormalTok{)}
-\KeywordTok{ggplot}\NormalTok{(df_clean,}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{Name, }\DataTypeTok{y=}\NormalTok{ Nominal_Damage)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position =} \StringTok{"dodge"}\NormalTok{, }\DataTypeTok{stat =} \StringTok{"identity"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{coord_flip}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Hurricane"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Damage (in Billion Dollars)"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Cost of Damage by Six Most Recent Hurricanes"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{theme_classic}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-
 \begin{figure}
-
-{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/nice-fig-1} 
-
-}
-
-\caption{Here is a nice figure!}\label{fig:nice-fig}
+\centering
+\includegraphics{../images/sandy-hurricane-1.jpg}
+\caption{Hurricane Sandy, October 2012. Source:(NASA/GETTRY IMAGES).}
 \end{figure}
 
-In addition, hurricane tracking data can provide Federal Emergency Management Agency (FEMA), local emergency managers, and first responders the information they need to be able to send out appropriate responses and help to the citizens at the affected areas \citep{Newtools4H2019}.
+Hurricanes have caused tremendous losses on the country's economy (\citet{Winkle2018}): they currently cost the government over \$28 billion each year. Besides the government, several industries are heavily impacted by hurricanes, including the insurance industry. For example, according to Bloomberg, hurricane Dorian caused the insurance industry losses of up \$25 billion, making it the most expensive natural disaster for the industry since 2017's Hurricane Maria (\citet{DSouza2019}). Therefore, the United States' Sustainable Development has identified economic losses from hurricane as a key indicator for the economic growth (\citet{SDG2018}). Disentangling the relative roles of variability and changes in Hurricane could contribute information useful to sustainable development goals.
 
-For those reasons, hurricanes data is very interesting to analyze and will constitute the topic of this Exploratory Data Analysis and Vizualisation final project.
+Key frequently asked questions are: how climate affects hurricane, and what of the future hurricanes are more likely to be. To gain insight on these questions, we first have to look into historical records to discern the variability and changes of hurricanes, the analysis of which will help us to build predictive understanding of the influencing of climate on hurricane. Our working hypothesis is that: if greenhouse warming has caused a substantial increase in Atlantic hurricane activity, then the century scale increase in Atlantic hurricane since 1851 should have produced a long-term rise in measures of Atlantic hurricanes activity, similar to that seen for global temperature, for example. Therefore, we aim to dig into the original storm track file with more than 150 years of records of Atlantic tropical storm activities in order to examine variability and changes of Atlantic hurricane under global warming conditions. Specifically, three important questions we would like to address in this analysis are:
 
-\hypertarget{methods}{%
-\chapter{Methods}\label{methods}}
+\emph{(1) What influences the change in category of hurricanes?}
 
-\hypertarget{data-sources}{%
-\section{Data sources}\label{data-sources}}
+\emph{(2) Has hurricane activity shifted north-ward?}
 
-(We describe our data sources, our methods in this chapter)
+\emph{(3) Have humans already caused a detectable increase in Atlantic hurricane activity?}
 
-Storm tracks data can be downloaded from \href{https://www.nhc.noaa.gov/data/\#hurdat}{National Hurricane Center and Central Pacific Hurricane Center}. The data using in the project is known as Atlantic hurricane database (\href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf}{HURDAT2}) 1851-2018 (\href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt}{5.9MB download}). The data has a comma-delimited, text format with six-hourly information on the location, maximum winds, central pressure, and (beginning in 2004) size of all known tropical cyclones and subtropical cyclones.
+\emph{(4) What other embedding patterns can we learn from the historical Atlantic hurricane record? How does this will help us to build predictive understanding of the influencing of climate on hurricane?}
 
-\hypertarget{data-transformat}{%
-\section{Data transformat}\label{data-transformat}}
+\hypertarget{datasource}{%
+\chapter{Data Source}\label{datasource}}
 
-(Describe the process of getting the data into a form in which you could work with it in R.)
+The storm track data presented in the analysis is downloaded from \href{https://www.nhc.noaa.gov/data/\#hurdat}{National Hurricane Center and Central Pacific Hurricane Center}, which is also known as the Atlantic hurricane database {[}HURDAT2: 1851-2018{]} (\url{https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt}) and the \href{https://www.aoml.noaa.gov/hrd/hurdat/comparison_table.html.}{HURDAT} data is downloaded from the {[}NOAA's Atlantic Oceanographic and Meteorological Laboratory{]} (\url{https://www.aoml.noaa.gov/}).
 
-** load libraries **
+We choose to work with these data because they provide us with updated, complete and accurate information about hurricanes over the past 150 years (1851 - 2018). Since the Atlantic hurricane activity has shown very strong year-to-year and decade-to-decade variability, longer records or hurricanes are much needed.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(tidyverse)}
-\KeywordTok{library}\NormalTok{(stringr)}
-\CommentTok{# Read in data set}
-\CommentTok{#dfile <- read_lines("https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-051019.txt")}
-\NormalTok{dfile<-}\StringTok{ "data/hurdat2-1851-2018-051019.txt"}
-\NormalTok{hurdat2_in <-}\StringTok{ }\KeywordTok{read_lines}\NormalTok{(dfile)}
-\end{Highlighting}
-\end{Shaded}
+In addition, we have also gathered the directly observed Atlantic Meridional Overturning Circulation (AMOC) index at 26 oN available for the period 27, 33 2004--2014, which is obtained from the {[}RAPID-WATCH MOC monitoring project{]} (www.rapid.ac.uk/rapidmoc). This is for the purpose of analyzing the linkage between hurricane frequency and climate variability, as well as the causes of the changes in Atlantic major hurricane frequency.
 
-The dataset is a combination of serveral subsets. Eeach subset is for a storm track record which incluedes header information and values.
+Furthermore, all the low-pass filtered data are obtained using the R function ``filtfilt'' with a Hamming window based low-pass filter at a 10-year cutoff period. One important thing to note about the names of hurricanes is that there are six names lists that have been used in rotation and re-cycled every six years. This means that there can be more than one hurricanes having the same name but happened in different years. We have tackled this problem by giving each hurricane a unique \texttt{storm-id}.
 
-\emph{For instance, the header has the following format:}
+\hypertarget{datatrans}{%
+\chapter{Data Transformation}\label{datatrans}}
 
-AL162018, OSCAR, 36,
-* AL -- Basin -- Atlantic
-* 16 -- ATCF cyclone number for that year
-* 2018 -- Year
-* OSCAR -- Name, if available, or else ``UNNAMED''
-* 36 -- Number of best track entries -- rows -- to follow
+The (\href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf}{HURDAT2}) data has a comma-delimited, text format with six-hourly information on the location, maximum winds, central pressure, and (beginning in 2004) size of all known tropical cyclones and subtropical cyclones. The dataset is a combination of serveral subsets. Each subset is used for a storm track record which includes header information and values.
+please refer to \href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf}{this file} for detail information.
 
-\emph{The header is followed by data, which has the following format:}
+Firstly, we extract storm \texttt{id}, \texttt{name}, and \texttt{subtext\ length} from each subtext header, then read in data according to each \texttt{subtext\ length}, and merge data subset by indexing it with storm \texttt{id}, \texttt{name}. In the original text, you will find that the \texttt{name} is non-unique. Currently, there are six lists that are used in rotation and re-cycled every six years, i.e., the 2013 list is used again in 2019. For more information, please see tropical cyclone names. To avoid the future confusion, we create \texttt{storm-id} variable by combining \texttt{name} and \texttt{year} together (e.g., \emph{Sandy-2012}). In the original file, there are storms labeled with NAMEs but others labelled with \texttt{UNNAME}. Here, we use \texttt{name\_id} variable to indicate whether a storm has a name or not.
 
-20181026, 1800, , SS, 25.4N, 45.3W, 35, 1006, 80, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+Secondly, we estimate \texttt{category} variable from wind speed based on \href{https://www.nhc.noaa.gov/aboutsshws.php}{Saffir-Simpson storm category}, calculate the diameter of the area experiencing hurricane strength winds (64 knots or above), \texttt{\_ts\_diameter\_} from extent of 34 kt wind radii maximum extent in northeastern quadrant (in nautical miles, \texttt{extent\_34\_NE}), 34 kt wind radii maximum extent in southeastern quadrant (in nautical miles, \texttt{extent\_34\_SW}), 34 kt wind radii maximum extent in northeastern quadrant (in nautical miles, \texttt{extent\_34\_NW}), and 34 kt wind radii maximum extent in southeastern quadrant (in nautical miles, \texttt{extent\_34\_SE}), \texttt{\_hu\_diameter\_} from extent of 64 kt wind radii maximum extent in northeastern quadrant - \texttt{extent\_64\_NE}, southeastern quadrant - \texttt{extent\_34\_SW}, northeastern quadrant, \texttt{extent\_64\_NW}), and southeastern quadrant - \texttt{extent\_64\_SE}.
 
-\begin{itemize}
-\tightlist
-\item
-  2018 -- Year
-\item
-  10 -- Month
-\item
-  26 -- Day
-\item
-  09 -- Hours in UTC (Universal Time Coordinate) 35 (Spaces 13-14, before 2nd comma) -- Minutes
-  \ldots{}
-\end{itemize}
+Thirdly, we estimate the storm duration \texttt{tc\_dur\_track} to those with maximum sustained surface winds of at least 35 knot and defined storms and define \texttt{tc\_dur\_type} for type of the duration. Here, \texttt{S} indicates storms with duration of 2.0 days or less and will be mentioned in the following text as \emph{short-lived} storms, and \texttt{L} represnts storms with duration of more than 2.0 days and will be referred as ``medium-to-long lived'' storms.
 
-\textbf{please refer \href{\%22https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf\%22}{this file} for detail information.}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{header_locations <-}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(hurdat2_in))[}\KeywordTok{str_count}\NormalTok{(hurdat2_in, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{,"}\NormalTok{) }\OperatorTok{==}\StringTok{ }\DecValTok{3}\NormalTok{]}
-\NormalTok{header_df <-readr}\OperatorTok{::}\KeywordTok{read_csv}\NormalTok{(hurdat2_in[header_locations], }
-                             \DataTypeTok{col_names =} \OtherTok{FALSE}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\KeywordTok{c}\NormalTok{(}\StringTok{"X4"}\NormalTok{))}
-\KeywordTok{names}\NormalTok{(header_df) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"id"}\NormalTok{,}\StringTok{"name"}\NormalTok{,}\StringTok{"n_entries"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# read hearder information}
-\KeywordTok{library}\NormalTok{(stringr)}
-\NormalTok{header_locations <-}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(hurdat2_in))[stringr}\OperatorTok{::}\KeywordTok{str_count}\NormalTok{(hurdat2_in, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{,"}\NormalTok{) }\OperatorTok{==}\StringTok{ }\DecValTok{3}\NormalTok{]}
-
-\NormalTok{header_df <-}\StringTok{ }\NormalTok{readr}\OperatorTok{::}\KeywordTok{read_csv}\NormalTok{(hurdat2_in[header_locations], }
-                             \DataTypeTok{col_names =} \OtherTok{FALSE}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\KeywordTok{c}\NormalTok{(}\StringTok{"X4"}\NormalTok{))}
-
-\KeywordTok{names}\NormalTok{(header_df) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"id"}\NormalTok{,}\StringTok{"name"}\NormalTok{,}\StringTok{"n_entries"}\NormalTok{)}
-
-\NormalTok{header_df <-}\StringTok{  }\NormalTok{header_df }\OperatorTok{%>%}\StringTok{ }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{header_loc =} \KeywordTok{as.numeric}\NormalTok{(header_locations))}
-
-\CommentTok{#tail(header_df)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# read data value}
-
-\NormalTok{hurdat2_df <-}\StringTok{ }\KeywordTok{vector}\NormalTok{(}\StringTok{"list"}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(header_df))}
-\KeywordTok{names}\NormalTok{(hurdat2_df) <-}\StringTok{ }\NormalTok{header_df}\OperatorTok{$}\NormalTok{id}
-\NormalTok{df_names <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}
-  \StringTok{"date"}\NormalTok{, }\StringTok{"time"}\NormalTok{, }\StringTok{"record_identifier"}\NormalTok{, }\StringTok{"status"}\NormalTok{, }\StringTok{"latitude"}\NormalTok{, }\StringTok{"longitude"}\NormalTok{, }\StringTok{"max_wind"}\NormalTok{, }\StringTok{"min_pressure"}\NormalTok{,}
-  \StringTok{"extent_34_NE"}\NormalTok{, }\StringTok{"extent_34_SE"}\NormalTok{, }\StringTok{"extent_34_SW"}\NormalTok{, }\StringTok{"extent_34_NW"}\NormalTok{,}
-  \StringTok{"extent_50_NE"}\NormalTok{, }\StringTok{"extent_50_SE"}\NormalTok{, }\StringTok{"extent_50_SW"}\NormalTok{, }\StringTok{"extent_50_NW"}\NormalTok{,}
-  \StringTok{"extent_64_NE"}\NormalTok{, }\StringTok{"extent_64_SE"}\NormalTok{, }\StringTok{"extent_64_SW"}\NormalTok{, }\StringTok{"extent_64_NW"}\NormalTok{, }\StringTok{"nas"}
-\NormalTok{)}
-
-\CommentTok{#}
-\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \KeywordTok{seq_along}\NormalTok{(header_df}\OperatorTok{$}\NormalTok{id)) \{}
-\NormalTok{  hurdat2_df[[i]] <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(dfile,}
-    \DataTypeTok{skip =}\NormalTok{ header_df}\OperatorTok{$}\NormalTok{header_loc[i],}
-    \DataTypeTok{n_max =}\NormalTok{ header_df}\OperatorTok{$}\NormalTok{n_entries[i],}
-    \DataTypeTok{col_names =}\NormalTok{ df_names,}
-    \DataTypeTok{na =} \KeywordTok{c}\NormalTok{(}\StringTok{""}\NormalTok{, }\StringTok{"-99"}\NormalTok{, }\StringTok{"-999"}\NormalTok{),}
-    \DataTypeTok{col_types =} \KeywordTok{list}\NormalTok{(}
-      \DataTypeTok{time =} \KeywordTok{col_character}\NormalTok{(),}
-      \DataTypeTok{min_pressure =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_34_NE =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_34_SE =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_34_SW =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_34_NW =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_50_NE =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_50_SE =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_50_SW =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_50_NW =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_64_NE =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_64_SE =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_64_SW =} \KeywordTok{col_integer}\NormalTok{(),}
-      \DataTypeTok{extent_64_NW =} \KeywordTok{col_integer}\NormalTok{()}
-\NormalTok{    )}
-\NormalTok{  )}
-\NormalTok{\}}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{#head(hurdat2_df)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# Combine and clean the data sets}
-\KeywordTok{library}\NormalTok{(lubridate)}
-\NormalTok{hurdat2 <-}\StringTok{ }
-\StringTok{  }\NormalTok{hurdat2_df }\OperatorTok{%>%}
-\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{bind_rows}\NormalTok{(}\DataTypeTok{.id =} \StringTok{"id"}\NormalTok{) }\OperatorTok{%>%}
-\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(}
-    \DataTypeTok{date =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{ymd}\NormalTok{(date),}
-    \DataTypeTok{year =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{year}\NormalTok{(date),}
-    \DataTypeTok{month =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{month}\NormalTok{(date),}
-    \DataTypeTok{day =}\NormalTok{ lubridate}\OperatorTok{::}\KeywordTok{day}\NormalTok{(date),}
-    \DataTypeTok{hour =} \KeywordTok{as.numeric}\NormalTok{(stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(time, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{)),}
-    \DataTypeTok{datetime =} \KeywordTok{as.Date}\NormalTok{(}\KeywordTok{ISOdate}\NormalTok{(year, month, day, hour, }\DataTypeTok{min =} \DecValTok{0}\NormalTok{, }\DataTypeTok{sec =} \DecValTok{0}\NormalTok{, }\DataTypeTok{tz =} \StringTok{"GMT"}\NormalTok{)),}
-    \CommentTok{#lat_hemisphere = stringr::str_sub(latitude, -1),}
-    \DataTypeTok{latitude =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{if_else}\NormalTok{(stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(latitude, }\DecValTok{-1}\NormalTok{) }\OperatorTok{==}\StringTok{ "N"}\NormalTok{,}
-                              \KeywordTok{as.numeric}\NormalTok{(stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(latitude, }\DecValTok{1}\NormalTok{, }\DecValTok{-2}\NormalTok{))}\OperatorTok{*}\DecValTok{1}\NormalTok{, }
-                              \KeywordTok{as.numeric}\NormalTok{(stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(latitude, }\DecValTok{1}\NormalTok{, }\DecValTok{-2}\NormalTok{))}\OperatorTok{*}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{)),}
-    \DataTypeTok{longitude =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{if_else}\NormalTok{(stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(longitude, }\DecValTok{-1}\NormalTok{) }\OperatorTok{==}\StringTok{ "E"}\NormalTok{,}
-                              \KeywordTok{as.numeric}\NormalTok{(stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(longitude, }\DecValTok{1}\NormalTok{, }\DecValTok{-2}\NormalTok{))}\OperatorTok{*}\DecValTok{1}\NormalTok{, }
-                              \KeywordTok{as.numeric}\NormalTok{(stringr}\OperatorTok{::}\KeywordTok{str_sub}\NormalTok{(longitude, }\DecValTok{1}\NormalTok{, }\DecValTok{-2}\NormalTok{))}\OperatorTok{*}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{)),}
-    \DataTypeTok{category =} \KeywordTok{cut}\NormalTok{(max_wind, }\CommentTok{# Saffir-Simpson Hurricane Wind Scale}
-      \DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{34}\NormalTok{, }\DecValTok{64}\NormalTok{, }\DecValTok{83}\NormalTok{, }\DecValTok{96}\NormalTok{, }\DecValTok{113}\NormalTok{, }\DecValTok{137}\NormalTok{, }\DecValTok{500}\NormalTok{),}
-      \DataTypeTok{labels =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{5}\NormalTok{),}
-      \DataTypeTok{include.lowest =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{ordered =} \OtherTok{TRUE}
-\NormalTok{    ),}
-    \CommentTok{# wind = wind * 1.15078, # transforms knots to mph,}
-    \DataTypeTok{TSradius1 =}\NormalTok{ extent_}\DecValTok{34}\NormalTok{_NE }\OperatorTok{+}\StringTok{ }\NormalTok{extent_}\DecValTok{34}\NormalTok{_SW,}
-    \DataTypeTok{TSradius2 =}\NormalTok{ extent_}\DecValTok{34}\NormalTok{_NW }\OperatorTok{+}\StringTok{ }\NormalTok{extent_}\DecValTok{34}\NormalTok{_SE,}
-    \DataTypeTok{ts_diameter =} \KeywordTok{pmax}\NormalTok{(TSradius1, TSradius2) }\OperatorTok{*}\StringTok{ }\FloatTok{1.15078}\NormalTok{, }\CommentTok{# to convert from nautical miles to miles # pmax: returns the parallel maxima and minima of the input values}
-    \DataTypeTok{HUradius1 =}\NormalTok{ extent_}\DecValTok{64}\NormalTok{_NE }\OperatorTok{+}\StringTok{ }\NormalTok{extent_}\DecValTok{64}\NormalTok{_SW,}
-    \DataTypeTok{HUradius2 =}\NormalTok{ extent_}\DecValTok{64}\NormalTok{_NW }\OperatorTok{+}\StringTok{ }\NormalTok{extent_}\DecValTok{64}\NormalTok{_SE,}
-    \DataTypeTok{hu_diameter =} \KeywordTok{pmax}\NormalTok{(HUradius1, HUradius2) }\OperatorTok{*}\StringTok{ }\FloatTok{1.15078}\NormalTok{, }\CommentTok{# to convert from nautical miles to miles # pmax: returns the parallel maxima and minima of the input values}
-    \DataTypeTok{status =} \KeywordTok{recode}\NormalTok{(status,}
-                    \StringTok{"TD"}\NormalTok{ =}\StringTok{ "tropical depression"}\NormalTok{,}
-                    \StringTok{"TS"}\NormalTok{ =}\StringTok{ "tropical storm"}\NormalTok{, }
-                    \StringTok{"HU"}\NormalTok{ =}\StringTok{ "tropical hurricane"}\NormalTok{, }
-                    \StringTok{"EX"}\NormalTok{ =}\StringTok{ "Extratropical cyclone"}\NormalTok{, }\CommentTok{##}
-                    \StringTok{"SD"}\NormalTok{ =}\StringTok{ "subtropical depression"}\NormalTok{,}
-                    \StringTok{"SS"}\NormalTok{ =}\StringTok{ "subtropical storm"}\NormalTok{, }
-                    \StringTok{"HU"}\NormalTok{ =}\StringTok{ "tropical hurricane"}\NormalTok{, }
-                    \StringTok{"LO"}\NormalTok{ =}\StringTok{ "a low"}\NormalTok{,}
-                    \StringTok{"WV"}\NormalTok{ =}\StringTok{ "tropical wave"}\NormalTok{,}
-                    \StringTok{"DB"}\NormalTok{ =}\StringTok{ "disturbance"}\NormalTok{)}
-\NormalTok{  ) }
-\end{Highlighting}
-\end{Shaded}
-
-\emph{Note}: category has been calculated based on \href{https://www.nhc.noaa.gov/aboutsshws.php}{Saffir-Simpson Hurricane Wind Scale} to indicate ``Types of Damage Due to Hurricane Winds''.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# absorb header information to data values}
-\NormalTok{header_df_selected <-}\StringTok{ }\NormalTok{header_df }\OperatorTok{%>%}\StringTok{ }\KeywordTok{select}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"id"}\NormalTok{,}\StringTok{"name"}\NormalTok{))}
-\CommentTok{# headers_df_selected}
-\NormalTok{hurdat2_add_name <-}\StringTok{ }\KeywordTok{left_join}\NormalTok{(header_df_selected, hurdat2, }\DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"id"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{select}\NormalTok{(id, name, datetime, year, month, day, hour, latitude, longitude, status, category,}
-\NormalTok{         max_wind, min_pressure, ts_diameter, hu_diameter)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hurdat2_out <-}\StringTok{ }\NormalTok{hurdat2_add_name }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{name=}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{if_else}\NormalTok{(}\KeywordTok{grepl}\NormalTok{(}\StringTok{"UNNAMED"}\NormalTok{, name), name,}
-\NormalTok{                              stringr}\OperatorTok{::}\KeywordTok{str_to_title}\NormalTok{(name)))}
-\NormalTok{hurdat2_out}\OperatorTok{$}\NormalTok{status <-}\StringTok{ }\KeywordTok{factor}\NormalTok{(hurdat2_out}\OperatorTok{$}\NormalTok{status)}
-\NormalTok{hurdat2_out}\OperatorTok{$}\NormalTok{category <-}\StringTok{ }\KeywordTok{factor}\NormalTok{(hurdat2_out}\OperatorTok{$}\NormalTok{category)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{levels}\NormalTok{(hurdat2_out}\OperatorTok{$}\NormalTok{status)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-##  [1] "a low"                  "disturbance"            "ET"                    
-##  [4] "Extratropical cyclone"  "subtropical depression" "subtropical storm"     
-##  [7] "tropical depression"    "tropical hurricane"     "tropical storm"        
-## [10] "tropical wave"
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hurdat2_out }\OperatorTok{%>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(status }\OperatorTok{==}\StringTok{ "ET"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## # A tibble: 1 x 15
-##   id    name  datetime    year month   day  hour latitude longitude status
-##   <chr> <chr> <date>     <dbl> <dbl> <int> <dbl>    <dbl>     <dbl> <fct> 
-## 1 AL09~ Harv~ 1993-09-21  1993     9    21    18       46       -42 ET    
-## # ... with 5 more variables: category <ord>, max_wind <dbl>,
-## #   min_pressure <int>, ts_diameter <dbl>, hu_diameter <dbl>
-\end{verbatim}
-
-\emph{Note: there is an ``ET'' in \emph{Status of system}, which does not included in the description \href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf}{HURDAT2}. This is a typo in the dataset, \texttt{recode} it into 'EX".}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hurdat2_out}\OperatorTok{$}\NormalTok{status <-}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{recode}\NormalTok{(hurdat2_out}\OperatorTok{$}\NormalTok{status, }\DataTypeTok{ET =} \StringTok{"Extratropical cyclone"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-** Mark storms that have complete pressure record**
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{completeish <-}\StringTok{ }\NormalTok{hurdat2_out }\OperatorTok{%>%}
-\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{group_by}\NormalTok{(id) }\OperatorTok{%>%}
-\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{n_pressure =} \KeywordTok{sum}\NormalTok{(}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(min_pressure)), }\DataTypeTok{p_pressure =} \KeywordTok{mean}\NormalTok{(}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(min_pressure))) }\OperatorTok{%>%}
-\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(p_pressure }\OperatorTok{==}\StringTok{ }\DecValTok{1}\NormalTok{) }\OperatorTok{%>%}
-\StringTok{  }\NormalTok{.[[}\StringTok{"id"}\NormalTok{]]}
-\CommentTok{#length(completeish)}
-\CommentTok{#dim(hurdat2_out)[1]}
-\end{Highlighting}
-\end{Shaded}
-
-Theare are 562 out of 50911storms that have complete pressure record.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{storms_completish_selected <-}\StringTok{ }\NormalTok{hurdat2_out }\OperatorTok{%>%}
-\StringTok{  }\KeywordTok{filter}\NormalTok{(}
-\NormalTok{    status }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"hurricane"}\NormalTok{, }\StringTok{"tropical storm"}\NormalTok{, }\StringTok{"tropical depression"}\NormalTok{),}
-\NormalTok{    id }\OperatorTok{%in%}\StringTok{ }\NormalTok{completeish)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hurdat2_out_add_com <-}\StringTok{ }\NormalTok{hurdat2_out }\OperatorTok{%>%}\StringTok{ }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{completeish =} \KeywordTok{if_else}\NormalTok{(status }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"hurricane"}\NormalTok{, }\StringTok{"tropical storm"}\NormalTok{, }\StringTok{"tropical depression"}\NormalTok{) }\OperatorTok{&}\StringTok{ }\NormalTok{id }\OperatorTok{%in%}\StringTok{ }\NormalTok{completeish, }\StringTok{"yes"}\NormalTok{,}\StringTok{"no"}\NormalTok{))}
-\NormalTok{hurdat2_out_add_com}\OperatorTok{$}\NormalTok{completeish <-}\StringTok{ }\KeywordTok{factor}\NormalTok{(hurdat2_out_add_com}\OperatorTok{$}\NormalTok{completeish)}
-\end{Highlighting}
-\end{Shaded}
+Finally, the ocean surface temperature and the directly observed Atlantic Meridional Overturning Circulation (AMOC) index are \texttt{.nc} formate, we use \texttt{ncdf4} to read in data. Note that there is there is an ``ET'' typo in \emph{Status} of system in the \href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt}{HURDAT2}, which has been corrected to \texttt{EX} in the output \texttt{data\textbackslash{}clean\textbackslash{}hurricanes.csv} file.
 
 \textbf{Meaning for each variables}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{names}\NormalTok{(hurdat2_out_add_com)}
-\end{Highlighting}
-\end{Shaded}
+\texttt{\_id\_}
 
-\begin{verbatim}
-##  [1] "id"           "name"         "datetime"     "year"         "month"       
-##  [6] "day"          "hour"         "latitude"     "longitude"    "status"      
-## [11] "category"     "max_wind"     "min_pressure" "ts_diameter"  "hu_diameter" 
-## [16] "completeish"
-\end{verbatim}
+Storm id, which is unique. An id is a combination of 8 characters,
 
-\textbf{\emph{id}}
+for example, `AL092011',
 
-Storm id, which is unique. A id is a combination of 8 characters, for example, `AL092011',
-* AL (Spaces 1 and 2) -- Basin -- Atlantic
-* 09 (Spaces 3 and 4) -- ATCF cyclone number for that year
-* 2011 (Spaces 5-8, before first comma) -- Year
+\begin{itemize}
+\item
+  AL (Spaces 1 and 2) -- Basin -- Atlantic
+\item
+  09 (Spaces 3 and 4) -- ATCF cyclone number for that year
+\item
+  2011 (Spaces 5-8, before first comma) -- Year
+\end{itemize}
+
 for detail information, please see \href{https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf}{dataformat}
 
-\textbf{\emph{name}}
+\texttt{\_name\_}
 
 Storm Name, which is non-unique. There are six lists that are used in rotation and re-cycled every six years, i.e., the 2013 list is used again in 2019. For more information, please see \href{https://www.nhc.noaa.gov/aboutnames.shtml}{tropical cyclone names}.
 
-\textbf{\emph{datetime, year, month, day, hour}}
+\texttt{\_storm\_id\_}
+
+Storm name and id combined, i.e., Sandy-2012
+
+\texttt{\_unname\_label\_}
+
+Storms have name or not (``yes'', ``no'')
+
+\texttt{\_datetime,\ year,\ month,\ day,\ hour\_}
 
 Date of report (in Universal Time Coordinate)
 
-\textbf{\emph{latitude,longitude}}
+\texttt{\_record\_identifier\_}
+
+C -- Closest approach to a coast, not followed by a landfall
+
+G -- Genesis
+
+I -- An intensity peak in terms of both pressure and wind
+
+L -- Landfall (center of system crossing a coastline)
+
+P -- Minimum in central pressure
+
+R -- Provides additional detail on the intensity of the cyclone when rapid changes are underway
+
+S -- Change of status of the system
+
+T -- Provides additional detail on the track (position) of the cyclone
+
+W -- Maximum sustained wind speed
+
+\texttt{\_latitude,longitude\_}
 
 Location of storm center
 
-\textbf{\emph{status}}
+\texttt{\_status\_}
 
 Storm classification (Tropical Depression, Tropical Storm, or Hurricane)
 
-\textbf{\emph{category}}
+TD -- Tropical cyclone of tropical depression intensity (\textless{} 34 knots)
+
+TS -- Tropical cyclone of tropical storm intensity (34-63 knots)
+
+HU -- Tropical cyclone of hurricane intensity (\textgreater{} 64 knots)
+
+EX -- Extratropical cyclone (of any intensity)
+
+SD -- Subtropical cyclone of subtropical depression intensity (\textless{} 34 knots)
+
+SS -- Subtropical cyclone of subtropical storm intensity (\textgreater{} 34 knots)
+
+LO -- A low that is neither a tropical cyclone, a subtropical cyclone, nor an extratropical cyclone (of any intensity)
+
+WV -- Tropical Wave (of any intensity)
+
+DB -- Disturbance (of any intensity)
+
+\texttt{\_category\_}
 
 \href{https://www.nhc.noaa.gov/aboutsshws.php}{Saffir-Simpson storm category} (estimated from wind speed. -1 = Tropical Depression, 0 = Tropical Storm)
 
-\textbf{\emph{max\_wind}}
+\texttt{\_max\_wind\_}
 
 storm's maximum sustained wind speed (in knots)
 
-\textbf{\emph{min\_pressure}}
+\texttt{\_min\_pressure\_}
 
 Air pressure at the storm's center (in millibars)
 
-\textbf{\emph{ts\_diameter}}
+\texttt{\_ts\_diameter\_}
 
 Diameter of the area experiencing tropical storm strength winds (34 knots or above)
 
-\textbf{\emph{hu\_diameter}}
+\texttt{\_hu\_diameter\_}
 
 Diameter of the area experiencing hurricane strength winds (64 knots or above)
 
-\textbf{\emph{completeish}}
+\texttt{\_max\_category\_}
 
-whether storms that have complete pressure record, yes or no
+Maximum category of each storm track
 
-\textbf{Save transformed data} for further use.
+\texttt{\_max\_status\_label\_}
+
+Label (``TRUE'', ``FALSE'') to indicate whether the measurement is for the maximum status of each track
+
+\texttt{\_max\_max\_wind\_}
+
+The maximum value of the \texttt{max\_wind} for each track
+
+\texttt{\_min\_min\_pressure\_}
+
+The minimum value of the \texttt{min\_pressure} for each track
+
+\texttt{\_max\_ts\_diameter\_}
+
+The maximum value of the \texttt{ts\_diameter} for each track
+
+\texttt{\_max\_hu\_diamter\_}
+
+The maximum value of the \texttt{hu\_diameter} for each track
+
+\hypertarget{missingval}{%
+\chapter{Missing Values}\label{missingval}}
+
+Here, we use \texttt{visna::extract} to look at the missing value patterns. \emph{The bars} beneath the columns in Figure \ref{fig:missingvalue-extracat-fig} show the proportions of missingness by variable, suggesting hurricane diameter \emph{(\texttt{hu\_diameter})} and storm diameter \emph{(\texttt{ts\_diameter})} both have the highest number of missing value and the columns suggest that they follow the same missing pattern, meaning when hurricane diameter is missing, storm diameter is also missing.
+
+The third most missing variable is Pressure \emph{(\texttt{min\_pressure})} and \emph{the columns} show that Pressure is missing only when hurricane diameter and storm diameter are missing. The \emph{bars} on the right show the relative frequencies of the missing patterns, which suggest the most frequent missing patterns are in the combination of hurricane diameter, storm diameter and pressure, followed by the combination of hurricane diameter and storm diameter. Non-missing data are in the third meaning most of rows are completeness.
+
+Finally, hurricane diameter and storm diameter are the most missing values because they are calculated from \emph{Wind Raddii} but \emph{Wind Raddii} values were not used before 2004.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/missingvalue-extracat-fig-1} 
+
+}
+
+\caption{Missing Values Patterns}\label{fig:missingvalue-extracat-fig}
+\end{figure}
+
+It is worth noting that almost all Pressure data are missing from 1850s to 1940s. The number of missing data is then decreasing from the 1940s, and there are no missing Pressure starting the 2000s (see Figure \ref{fig:missingvalue-pressure-year-fig}). The reasons for this are are the following: (1) in the early years, information about pressure was recorded by ships; those were few in numbers and thus a lot of pressure data could not be recorded (2) in more recent years, it became a common habit to replace missing pressure values by an analytical product such as sattelite data; (3) improvements in modern tools and technologies have provided us with a more powerful observation network than that in the early years.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/missingvalue-pressure-year-fig-1} 
+
+}
+
+\caption{Proportion of Missing Air Pressure at the Storm's Center By Year}\label{fig:missingvalue-pressure-year-fig}
+\end{figure}
+
+Another noticeable pattern in missing value relates to the name of tropical cyclones (see Figure \ref{fig:atlatnic-storms-unnamed-year-fig}).
+
+Before the 1950s, it was not common practice to name tropical cyclones. This explains why we cannot find any cyclone with a name before that time. A couple were still not named after that, and the reason can be linked to the category: those cyclones are of category 0 and 1 (more information about categories can be found in part 5), which means that they could have been overlooked and therefore didn't receive any name.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/atlatnic-storms-unnamed-year-fig-1} 
+
+}
+
+\caption{Cyclones received names starting 1950s}\label{fig:atlatnic-storms-unnamed-year-fig}
+\end{figure}
+
+\hypertarget{result}{%
+\chapter{Results}\label{result}}
+
+\hypertarget{what-influences-the-change-in-category-of-a-hurricane}{%
+\section{What influences the change in category of a hurricane?}\label{what-influences-the-change-in-category-of-a-hurricane}}
+
+Hurricanes are classified in different categories based on the \href{https://www.nhc.noaa.gov/aboutsshws.php}{Saffir-Simpson} Hurricane Wind Scale, which classifies hurricanes with regards to their wind speeds and estimates potential property damages. The hurricanes categories come under five items:
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\tightlist
+\item
+  Category 1:
+\end{enumerate}
+
+Very dangerous winds from 64 to 82 knot (kt) that will lead to some damage such as roof damage or snapped tree branches. A famous hurricane of category 1 is \href{https://en.wikipedia.org/wiki/Hurricane_Danny_(1985)}{Danny}, which hit Cuba and the Gulf of Mexico in 1985.
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Category 2:
+\end{enumerate}
+
+Extremely dangerous winds from 83 to 95 kt that will produce extensive damage such as roof damage and siding, many toppled shallowly rooted trees and near-total power outage. A famous hurricane of category 2 is \href{https://en.wikipedia.org/wiki/Hurricane_Erin_(1995)}{Erin} which hit Florida in 1995 and caused 5 people to die and cost \$700 million (1995 USD).
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Category 3:
+\end{enumerate}
+
+Extremely dangerous winds from 96 to 112 kt will cause devastating damage such as removal of roof decking, power outage and power outage for days to weeks after the storm passes. \href{https://en.wikipedia.org/wiki/Hurricane_Katrina}{Katrina} is a famous hurricane of category 3 that lead to 1,836 deaths and \$81 billion (2005 USD) in property damage in 2005. Major states impacted were Louisiana and Mississippi.
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Category 4:
+\end{enumerate}
+
+Extremely dangerous winds from 113 to 136 kt that will cause catastrophic damage such as loss of most of the roof structure and exterior walls, fallen trees and power outage for weeks to months. A famous hurricane of category 4 is \href{https://en.wikipedia.org/wiki/Hurricane_Harvey}{Harvey} which hit Texas and Louisiana in 2017 with damage estimated to \$125 billion (2017 USD) and 107 deaths in the United States.
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Category 5:
+\end{enumerate}
+
+Extremely dangerous winds of 137 kt or higher that will cause catastrophic damage such as total roof and wall collapse, fallen trees, power outage for weeks to months and uninhabitable regions for weeks or months. A famous hurricane of category 5 is \href{https://en.wikipedia.org/wiki/Hurricane_Andrew}{Andrew}, which hit Louisiana and Florida in 1992 and whose damage accounts for \$41.5 billion (2011 USD) and 54 deaths (approximately 1 million people were evacuated before the storm).
+
+Besides, it is also worth distinguishing hurricanes from tropical storms, whose maximum sustained surface winds range from 34 to 63 kt. They are labeled category 0 in our dataset.
+
+The strength of a hurricane can also be assessed by its barometric pressure, that is the pressure at its center: the lower the barometric pressure, the stronger the hurricane.
+
+Finally, the size of a hurricane is defined by its diameter.
+
+Let's now examine those features on a parallel coordinate plot and see how they relate to each other.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/pcp-category-wind-pressure-fig-1} 
+
+}
+
+\caption{Windspeed and Pressure are indicators of cyclone category}\label{fig:pcp-category-wind-pressure-fig}
+\end{figure}
+
+First of all, as showing in Figure \ref{fig:pcp-category-wind-pressure-fig}, categories are clearly distinct in terms of windspeed and increase proportionally to this feature. This is consistent with the definition of the \href{https://www.nhc.noaa.gov/aboutsshws.php}{Saffir-Simpson Scale}. The same conclusion can be drawn for the \href{https://sciencing.com/barometric-pressure-hurricanes-22734.html}{barometric pressure measured at the center of the hurricane}: for low pressures, the hurricane will be overall of a higher category. The distinction is however not as clear as for windspeed and some overlap can be noticed.
+
+Furthermore, no relationship can be established between the diameter of the area experiencing hurricane strength winds of 64 knots or above hurricane diameter \emph{(\texttt{hu\_diameter})}, which would mean that the category, wind speed and min pressure will not determine the potential areas that will be affected by hurricane.
+
+Note that all tropical storm have a diameter equal to 0: this is because the variable used for the graph is hurricane diameter, which accounts for the diameter of hurricanes. The diameter of the area experiencing tropical storm strength winds (34 knots or above) is reported in a separated variable called storm diameter \emph{(\texttt{ts\_diameter})}. As this project focuses on hurricanes, and these two parameters are highly correlated to each other, the decision was made to not include it in the graph.
+
+\hypertarget{a-first-look-into-the-evolution-of-the-category-of-hurricanes}{%
+\subsection{A first look into the evolution of the category of hurricanes}\label{a-first-look-into-the-evolution-of-the-category-of-hurricanes}}
+
+Let's now check whether a hurricane sticks to one category in its lifetime or if it changes overtime. To do so, we select three hurricanes of the same year: Irma (Florida), Maria (North Carolina) and Gert (North of Atlantic Ocean), which all occurred in 2017.
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{edav-final-project_files/figure-latex/each-track-develop-fig-1} 
+
+}
+
+\caption{Three Example Hurricanes in 2017}\label{fig:each-track-develop-fig}
+\end{figure}
+
+From Figure \ref{fig:each-track-develop-fig}, it can be noted that both Irma and Maria grew in intensity to reach category 5, while Gert \textbf{only} reached category 2 as a maximum. A difference in lifetime can also be highlighted (almost 2 weeks vs a couple days). As both Irma and Maria hit Southern states and Gert occured at a Northern location, the following hypothesis is stated: is the maximum category reached by a hurricane dependent on its location? That is, \emph{is there a difference between the maximum category reached by Southern and Northern hurricanes?}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/each-track-develop-time-fig-1} 
+
+}
+
+\caption{Time Series of Three Example Hurricanes in 2017}\label{fig:each-track-develop-time-fig}
+\end{figure}
+
+Before testing that hypothesis, it is worthy to note that the vertical jumping lines in the time series of hurricanes (Figure \ref{fig:each-track-develop-time-fig}). These suggest that hurricanes are highly dynamic and can lose/gain energy in only a couple hours. This concept is illustrated by the following time series (Figure \ref{fig:tc-dramatic-fig}), showing a close up of hurricane Irma evolution on September 9th 2017; in a couple hours, the hurricane when from category 5 to category 2.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/tc-dramatic-fig-1} 
+
+}
+
+\caption{Close Up of Time Series of Hurricane Irma in 2017}\label{fig:tc-dramatic-fig}
+\end{figure}
+
+\hypertarget{is-there-a-difference-between-the-maximum-category-reached-by-southern-and-northern-hurricanes}{%
+\subsection{Is there a difference between the maximum category reached by Southern and Northern hurricanes?}\label{is-there-a-difference-between-the-maximum-category-reached-by-southern-and-northern-hurricanes}}
+
+Let's now verify whether the hypothesis holds. The Figure \ref{fig:each-track-develop-fig} depicts the path of each hurricane across time and also colors the diameter the area experiencing hurricane strength winds of 64 knots or above and sized according their categories.
+
+Each hurricane formed in the low latitude east with a low category, then intensified (large circle and bluer) as it extracted energy from the warm/moist air over the oceans. As a result, its category evolved with time until it reached a certain point then dissipated. The hurricanes then broke apart because they move through cold water (e.g, Maria) or move over land (e.g., Irma) which made them losing touch with the hot water that powered them.
+
+When hurricanes start at different location point, they absorb different amount of energy throughout their progression towards the west or northwest. This will lead to different energy formation that will determine the highest wind level measured, and in turn decide what that category of that hurricane will be.
+
+The comparison of the hurricane track and intensity indicates that the longer the hurricane stay over the southern warm water, the stronger it gets to be (see Irma), while the northern formed storms, like Gert, could not reach high category and they die out a few hours after they start because they do not have enough energy to become a hurricane.
+
+This seems to confirm the hypothesis stated above: there seems to be an interesting relationship between location and category of a hurricane. In addition, hurricanes seem to reach higher categories when located in the South of the Atlantic Ocean than in the North.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/co2-year-fig-1} 
+
+}
+
+\caption{Frequency of Hurricanes across the United States}\label{fig:co2-year-fig}
+\end{figure}
+
+Let's now check whether the hypothesis can be extended in terms of frequency. The frequency of hurricane by location for each category. Figure \ref{fig:co2-year-fig} shows that storms and hurricanes disappear when they reach the land or the northern water.
+
+The low category storms (e.g., category 0 and 1) with the highest density along the coastline can reach further North, while the high category hurricanes (4 and 5) only appear in the South. The highest density along the coastline is related to the progress of the small tropical depressions. When these small depressions travel over the ocean to the US eastern coast, they gain energy and update to the category 0 storm. It is worth to note that as category increases, their north boundary seems to shift toward the south, suggesting the feature of storms and hurricanes are location-related.
+
+We build a Shiny Web Application for the Interactive Component in order to assist with visualizing this result.
+
+\hypertarget{does-hurricane-activity-shift-north-ward}{%
+\section{Does hurricane activity shift north-ward?}\label{does-hurricane-activity-shift-north-ward}}
+
+Next, we want to assess whether hurricane activity is shifting North. A recent study showed that the locations of tropical cyclones is shifting poleward (i.e.~north-ward) globally (\href{https://www.climatecentral.org/news/warming-may-shift-hurricane-impacts-17437}{Thompson}). If true, this implies heavy consequences for the Northern part of the United States. Southern states such as Florida have already taken steps to improve its approach to hurricanes, such as property structure improvements, rescue boats and vehicles investments, and emergency workers trainings; if the frequency of tropical cyclones is indeed shifting North, Northern states should consider taking similar actions.
+
+Before exploring the above hypothesis, it is worth redefining latitude and longitude:
+
+\textbf{Latitude} is the measurement of a place on Earth with regards to its distance north or south-wise from the Earth's equator. Latitude is expressed in degrees followed by the letter N or S whether the location measured is North or South from the equator. Interesting examples for this project are Miami's latitude (\textasciitilde{}26°N) and New York City's latitude (\textasciitilde{}41°N).
+
+\textbf{Longitude} is the measurement of a place on Earth with regards to its distance west or east-wise from the meridian at Greenwich, England. It is also measured in degrees and followed by the letter W or E depending on whether the location of interest is West or East from the meridian.
+
+We will focus on latitude to verify whether hurricane activity seems to be changing directions.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/hurricane-north-fig-1} 
+
+}
+
+\caption{Frequency of Hurricanes by Latitude over Years}\label{fig:hurricane-north-fig}
+\end{figure}
+
+Figure \ref{fig:hurricane-north-fig} shows a heatmap of hurricane activity based on time and location.
+
+While tropical cyclones frequency seems to be consistently higher at lower latitudes, one can observe an increase in cyclones activity at higher latitudes in the 1970s. However, this shift does not seem to be permanent as the frequency of tropical cyclones seems to decrease again in the following decades.
+
+Besides, if we look at the tropical cyclones activity faceted on category (Figure \ref{fig:hurricane-north-category-fig}), the shift in location seems to be focused on tropical storms (category 0) and hurricanes of category 1. Hurricanes of category 4 are also more frequent on higher latitudes in the 1970s but the frequency remains at a low level and the activity returns to lower latitudes in the following decades. These observed trends would therefore not justify investments in hurricane-proofed facilities for Northern States.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/hurricane-north-category-fig-1} 
+
+}
+
+\caption{Frequency of each Hurricane Category over Years}\label{fig:hurricane-north-category-fig}
+\end{figure}
+
+\hypertarget{have-humans-already-caused-a-detectable-long-term-increase-in-atlantic-hurricane-activity}{%
+\section{Have humans already caused a detectable long-term increase in Atlantic hurricane activity?}\label{have-humans-already-caused-a-detectable-long-term-increase-in-atlantic-hurricane-activity}}
+
+As we can see from Figure \ref{fig:ts-co2-year-fig}, the global CO2 concentration has increased, and the tropical Atlantic sea surface temperature show significant warming trends (Figure \ref{fig:ts-sst-year-fig}).
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/ts-co2-year-fig-1} 
+
+}
+
+\caption{Time Series of Atmospheric CO2 (ppm)}\label{fig:ts-co2-year-fig}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/ts-sst-year-fig-1} 
+
+}
+
+\caption{Time Series of Ocean Surface Temperature}\label{fig:ts-sst-year-fig}
+\end{figure}
+
+Besides, one can also observed an increase in the number of storms and hurricanes in the Atlantic from 1851 to 2018 (Figure \ref{fig:ts-storm-year-fig}). We used this finding to ask the following question: \emph{is there a link between greenhouse-induced warming and changes in the Atlantic storms frequency (Figure \ref{fig:ts-storms-duration-year-fig})?}.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/ts-storm-year-fig-1} 
+
+}
+
+\caption{Number of Atlantic Storms and Hurricanes Over Time}\label{fig:ts-storm-year-fig}
+\end{figure}
+
+Based on past Atlantic hurricanes records from 1878-2006, scientists concluded that the increasing trend in the number of Atlantic storms is almost completely due to the increase in short-duration storms (less than 2 days) (\citet{Landsea2010}), suggesting that only the count of short-duration storms follow a similar trend as the CO2 concentration and surface ocean temperature.
+
+However, at the time, the focus was on storms that could have had an impact on ship traffic and, therefore, it is very likely that short-lived storms were overlooked in the earlier parts of the record. Besides, once our group explored the dataset with extra ten years' record, we found that there is an increase trend on both short-lived and long-lived storms.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/ts-storms-duration-year-fig-1} 
+
+}
+
+\caption{Time Series of Atlantic Short-lived (`S`) and Long-lived (`L`) Storms and Hurricanes Number}\label{fig:ts-storms-duration-year-fig}
+\end{figure}
+
+This means that the evolution of the number of cyclones over time follows a similar trend as the CO2 concentration and surface ocean temperature. This could mean that humans have had an impact on the increase of hurricane activity, but to prove that this is a causation and not only a correlation, deeper research and statistical tests should be performed.
+
+```
+
+\hypertarget{intercom}{%
+\chapter{Interactive Component}\label{intercom}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{dir <-}\StringTok{ 'data/'}
-\KeywordTok{write_csv}\NormalTok{(hurdat2_out_add_com, }\KeywordTok{file.path}\NormalTok{(dir, }\StringTok{"hurdat2_out.csv"}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
-
-\hypertarget{missing-values}{%
-\section{Missing values}\label{missing-values}}
-
-Describe any patterns you discover in missing values.
-
-\hypertarget{results}{%
-\chapter{Results}\label{results}}
-
-Provide a short nontechnical but \emph{significant} summary of the most revealing findings of our analysis written for a nontechnical audience. Take extra care to clean up our graphs, ensuring that best practices for presentation are followed, as described in the audience ready style section below.
-
-\hypertarget{read-tranformed-data}{%
-\section{Read tranformed data}\label{read-tranformed-data}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# Read in transformed data}
-\NormalTok{dfile<-}\StringTok{ "data/hurdat2_out.csv"}
-\CommentTok{#dfile <- "https://raw.githubusercontent.com/jqz300/edav_proj/master/data/storms_all_out.csv"}
-\NormalTok{df <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(dfile,}
-                   \DataTypeTok{na =} \KeywordTok{c}\NormalTok{(}\StringTok{"NA"}\NormalTok{, }\StringTok{"-99"}\NormalTok{, }\StringTok{"-999"}\NormalTok{),}
-                   \DataTypeTok{col_types =} \KeywordTok{list}\NormalTok{(}
-                     \DataTypeTok{id =} \KeywordTok{col_character}\NormalTok{(),}
-                   \DataTypeTok{name =} \KeywordTok{col_character}\NormalTok{(),}
-                   \DataTypeTok{year =}\KeywordTok{col_integer}\NormalTok{(),}
-                   \DataTypeTok{month =}\KeywordTok{col_integer}\NormalTok{(),}
-                   \DataTypeTok{day =} \KeywordTok{col_integer}\NormalTok{(),}
-                   \DataTypeTok{hour  =}\KeywordTok{col_integer}\NormalTok{(),}
-                   \DataTypeTok{latitude  =} \KeywordTok{col_double}\NormalTok{(),}
-                   \DataTypeTok{longitude   =} \KeywordTok{col_double}\NormalTok{(),}
-                   \DataTypeTok{status  =} \KeywordTok{col_factor}\NormalTok{(),}
-                   \DataTypeTok{category =} \KeywordTok{col_factor}\NormalTok{(),}
-                   \DataTypeTok{max_wind  =} \KeywordTok{col_double}\NormalTok{(),}
-                   \DataTypeTok{min_pressure  =} \KeywordTok{col_integer}\NormalTok{(),}
-                   \DataTypeTok{ts_diameter =} \KeywordTok{col_double}\NormalTok{(),}
-                   \DataTypeTok{hu_diameter =} \KeywordTok{col_double}\NormalTok{(),}
-                   \DataTypeTok{completeish =} \KeywordTok{col_factor}\NormalTok{()))}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{tail}\NormalTok{(df)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## # A tibble: 6 x 16
-##   id    name  datetime    year month   day  hour latitude longitude status
-##   <chr> <chr> <date>     <int> <int> <int> <int>    <dbl>     <dbl> <fct> 
-## 1 AL16~ Oscar 2018-11-03  2018    11     3     6     56.6     -23.1 Extra~
-## 2 AL16~ Oscar 2018-11-03  2018    11     3    12     57.9     -19.6 Extra~
-## 3 AL16~ Oscar 2018-11-03  2018    11     3    18     58.9     -17.1 Extra~
-## 4 AL16~ Oscar 2018-11-04  2018    11     4     0     59.8     -14.5 Extra~
-## 5 AL16~ Oscar 2018-11-04  2018    11     4     6     60.8     -12.1 Extra~
-## 6 AL16~ Oscar 2018-11-04  2018    11     4    12     62.4      -9.1 Extra~
-## # ... with 6 more variables: category <fct>, max_wind <dbl>,
-## #   min_pressure <int>, ts_diameter <dbl>, hu_diameter <dbl>, completeish <fct>
-\end{verbatim}
-
-\hypertarget{figures}{%
-\section{Figures}\label{figures}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{df }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\CommentTok{#filter(completeish == "yes") %>% }
-\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{longitude, }\DataTypeTok{y=}\NormalTok{latitude))}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_hex}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{facet_wrap}\NormalTok{(}\OperatorTok{~}\NormalTok{category, }\DataTypeTok{ncol=}\DecValTok{3}\NormalTok{)}\OperatorTok{+}
-\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"Fig title"}\NormalTok{)}
+\NormalTok{knitr}\OperatorTok{::}\KeywordTok{include_app}\NormalTok{(}\StringTok{'https://hurricane.shinyapps.io/01_01/'}\NormalTok{, }\DataTypeTok{height =} \StringTok{'600px'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/hex-fig-1} 
+{\centering \href{https://hurricane.shinyapps.io/01_01/}{\includegraphics{edav-final-project_files/figure-latex/storm-track-1} }
 
 }
 
-\caption{Here is a nice figure!}\label{fig:hex-fig}
+\caption{app}\label{fig:storm-track}
 \end{figure}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# need to add map}
-\end{Highlighting}
-\end{Shaded}
+The following Shiny App that helps the user to assess hurricanes' features evolution across time and location as done in part 5.1 of this analysis.
 
-Figure \ref{fig:hex-fig} shows
+The graph on the left displays the hurricane path in the Atlantic Ocean and its change in category across locations. The category can be assessed by hovering on the path; the date at which the hurricane was at each location can be assessed by clicking on the path.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(gridExtra)}
+The graph on the right displays the evolution of windspeed, barometric pressure and hurricane diameter across time of a hurricane. If values for the selected variable are missing, the graph will be blank.
 
-\NormalTok{df }\OperatorTok{%>%}
-\StringTok{        }\KeywordTok{ggplot}\NormalTok{()}\OperatorTok{+}
-\StringTok{        }\KeywordTok{geom_boxplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{reorder}\NormalTok{(category, max_wind, median), }\DataTypeTok{y=}\NormalTok{latitude), }\DataTypeTok{varwidth =} \OtherTok{TRUE}\NormalTok{)}\OperatorTok{+}
-\StringTok{        }\CommentTok{#coord_flip()}
-\StringTok{        }\KeywordTok{facet_wrap}\NormalTok{(}\OperatorTok{~}\NormalTok{status, }\DataTypeTok{scale=}\StringTok{"free"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{figure}
-
-{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/boxplot-wind-category-lat-fig-1} 
-
-}
-
-\caption{Here is a nice figure!}\label{fig:boxplot-wind-category-lat-fig}
-\end{figure}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(gridExtra)}
-
-\NormalTok{df }\OperatorTok{%>%}
-\StringTok{        }\KeywordTok{ggplot}\NormalTok{()}\OperatorTok{+}
-\StringTok{        }\KeywordTok{geom_boxplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{reorder}\NormalTok{(category, max_wind, median), }\DataTypeTok{y=}\NormalTok{hu_diameter), }\DataTypeTok{varwidth =} \OtherTok{TRUE}\NormalTok{)}\OperatorTok{+}
-\StringTok{        }\CommentTok{#coord_flip()}
-\StringTok{        }\CommentTok{#facet_wrap(~status)#, scale="free")+}
-\StringTok{        }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"Fig title"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{figure}
-
-{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/boxplot-wind-category-hu-fig-1} 
-
-}
-
-\caption{Here is a nice figure!}\label{fig:boxplot-wind-category-hu-fig}
-\end{figure}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(ggridges)}
-\KeywordTok{library}\NormalTok{(viridis)}
-\NormalTok{df }\OperatorTok{%>%}
-\StringTok{        }\KeywordTok{ggplot}\NormalTok{()}\OperatorTok{+}
-\StringTok{        }\KeywordTok{geom_density_ridges_gradient}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{ year, }\DataTypeTok{y=}\NormalTok{ category, }\DataTypeTok{group =}\NormalTok{ category, }\DataTypeTok{fill =}\NormalTok{ ..x.., }\DataTypeTok{scale =} \FloatTok{0.9}\NormalTok{))}\OperatorTok{+}
-\StringTok{        }\KeywordTok{scale_fill_viridis}\NormalTok{()}\OperatorTok{+}
-\StringTok{        }\CommentTok{#coord_flip()+}
-\StringTok{        }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"Fig title"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{figure}
-
-{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/ridges-year-category-fig-1} 
-
-}
-
-\caption{Here is a nice figure!}\label{fig:ridges-year-category-fig}
-\end{figure}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(ggridges)}
-\KeywordTok{library}\NormalTok{(viridis)}
-\NormalTok{df }\OperatorTok{%>%}
-\StringTok{        }\KeywordTok{ggplot}\NormalTok{()}\OperatorTok{+}
-\StringTok{        }\KeywordTok{geom_density_ridges_gradient}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{ year, }\DataTypeTok{y=}\NormalTok{ status, }\DataTypeTok{group =}\NormalTok{ status, }\DataTypeTok{fill =}\NormalTok{ ..x.., }\DataTypeTok{scale =} \FloatTok{0.9}\NormalTok{))}\OperatorTok{+}
-\StringTok{        }\KeywordTok{scale_fill_viridis}\NormalTok{()}\OperatorTok{+}
-\StringTok{        }\CommentTok{#coord_flip()+}
-\StringTok{        }\CommentTok{#facet_wrap(~cluster_name_more_short, scale="free", ncol = 1)+}
-\StringTok{        }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"Fig title"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{figure}
-
-{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/density-year-status-fig-1} 
-
-}
-
-\caption{Here is a nice figure!}\label{fig:density-year-status-fig}
-\end{figure}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# cleveland}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(parcoords)}
-
-\CommentTok{#df %>%}
-\CommentTok{#        dplyr::select( ts_diameter, hu_diameter, min_pressure, max_wind, category, status) %>% }
-\CommentTok{#  drop_na() %>% }
-\CommentTok{#        parcoords(alpha = 0.2,}
-\CommentTok{#                  color = list(colorBy = "category"),}
-\CommentTok{#                  withD3 = TRUE,}
-\CommentTok{#                  rownames = FALSE,}
-\CommentTok{#                  reorderable = TRUE,}
-\CommentTok{#                  brushMode = "1d-axes")}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{df }\OperatorTok{%>%}
-\StringTok{  }\KeywordTok{drop_na}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(name }\OperatorTok{==}\StringTok{"Katrina"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{longitude, }\DataTypeTok{y=}\NormalTok{latitude, }\DataTypeTok{color=}\NormalTok{ts_diameter))}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_point}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{figure}
-
-{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/point-date-wind-fig-1} 
-
-}
-
-\caption{Here is a nice figure!}\label{fig:point-date-wind-fig1}
-\end{figure}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{## need to add map}
-
-\NormalTok{df }\OperatorTok{%>%}
-\StringTok{  }\KeywordTok{drop_na}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(name }\OperatorTok{==}\StringTok{"Katrina"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{datetime, }\DataTypeTok{y=}\NormalTok{max_wind, }\DataTypeTok{color=}\NormalTok{category))}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_point}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{figure}
-
-{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/point-date-wind-fig-2} 
-
-}
-
-\caption{Here is a nice figure!}\label{fig:point-date-wind-fig2}
-\end{figure}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(plotly)}
-\CommentTok{#df %>%}
-\CommentTok{#  drop_na() %>% }
-\CommentTok{#  filter(name =="Katrina") %>%}
-\CommentTok{#  plot_ly(x=~datetime, y=~max_wind)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{levels}\NormalTok{(df }\OperatorTok{%>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(completeish}\OperatorTok{==}\StringTok{"yes"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }\NormalTok{.}\OperatorTok{$}\NormalTok{status)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## [1] "tropical hurricane"     "tropical storm"         "Extratropical cyclone" 
-## [4] "tropical depression"    "a low"                  "disturbance"           
-## [7] "subtropical depression" "subtropical storm"      "tropical wave"
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{#names(df)}
-\NormalTok{df_selected <-}\StringTok{ }\NormalTok{df }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\CommentTok{#filter(completeish == "yes") %>% }
-\StringTok{  }\KeywordTok{filter}\NormalTok{(year}\OperatorTok{>}\DecValTok{1990}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\CommentTok{#filter (status == c("hurricane","tropical storm","tropical depression")) %>%}
-\StringTok{  }\KeywordTok{filter}\NormalTok{(hu_diameter}\OperatorTok{>}\DecValTok{0}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{drop_na}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{decade=}\KeywordTok{cut}\NormalTok{(year,}
-                           \DataTypeTok{breaks =} \KeywordTok{c}\NormalTok{(}\DecValTok{2000}\NormalTok{, }\DecValTok{2005}\NormalTok{, }\DecValTok{2010}\NormalTok{, }\DecValTok{2015}\NormalTok{, }\DecValTok{2020}\NormalTok{),}
-                           \DataTypeTok{lables =} \KeywordTok{c}\NormalTok{(}\StringTok{'00s'}\NormalTok{, }\StringTok{'05s'}\NormalTok{,}\StringTok{'10s'}\NormalTok{,}\StringTok{'15'}\NormalTok{, }\StringTok{'20s'}\NormalTok{),}
-                           \DataTypeTok{include.lowest =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{ordered=}\OtherTok{TRUE}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(ggmosaic)}
-\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ df_selected) }\OperatorTok{+}
-\StringTok{   }\KeywordTok{geom_mosaic}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{product}\NormalTok{(category, decade), }\DataTypeTok{fill=}\NormalTok{category), }\DataTypeTok{na.rm=}\OtherTok{TRUE}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{figure}
-
-{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/mosaic-hdecade-category-fig-1} 
-
-}
-
-\caption{Here is a nice figure!}\label{fig:mosaic-hdecade-category-fig}
-\end{figure}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(ggmosaic)}
-\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ df_selected) }\OperatorTok{+}
-\StringTok{   }\KeywordTok{geom_mosaic}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{product}\NormalTok{(category, month), }\DataTypeTok{fill=}\NormalTok{category), }\DataTypeTok{na.rm=}\OtherTok{TRUE}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{figure}
-
-{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/mosaic-category-month-fig-1} 
-
-}
-
-\caption{Here is a nice figure!}\label{fig:mosaic-category-month-fig}
-\end{figure}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{df }\OperatorTok{%>%}
-\StringTok{  }\KeywordTok{select}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"year"}\NormalTok{, }\StringTok{"id"}\NormalTok{, }\StringTok{"status"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{unique}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{group_by}\NormalTok{(year, status) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{drop_na}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{count}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{ungroup}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{year, }\DataTypeTok{y=}\NormalTok{n))}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_line}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{facet_wrap}\NormalTok{(}\OperatorTok{~}\NormalTok{status, }\DataTypeTok{scale=}\StringTok{"free"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{figure}
-
-{\centering \includegraphics[width=0.8\linewidth]{edav-final-project_files/figure-latex/year-count-fig-1} 
-
-}
-
-\caption{Here is a nice figure!}\label{fig:year-count-fig}
-\end{figure}
-
-\hypertarget{tables}{%
-\section{Tables}\label{tables}}
-
-Summary table if applicable
-
-We can reference tables generated from \texttt{knitr::kable()}, e.g., see Table \ref{tab:nice-tab}.
-And it works even the item is not in this chapter.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(}
-  \KeywordTok{head}\NormalTok{(df_selected[}\DecValTok{2}\OperatorTok{:}\DecValTok{3}\NormalTok{], }\DecValTok{10}\NormalTok{), }\DataTypeTok{caption =} \StringTok{'Here is a nice table!'}\NormalTok{,}
-  \DataTypeTok{booktabs =} \OtherTok{TRUE}
-\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{table}
-
-\caption{\label{tab:nice-tab}Here is a nice table!}
-\centering
-\begin{tabular}[t]{ll}
-\toprule
-name & datetime\\
-\midrule
-Alex & 2004-08-03\\
-Alex & 2004-08-03\\
-Alex & 2004-08-03\\
-Alex & 2004-08-04\\
-Alex & 2004-08-04\\
-\addlinespace
-Alex & 2004-08-04\\
-Alex & 2004-08-04\\
-Alex & 2004-08-05\\
-Alex & 2004-08-05\\
-Alex & 2004-08-05\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\hypertarget{interactive-component}{%
-\chapter{Interactive Component}\label{interactive-component}}
-
-Select one (or more) of our key findings to present in an interactive format (D3). Be selective in the choices that we present to the user; the idea is that in 5-10 minutes, users should have a good sense of the question(s) that we are interested in and the trends we've identified in the data. In other words, they should understand the value of the analysis, be it business value, scientific value, general knowledge, etc.
+If the server is too slow and the app doesn't appear on your screen, follow this \href{https://github.com/jqz300/edav_proj}{Github link} to download the necessary files and run the app locally.
 
 \hypertarget{conclusion}{%
 \chapter{Conclusion}\label{conclusion}}
 
-Discuss limitations and future directions, lessons learned.
+In this analysis, we explore the century long storm records {[}HURDAT2: 1851-2018{]} (\url{https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt}) to investigate the characteristics of Atlantic storms and hurricanes and examine their changes under global warming conditions. The analysis results indicate that:
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\item
+  The {[}Saffir-Simpson{]} scale (\url{https://www.nhc.noaa.gov/aboutsshws.php}) that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from \href{https://hurricane.shinyapps.io/shinyapp/}{storm shinyapp}.
+\item
+  While recent studies indicate a global North-ward shift in cyclones activity, we did not find strong evidence of this trend in our data. An increase of activity in the North was observed in the 1970s but seemed to decrease in the following decades. Besides, that shift seemed to be due to mostly an increase in frequency of cyclones of category 0 and 1, which are less worrying than cyclones of higher categories.
+\item
+  Human activities may have already caused the changes in the Atlantic storm and hurricane activity, reflected by the increasing number of the Atlantic cyclones. However, exploratory analysis can only help us identify similarity in trends and not confirm that one is the cause of the other. In order to do the latter, further research and statistical testing should be performed.
+\end{enumerate}
 
 \bibliography{proj.bib,packages.bib}
 

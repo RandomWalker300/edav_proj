@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 7 Conclusion | Hurricane Analysis and Visulization Using R</title>
+  <title>Chapter 2 Data Source | Hurricane Analysis and Visulization Using R</title>
   <meta name="description" content="This is an edav class final project" />
   <meta name="generator" content="bookdown 0.15 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 7 Conclusion | Hurricane Analysis and Visulization Using R" />
+  <meta property="og:title" content="Chapter 2 Data Source | Hurricane Analysis and Visulization Using R" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="rstudio/bookdown-demo" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 7 Conclusion | Hurricane Analysis and Visulization Using R" />
+  <meta name="twitter:title" content="Chapter 2 Data Source | Hurricane Analysis and Visulization Using R" />
   
   <meta name="twitter:description" content="This is an edav class final project" />
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="intercom.html"/>
-<link rel="next" href="references.html"/>
+<link rel="prev" href="index.html"/>
+<link rel="next" href="datatrans.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -166,14 +166,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="conclusion" class="section level1">
-<h1><span class="header-section-number">Chapter 7</span> Conclusion</h1>
-<p>In this analysis, we explore the century long storm records [HURDAT2: 1851-2018] (<a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt" class="uri">https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt</a>) to investigate the characteristics of Atlantic storms and hurricanes and examine their changes under global warming conditions. The analysis results indicate that:</p>
-<ol style="list-style-type: decimal">
-<li><p>The [Saffir-Simpson] scale (<a href="https://www.nhc.noaa.gov/aboutsshws.php" class="uri">https://www.nhc.noaa.gov/aboutsshws.php</a>) that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from <a href="https://hurricane.shinyapps.io/shinyapp/">storm shinyapp</a>.</p></li>
-<li><p>While recent studies indicate a global North-ward shift in cyclones activity, we did not find strong evidence of this trend in our data. An increase of activity in the North was observed in the 1970s but seemed to decrease in the following decades. Besides, that shift seemed to be due to mostly an increase in frequency of cyclones of category 0 and 1, which are less worrying than cyclones of higher categories.</p></li>
-<li><p>Human activities may have already caused the changes in the Atlantic storm and hurricane activity, reflected by the increasing number of the Atlantic cyclones. However, exploratory analysis can only help us identify similarity in trends and not confirm that one is the cause of the other. In order to do the latter, further research and statistical testing should be performed.</p></li>
-</ol>
+<div id="datasource" class="section level1">
+<h1><span class="header-section-number">Chapter 2</span> Data Source</h1>
+<p>The storm track data presented in the analysis is downloaded from <a href="https://www.nhc.noaa.gov/data/#hurdat">National Hurricane Center and Central Pacific Hurricane Center</a>, which is also known as the Atlantic hurricane database [HURDAT2: 1851-2018] (<a href="https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt" class="uri">https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt</a>) and the <a href="https://www.aoml.noaa.gov/hrd/hurdat/comparison_table.html.">HURDAT</a> data is downloaded from the [NOAA’s Atlantic Oceanographic and Meteorological Laboratory] (<a href="https://www.aoml.noaa.gov/" class="uri">https://www.aoml.noaa.gov/</a>).</p>
+<p>We choose to work with these data because they provide us with updated, complete and accurate information about hurricanes over the past 150 years (1851 - 2018). Since the Atlantic hurricane activity has shown very strong year-to-year and decade-to-decade variability, longer records or hurricanes are much needed.</p>
+<p>In addition, we have also gathered the directly observed Atlantic Meridional Overturning Circulation (AMOC) index at 26 oN available for the period 27, 33 2004–2014, which is obtained from the [RAPID-WATCH MOC monitoring project] (www.rapid.ac.uk/rapidmoc). This is for the purpose of analyzing the linkage between hurricane frequency and climate variability, as well as the causes of the changes in Atlantic major hurricane frequency.</p>
+<p>Furthermore, all the low-pass filtered data are obtained using the R function “filtfilt” with a Hamming window based low-pass filter at a 10-year cutoff period. One important thing to note about the names of hurricanes is that there are six names lists that have been used in rotation and re-cycled every six years. This means that there can be more than one hurricanes having the same name but happened in different years. We have tackled this problem by giving each hurricane a unique <code>storm-id</code>.</p>
 
 </div>
             </section>
@@ -181,8 +179,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           </div>
         </div>
       </div>
-<a href="intercom.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="datatrans.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -212,7 +210,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/jqz300/edav_proj.git07-Conclusion.Rmd",
+"link": "https://github.com/jqz300/edav_proj.git01-DataSource.Rmd",
 "text": "Edit"
 },
 "history": {
