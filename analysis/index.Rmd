@@ -1,5 +1,5 @@
 --- 
-title: "Hurricane Analysis and Visulization Using R"
+title: "Hurricane Analysis and Visualization Using R"
 author: "Romane Goldmuntz, Vy Tran, and Jianqiong Zhan"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
