@@ -1,5 +1,7 @@
 p.caption {
   color: #777;
+  font-size: 1em;
+  font-style: bolder;
   margin-top: 10px;
 }
 p code {
