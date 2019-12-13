@@ -24,29 +24,6 @@ library(ggthemes)
 ```
 
 ```{r echo=FALSE}
-# Read in transformed data
-dfile<- "../data/clean/hurricanes.csv"
-#dfile<- "https://github.com/jqz300/edav_proj/blob/master/data/hurdat2_out.csv"
-df <- read_csv(dfile,
-                   na = c("NA", "-99", "-999"),
-                   col_types = list(
-                   id = col_character(),
-                   name = col_character(),
-                   year =col_integer(),
-                   month =col_integer(),
-                   day = col_integer(),
-                   hour  =col_integer(),
-                   latitude  = col_double(),
-                   longitude   = col_double(),
-                   status  = col_factor(),
-                   category = col_factor(),
-                   max_wind  = col_double(),
-                   min_pressure  = col_integer(),
-                   ts_diameter = col_double(),
-                   hu_diameter = col_double())
-               )
-```
-```{r echo=FALSE}
 tcs <- c("tropical storm", "tropical hurricane","subtropical storm")
 df <- df %>% dplyr::filter(status %in% tcs)
 #names(df)

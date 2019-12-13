@@ -149,12 +149,6 @@
 \hypertarget{intro}{%
 \chapter{Introduction}\label{intro}}
 
-\begin{figure}
-\centering
-\includegraphics{../images/sandy-hurricane-1.jpg}
-\caption{Hurricane Sandy, October 2012. Source:(NASA/GETTRY IMAGES).}
-\end{figure}
-
 Hurricanes have caused tremendous losses on the country's economy (\citet{Winkle2018}): they currently cost the government over \$28 billion each year. Besides the government, several industries are heavily impacted by hurricanes, including the insurance industry. For example, according to Bloomberg, hurricane Dorian caused the insurance industry losses of up \$25 billion, making it the most expensive natural disaster for the industry since 2017's Hurricane Maria (\citet{DSouza2019}). Therefore, the United States' Sustainable Development has identified economic losses from hurricane as a key indicator for the economic growth (\citet{SDG2018}). Disentangling the relative roles of variability and changes in Hurricane could contribute information useful to sustainable development goals.
 
 Key frequently asked questions are: how climate affects hurricane, and what of the future hurricanes are more likely to be. To gain insight on these questions, we first have to look into historical records to discern the variability and changes of hurricanes, the analysis of which will help us to build predictive understanding of the influencing of climate on hurricane. Our working hypothesis is that: if greenhouse warming has caused a substantial increase in Atlantic hurricane activity, then the century scale increase in Atlantic hurricane since 1851 should have produced a long-term rise in measures of Atlantic hurricanes activity, similar to that seen for global temperature, for example. Therefore, we aim to dig into the original storm track file with more than 150 years of records of Atlantic tropical storm activities in order to examine variability and changes of Atlantic hurricane under global warming conditions. Specifically, three important questions we would like to address in this analysis are:
@@ -168,13 +162,11 @@ Key frequently asked questions are: how climate affects hurricane, and what of t
 \hypertarget{datasource}{%
 \chapter{Data Source}\label{datasource}}
 
-The storm track data presented in the analysis is downloaded from \href{https://www.nhc.noaa.gov/data/\#hurdat}{National Hurricane Center and Central Pacific Hurricane Center}, which is also known as the Atlantic hurricane database {[}HURDAT2: 1851-2018{]} (\url{https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt}) and the \href{https://www.aoml.noaa.gov/hrd/hurdat/comparison_table.html.}{HURDAT} data is downloaded from the {[}NOAA's Atlantic Oceanographic and Meteorological Laboratory{]} (\url{https://www.aoml.noaa.gov/}).
+The storm track data presented in the analysis is downloaded from \href{https://www.nhc.noaa.gov/data/\#hurdat}{National Hurricane Center and Central Pacific Hurricane Center}, which is also known as the Atlantic hurricane database {[}HURDAT2: 1851-2018{]} (\url{https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt}) and the \href{https://www.aoml.noaa.gov/hrd/hurdat/comparison_table.html}{HURDAT} data is downloaded from the {[}NOAA's Atlantic Oceanographic and Meteorological Laboratory{]} (\url{https://www.aoml.noaa.gov/}).
 
 We choose to work with these data because they provide us with updated, complete and accurate information about hurricanes over the past 150 years (1851 - 2018). Since the Atlantic hurricane activity has shown very strong year-to-year and decade-to-decade variability, longer records or hurricanes are much needed.
 
-In addition, we have also gathered the directly observed Atlantic Meridional Overturning Circulation (AMOC) index at 26 oN available for the period 27, 33 2004--2014, which is obtained from the {[}RAPID-WATCH MOC monitoring project{]} (www.rapid.ac.uk/rapidmoc). This is for the purpose of analyzing the linkage between hurricane frequency and climate variability, as well as the causes of the changes in Atlantic major hurricane frequency.
-
-Furthermore, all the low-pass filtered data are obtained using the R function ``filtfilt'' with a Hamming window based low-pass filter at a 10-year cutoff period. One important thing to note about the names of hurricanes is that there are six names lists that have been used in rotation and re-cycled every six years. This means that there can be more than one hurricanes having the same name but happened in different years. We have tackled this problem by giving each hurricane a unique \texttt{storm-id}.
+One important thing to note about the names of hurricanes is that there are six names lists that have been used in rotation and re-cycled every six years. This means that there can be more than one hurricanes having the same name but happened in different years. We have tackled this problem by giving each hurricane a unique \texttt{storm-id}.
 
 \hypertarget{datatrans}{%
 \chapter{Data Transformation}\label{datatrans}}
@@ -314,6 +306,8 @@ The maximum value of the \texttt{ts\_diameter} for each track
 \texttt{\_max\_hu\_diamter\_}
 
 The maximum value of the \texttt{hu\_diameter} for each track
+
+!--test--\textgreater{}
 
 \hypertarget{missingval}{%
 \chapter{Missing Values}\label{missingval}}
@@ -504,6 +498,8 @@ We build a Shiny Web Application for the Interactive Component in order to assis
 \hypertarget{does-hurricane-activity-shift-north-ward}{%
 \section{Does hurricane activity shift north-ward?}\label{does-hurricane-activity-shift-north-ward}}
 
+\#\texttt{\{r\ echo=FALSE\}\ \#df\ \textless{}-\ read.csv("../data/clean/hurricanes.csv")\ \#}
+
 Next, we want to assess whether hurricane activity is shifting North. A recent study showed that the locations of tropical cyclones is shifting poleward (i.e.~north-ward) globally (\href{https://www.climatecentral.org/news/warming-may-shift-hurricane-impacts-17437}{Thompson}). If true, this implies heavy consequences for the Northern part of the United States. Southern states such as Florida have already taken steps to improve its approach to hurricanes, such as property structure improvements, rescue boats and vehicles investments, and emergency workers trainings; if the frequency of tropical cyclones is indeed shifting North, Northern states should consider taking similar actions.
 
 Before exploring the above hypothesis, it is worth redefining latitude and longitude:
@@ -625,7 +621,7 @@ In this analysis, we explore the century long storm records {[}HURDAT2: 1851-201
 \begin{enumerate}
 \def\labelenumi{(\arabic{enumi})}
 \item
-  The {[}Saffir-Simpson{]} scale (\url{https://www.nhc.noaa.gov/aboutsshws.php}) that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from \href{https://hurricane.shinyapps.io/01_01/}{storm shinyapp}.
+  The \href{https://www.nhc.noaa.gov/aboutsshws.php}{Saffir-Simpson scale} that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from \href{https://hurricane.shinyapps.io/01_01/}{storm shinyapp}.
 \item
   While recent studies indicate a global North-ward shift in cyclones activity, we did not find strong evidence of this trend in our data. An increase of activity in the North was observed in the 1970s but seemed to decrease in the following decades. Besides, that shift seemed to be due to mostly an increase in frequency of cyclones of category 0 and 1, which are less worrying than cyclones of higher categories.
 \item

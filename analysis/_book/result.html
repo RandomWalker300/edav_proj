@@ -248,6 +248,7 @@ Figure 5.5: Frequency of Hurricanes across the United States
 </div>
 <div id="does-hurricane-activity-shift-north-ward" class="section level2">
 <h2><span class="header-section-number">5.2</span> Does hurricane activity shift north-ward?</h2>
+<p>#<code>{r echo=FALSE} #df &lt;- read.csv(&quot;../data/clean/hurricanes.csv&quot;) #</code></p>
 <p>Next, we want to assess whether hurricane activity is shifting North. A recent study showed that the locations of tropical cyclones is shifting poleward (i.e. north-ward) globally (<a href="https://www.climatecentral.org/news/warming-may-shift-hurricane-impacts-17437">Thompson</a>). If true, this implies heavy consequences for the Northern part of the United States. Southern states such as Florida have already taken steps to improve its approach to hurricanes, such as property structure improvements, rescue boats and vehicles investments, and emergency workers trainings; if the frequency of tropical cyclones is indeed shifting North, Northern states should consider taking similar actions.</p>
 <p>Before exploring the above hypothesis, it is worth redefining latitude and longitude:</p>
 <p><strong>Latitude</strong> is the measurement of a place on Earth with regards to its distance north or south-wise from the Earth’s equator. Latitude is expressed in degrees followed by the letter N or S whether the location measured is North or South from the equator. Interesting examples for this project are Miami’s latitude (~26°N) and New York City’s latitude (~41°N).</p>
@@ -271,12 +272,6 @@ Figure 5.7: Frequency of each Hurricane Category over Years
 </div>
 <div id="have-humans-already-caused-a-detectable-long-term-increase-in-atlantic-hurricane-activity" class="section level2">
 <h2><span class="header-section-number">5.3</span> Have humans already caused a detectable long-term increase in Atlantic hurricane activity?</h2>
-<!--test-->
-<!--test: category has been calculated based on [Saffir-Simpson Hurricane Wind Scale](https://www.nhc.noaa.gov/aboutsshws.php) to indicate "Types of Damage Due to Hurricane Winds". -->
-<!--test:*Note: there is an "ET" in _Status of system_, which does not included in the description [HURDAT2](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf). This is a typo in the dataset, `recode` it into 'EX".*-->
-<!--Save transformed data** for further use.-->
-<!--_Save data for furture use_*-->
-<!--_Time Series Analysis_ -->
 <p>As we can see from Figure <a href="result.html#fig:ts-co2-year-fig">5.8</a>, the global CO2 concentration has increased, and the tropical Atlantic sea surface temperature show significant warming trends (Figure <a href="result.html#fig:ts-sst-year-fig">5.9</a>).</p>
 <!--CO2-->
 <div class="figure" style="text-align: center"><span id="fig:ts-co2-year-fig"></span>
