@@ -23,7 +23,7 @@
 }{}
 \usepackage{hyperref}
 \hypersetup{unicode=true,
-            pdftitle={Hurricane Analysis and Visulization Using R},
+            pdftitle={Hurricane Analysis and Visualization Using R},
             pdfauthor={Romane Goldmuntz, Vy Tran, and Jianqiong Zhan},
             pdfborder={0 0 0},
             breaklinks=true}
@@ -120,7 +120,7 @@
 
 \setlength{\droptitle}{-2em}
 
-  \title{Hurricane Analysis and Visulization Using R}
+  \title{Hurricane Analysis and Visualization Using R}
     \pretitle{\vspace{\droptitle}\centering\huge}
   \posttitle{\par}
     \author{Romane Goldmuntz, Vy Tran, and Jianqiong Zhan}
@@ -128,7 +128,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-12-12}
+    \date{2019-12-13}
 
 \usepackage{booktabs}
 \usepackage{amsthm}
@@ -164,8 +164,6 @@ Key frequently asked questions are: how climate affects hurricane, and what of t
 \emph{(2) Has hurricane activity shifted north-ward?}
 
 \emph{(3) Have humans already caused a detectable increase in Atlantic hurricane activity?}
-
-\emph{(4) What other embedding patterns can we learn from the historical Atlantic hurricane record? How does this will help us to build predictive understanding of the influencing of climate on hurricane?}
 
 \hypertarget{datasource}{%
 \chapter{Data Source}\label{datasource}}
@@ -594,6 +592,8 @@ This means that the evolution of the number of cyclones over time follows a simi
 \hypertarget{intercom}{%
 \chapter{Interactive Component}\label{intercom}}
 
+\href{https://hurricane.shinyapps.io/01_01/}{storm shinyapp}
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{knitr}\OperatorTok{::}\KeywordTok{include_app}\NormalTok{(}\StringTok{'https://hurricane.shinyapps.io/01_01/'}\NormalTok{, }\DataTypeTok{height =} \StringTok{'600px'}\NormalTok{)}
@@ -625,7 +625,7 @@ In this analysis, we explore the century long storm records {[}HURDAT2: 1851-201
 \begin{enumerate}
 \def\labelenumi{(\arabic{enumi})}
 \item
-  The {[}Saffir-Simpson{]} scale (\url{https://www.nhc.noaa.gov/aboutsshws.php}) that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from \href{https://hurricane.shinyapps.io/shinyapp/}{storm shinyapp}.
+  The {[}Saffir-Simpson{]} scale (\url{https://www.nhc.noaa.gov/aboutsshws.php}) that is currently widely used to define category of hurricane reflects well the strength of wind and pressure. However, no relationship could be established between the category and size of the cyclones, indicating that a high category hurricane can be of small size and vice versa. Finally, Southern cyclones seem to reach a higher category than Northern cyclones in their lifetime, indicating a relationship between the category and the location. The century long Atlantic storms and hurricanes tracks and features can be easily visualized from \href{https://hurricane.shinyapps.io/01_01/}{storm shinyapp}.
 \item
   While recent studies indicate a global North-ward shift in cyclones activity, we did not find strong evidence of this trend in our data. An increase of activity in the North was observed in the 1970s but seemed to decrease in the following decades. Besides, that shift seemed to be due to mostly an increase in frequency of cyclones of category 0 and 1, which are less worrying than cyclones of higher categories.
 \item

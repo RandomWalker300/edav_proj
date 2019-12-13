@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999991 (TeX Live 2019) (preloaded format=xelatex 2019.12.4)  12 DEC 2019 23:50
+This is XeTeX, Version 3.14159265-2.6-0.999991 (TeX Live 2019) (preloaded format=xelatex 2019.12.4)  13 DEC 2019 02:15
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -850,7 +850,7 @@ Chapter 2.
 ]
 Chapter 3.
 
-Underfull \hbox (badness 2126) in paragraph at lines 189--190
+Underfull \hbox (badness 2126) in paragraph at lines 187--188
 \TU/lmtt/m/n/10 extent_34_SW\TU/lmr/m/n/10 , northeastern quadrant, \TU/lmtt/m/
 n/10 extent_64_NW\TU/lmr/m/n/10 ), and southeastern
  []
@@ -973,7 +973,7 @@ Package rerunfilecheck Info: File `edav-final-project.out' has not changed.
 Here is how much of TeX's memory you used:
  24624 strings out of 494894
  468190 string characters out of 6175803
- 583941 words of memory out of 5000000
+ 583944 words of memory out of 5000000
  28296 multiletter control sequences out of 15000+600000
  545081 words of font info for 57 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191

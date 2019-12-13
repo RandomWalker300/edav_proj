@@ -58,6 +58,4 @@ _(2) Has hurricane activity shifted north-ward?_
 
 _(3)	Have humans already caused a detectable increase in Atlantic hurricane activity?_
 
-_(4)	What other embedding patterns can we learn from the historical Atlantic hurricane record? How does this will help us to build predictive understanding of the influencing of climate on hurricane?_
-
 
