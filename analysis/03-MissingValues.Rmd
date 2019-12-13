@@ -1,0 +1,104 @@
+# Missing Values{#missingval}
+
+Here, we use `visna::extract` to look at the missing value patterns.  _The bars_ beneath the columns in Figure \@ref(fig:missingvalue-extracat-fig) show the proportions of missingness by variable, suggesting hurricane diameter _(`hu_diameter`)_ and storm diameter _(`ts_diameter`)_ both have the highest number of missing value and the columns suggest that they follow the same missing pattern, meaning when hurricane diameter is missing, storm diameter is also missing. 
+
+The third most missing variable is Pressure _(`min_pressure`)_ and _the columns_ show that Pressure is missing only when hurricane diameter and storm diameter are missing. The _bars_ on the right show the relative frequencies of the missing patterns, which suggest the most frequent missing patterns are in the combination of hurricane diameter, storm diameter and pressure, followed by the combination of hurricane diameter and storm diameter. Non-missing data are in the third meaning most of rows are completeness. 
+
+Finally, hurricane diameter and storm diameter are the most missing values because they are calculated from _Wind Raddii_ but _Wind Raddii_ values were not used before 2004. 
+
+
+```{r echo=FALSE}
+ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+```{r echo=FALSE}
+library(tidyverse)
+library(stringr)
+library(naniar)
+library(mi)
+#devtools::install_github("cran/extracat", force = TRUE)
+#devtools::install_github("coatless/ucidata", force = TRUE)
+library(extracat)
+library(visdat)
+library(ggthemes)
+```
+
+```{r echo=FALSE}
+# Read in transformed data
+dfile<- "../data/clean/hurricanes.csv"
+#dfile<- "https://github.com/jqz300/edav_proj/blob/master/data/hurdat2_out.csv"
+df <- read_csv(dfile,
+                   na = c("NA", "-99", "-999"),
+                   col_types = list(
+                   id = col_character(),
+                   name = col_character(),
+                   year =col_integer(),
+                   month =col_integer(),
+                   day = col_integer(),
+                   hour  =col_integer(),
+                   latitude  = col_double(),
+                   longitude   = col_double(),
+                   status  = col_factor(),
+                   category = col_factor(),
+                   max_wind  = col_double(),
+                   min_pressure  = col_integer(),
+                   ts_diameter = col_double(),
+                   hu_diameter = col_double())
+               )
+```
+```{r echo=FALSE}
+tcs <- c("tropical storm", "tropical hurricane","subtropical storm")
+df <- df %>% dplyr::filter(status %in% tcs)
+#names(df)
+```
+
+
+```{r missingvalue-extracat-fig, fig.cap='Missing Values Patterns', out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+# review missingness patterns
+df_new_name <- df %>% dplyr::select(min_pressure, max_wind, longitude, latitude, ts_diameter, hu_diameter) %>% 
+  dplyr::rename(Pressure = min_pressure, Wind = max_wind, Longitude = longitude, Latitude = latitude, TS_Diam= ts_diameter, HU_Diam = hu_diameter)
+
+extracat::visna(df_new_name, sort = "b")
+
+```
+
+It is worth noting that almost all Pressure data are missing from 1850s to 1940s. The number of missing data is then decreasing from the 1940s, and there are no missing Pressure starting the 2000s (see Figure \@ref(fig:missingvalue-pressure-year-fig)). The reasons for this are are the following: (1) in the early years, information about pressure was recorded by ships; those were few in numbers and thus a lot of pressure data could not be recorded (2) in more recent years, it became a common habit to replace missing pressure values by an analytical product such as sattelite data; (3) improvements in modern tools and technologies have provided us with a more powerful observation network than that in the early years.
+
+
+```{r missingvalue-pressure-year-fig, fig.cap="Proportion of Missing Air Pressure at the Storm\'s Center By Year", out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+df_completeish <- 
+  df %>% group_by(year) %>% summarize(num_completeish = n(), num_na = sum(is.na(min_pressure))) %>% mutate(percent_na = num_na/num_completeish) %>% arrange(-percent_na)
+
+ggplot(df_completeish, aes(x=year, y =percent_na))+
+  geom_line()+
+  xlab('Year')+
+  ylab("Proportion of Missing Air Pressure (in millibars)") + theme_grey(13)+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+Another noticeable pattern in missing value relates to the name of tropical cyclones  (see Figure \@ref(fig:atlatnic-storms-unnamed-year-fig)). 
+
+Before the 1950s, it was not common practice to name tropical cyclones. This explains why we cannot find any cyclone with a name before that time. A couple were still not named after that, and the reason can be linked to the category: those cyclones are of category 0 and 1 (more information about categories can be found in part 5), which means that they could have been overlooked and therefore didn't receive any name. 
+
+```{r atlatnic-storms-unnamed-year-fig, fig.cap='Cyclones received names starting 1950s', out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+
+df$category = factor(df$category, levels=c("0","1","2","3","4","5"))
+
+df %>% 
+  dplyr::filter(category==c("0","1","2","3","4","5")) %>%
+  dplyr::select(c("id","name","year","category")) %>% unique() %>% 
+  mutate(name_id = if_else(name=="UNNAMED", "no", "yes")) %>%
+  #group_by(name_id, year, category) %>% summarise(name_id_num = n()) %>% ungroup() %>% 
+  ggplot(aes(x=year, y=name_id, color=name_id))+
+  geom_point()+
+  facet_wrap(~category)+
+  #geom_smooth()+
+  labs(x = "Year", y = "",color = "Is the cyclone named?")+
+  theme_grey(13)+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_color_colorblind()
+```
+
+
+

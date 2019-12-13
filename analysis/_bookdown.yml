@@ -1,0 +1,6 @@
+book_filename: "edav-final-project"
+language:
+  ui:
+    chapter_name: "Chapter "
+delete_merged_file: true
+edit: https://github.com/jqz300/edav_proj/edit/master/%s

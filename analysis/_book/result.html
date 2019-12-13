@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 5 Results | Hurricane Analysis and Visulization Using R</title>
+  <meta name="description" content="This is an edav class final project" />
+  <meta name="generator" content="bookdown 0.15 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 5 Results | Hurricane Analysis and Visulization Using R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="This is an edav class final project" />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 5 Results | Hurricane Analysis and Visulization Using R" />
+  
+  <meta name="twitter:description" content="This is an edav class final project" />
+  
+
+<meta name="author" content="Romane Goldmuntz, Vy Tran, and Jianqiong Zhan" />
+
+
+<meta name="date" content="2019-12-12" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="missingval.html"/>
+<link rel="next" href="intercom.html"/>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Hurricane Analysis and Visulization Using R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="datasource.html"><a href="datasource.html"><i class="fa fa-check"></i><b>2</b> Data Source</a></li>
+<li class="chapter" data-level="3" data-path="datatrans.html"><a href="datatrans.html"><i class="fa fa-check"></i><b>3</b> Data Transformation</a></li>
+<li class="chapter" data-level="4" data-path="missingval.html"><a href="missingval.html"><i class="fa fa-check"></i><b>4</b> Missing Values</a></li>
+<li class="chapter" data-level="5" data-path="result.html"><a href="result.html"><i class="fa fa-check"></i><b>5</b> Results</a><ul>
+<li class="chapter" data-level="5.1" data-path="result.html"><a href="result.html#what-influences-the-change-in-category-of-a-hurricane"><i class="fa fa-check"></i><b>5.1</b> What influences the change in category of a hurricane?</a><ul>
+<li class="chapter" data-level="5.1.1" data-path="result.html"><a href="result.html#a-first-look-into-the-evolution-of-the-category-of-hurricanes"><i class="fa fa-check"></i><b>5.1.1</b> A first look into the evolution of the category of hurricanes</a></li>
+<li class="chapter" data-level="5.1.2" data-path="result.html"><a href="result.html#is-there-a-difference-between-the-maximum-category-reached-by-southern-and-northern-hurricanes"><i class="fa fa-check"></i><b>5.1.2</b> Is there a difference between the maximum category reached by Southern and Northern hurricanes?</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="result.html"><a href="result.html#does-hurricane-activity-shift-north-ward"><i class="fa fa-check"></i><b>5.2</b> Does hurricane activity shift north-ward?</a></li>
+<li class="chapter" data-level="5.3" data-path="result.html"><a href="result.html#have-humans-already-caused-a-detectable-long-term-increase-in-atlantic-hurricane-activity"><i class="fa fa-check"></i><b>5.3</b> Have humans already caused a detectable long-term increase in Atlantic hurricane activity?</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="intercom.html"><a href="intercom.html"><i class="fa fa-check"></i><b>6</b> Interactive Component</a></li>
+<li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/jqz300/edav_proj.git" target="blank">Github Link</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Hurricane Analysis and Visulization Using R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="result" class="section level1">
+<h1><span class="header-section-number">Chapter 5</span> Results</h1>
+<div id="what-influences-the-change-in-category-of-a-hurricane" class="section level2">
+<h2><span class="header-section-number">5.1</span> What influences the change in category of a hurricane?</h2>
+<p>Hurricanes are classified in different categories based on the <a href="https://www.nhc.noaa.gov/aboutsshws.php">Saffir-Simpson</a> Hurricane Wind Scale, which classifies hurricanes with regards to their wind speeds and estimates potential property damages. The hurricanes categories come under five items:</p>
+<ol style="list-style-type: decimal">
+<li>Category 1:</li>
+</ol>
+<p>Very dangerous winds from 64 to 82 knot (kt) that will lead to some damage such as roof damage or snapped tree branches. A famous hurricane of category 1 is <a href="https://en.wikipedia.org/wiki/Hurricane_Danny_(1985)">Danny</a>, which hit Cuba and the Gulf of Mexico in 1985.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Category 2:</li>
+</ol>
+<p>Extremely dangerous winds from 83 to 95 kt that will produce extensive damage such as roof damage and siding, many toppled shallowly rooted trees and near-total power outage. A famous hurricane of category 2 is <a href="https://en.wikipedia.org/wiki/Hurricane_Erin_(1995)">Erin</a> which hit Florida in 1995 and caused 5 people to die and cost $700 million (1995 USD).</p>
+<ol start="3" style="list-style-type: decimal">
+<li>Category 3:</li>
+</ol>
+<p>Extremely dangerous winds from 96 to 112 kt will cause devastating damage such as removal of roof decking, power outage and power outage for days to weeks after the storm passes. <a href="https://en.wikipedia.org/wiki/Hurricane_Katrina">Katrina</a> is a famous hurricane of category 3 that lead to 1,836 deaths and $81 billion (2005 USD) in property damage in 2005. Major states impacted were Louisiana and Mississippi.</p>
+<ol start="4" style="list-style-type: decimal">
+<li>Category 4:</li>
+</ol>
+<p>Extremely dangerous winds from 113 to 136 kt that will cause catastrophic damage such as loss of most of the roof structure and exterior walls, fallen trees and power outage for weeks to months. A famous hurricane of category 4 is <a href="https://en.wikipedia.org/wiki/Hurricane_Harvey">Harvey</a> which hit Texas and Louisiana in 2017 with damage estimated to $125 billion (2017 USD) and 107 deaths in the United States.</p>
+<ol start="5" style="list-style-type: decimal">
+<li>Category 5:</li>
+</ol>
+<p>Extremely dangerous winds of 137 kt or higher that will cause catastrophic damage such as total roof and wall collapse, fallen trees, power outage for weeks to months and uninhabitable regions for weeks or months. A famous hurricane of category 5 is <a href="https://en.wikipedia.org/wiki/Hurricane_Andrew">Andrew</a>, which hit Louisiana and Florida in 1992 and whose damage accounts for $41.5 billion (2011 USD) and 54 deaths (approximately 1 million people were evacuated before the storm).</p>
+<p>Besides, it is also worth distinguishing hurricanes from tropical storms, whose maximum sustained surface winds range from 34 to 63 kt. They are labeled category 0 in our dataset.</p>
+<p>The strength of a hurricane can also be assessed by its barometric pressure, that is the pressure at its center: the lower the barometric pressure, the stronger the hurricane.</p>
+<p>Finally, the size of a hurricane is defined by its diameter.</p>
+<p>Let’s now examine those features on a parallel coordinate plot and see how they relate to each other.</p>
+<div class="figure" style="text-align: center"><span id="fig:pcp-category-wind-pressure-fig"></span>
+<img src="edav-final-project_files/figure-html/pcp-category-wind-pressure-fig-1.png" alt="Windspeed and Pressure are indicators of cyclone category" width="80%" />
+<p class="caption">
+Figure 5.1: Windspeed and Pressure are indicators of cyclone category
+</p>
+</div>
+<p>First of all, as showing in Figure <a href="result.html#fig:pcp-category-wind-pressure-fig">5.1</a>, categories are clearly distinct in terms of windspeed and increase proportionally to this feature. This is consistent with the definition of the <a href="https://www.nhc.noaa.gov/aboutsshws.php">Saffir-Simpson Scale</a>. The same conclusion can be drawn for the <a href="https://sciencing.com/barometric-pressure-hurricanes-22734.html">barometric pressure measured at the center of the hurricane</a>: for low pressures, the hurricane will be overall of a higher category. The distinction is however not as clear as for windspeed and some overlap can be noticed.</p>
+<p>Furthermore, no relationship can be established between the diameter of the area experiencing hurricane strength winds of 64 knots or above hurricane diameter <em>(<code>hu_diameter</code>)</em>, which would mean that the category, wind speed and min pressure will not determine the potential areas that will be affected by hurricane.</p>
+<p>Note that all tropical storm have a diameter equal to 0: this is because the variable used for the graph is hurricane diameter, which accounts for the diameter of hurricanes. The diameter of the area experiencing tropical storm strength winds (34 knots or above) is reported in a separated variable called storm diameter <em>(<code>ts_diameter</code>)</em>. As this project focuses on hurricanes, and these two parameters are highly correlated to each other, the decision was made to not include it in the graph.</p>
+<div id="a-first-look-into-the-evolution-of-the-category-of-hurricanes" class="section level3">
+<h3><span class="header-section-number">5.1.1</span> A first look into the evolution of the category of hurricanes</h3>
+<p>Let’s now check whether a hurricane sticks to one category in its lifetime or if it changes overtime. To do so, we select three hurricanes of the same year: Irma (Florida), Maria (North Carolina) and Gert (North of Atlantic Ocean), which all occurred in 2017.</p>
+<div class="figure" style="text-align: center"><span id="fig:each-track-develop-fig"></span>
+<img src="edav-final-project_files/figure-html/each-track-develop-fig-1.png" alt="Three Example Hurricanes in 2017" width="100%" />
+<p class="caption">
+Figure 5.2: Three Example Hurricanes in 2017
+</p>
+</div>
+<p>From Figure <a href="result.html#fig:each-track-develop-fig">5.2</a>, it can be noted that both Irma and Maria grew in intensity to reach category 5, while Gert <strong>only</strong> reached category 2 as a maximum. A difference in lifetime can also be highlighted (almost 2 weeks vs a couple days). As both Irma and Maria hit Southern states and Gert occured at a Northern location, the following hypothesis is stated: is the maximum category reached by a hurricane dependent on its location? That is, <em>is there a difference between the maximum category reached by Southern and Northern hurricanes?</em></p>
+<div class="figure" style="text-align: center"><span id="fig:each-track-develop-time-fig"></span>
+<img src="edav-final-project_files/figure-html/each-track-develop-time-fig-1.png" alt="Time Series of Three Example Hurricanes in 2017" width="80%" />
+<p class="caption">
+Figure 5.3: Time Series of Three Example Hurricanes in 2017
+</p>
+</div>
+<p>Before testing that hypothesis, it is worthy to note that the vertical jumping lines in the time series of hurricanes (Figure <a href="result.html#fig:each-track-develop-time-fig">5.3</a>). These suggest that hurricanes are highly dynamic and can lose/gain energy in only a couple hours. This concept is illustrated by the following time series (Figure <a href="result.html#fig:tc-dramatic-fig">5.4</a>), showing a close up of hurricane Irma evolution on September 9th 2017; in a couple hours, the hurricane when from category 5 to category 2.</p>
+<div class="figure" style="text-align: center"><span id="fig:tc-dramatic-fig"></span>
+<img src="edav-final-project_files/figure-html/tc-dramatic-fig-1.png" alt="Close Up of Time Series of Hurricane Irma in 2017" width="80%" />
+<p class="caption">
+Figure 5.4: Close Up of Time Series of Hurricane Irma in 2017
+</p>
+</div>
+</div>
+<div id="is-there-a-difference-between-the-maximum-category-reached-by-southern-and-northern-hurricanes" class="section level3">
+<h3><span class="header-section-number">5.1.2</span> Is there a difference between the maximum category reached by Southern and Northern hurricanes?</h3>
+<p>Let’s now verify whether the hypothesis holds. The Figure <a href="result.html#fig:each-track-develop-fig">5.2</a> depicts the path of each hurricane across time and also colors the diameter the area experiencing hurricane strength winds of 64 knots or above and sized according their categories.</p>
+<p>Each hurricane formed in the low latitude east with a low category, then intensified (large circle and bluer) as it extracted energy from the warm/moist air over the oceans. As a result, its category evolved with time until it reached a certain point then dissipated. The hurricanes then broke apart because they move through cold water (e.g, Maria) or move over land (e.g., Irma) which made them losing touch with the hot water that powered them.</p>
+<p>When hurricanes start at different location point, they absorb different amount of energy throughout their progression towards the west or northwest. This will lead to different energy formation that will determine the highest wind level measured, and in turn decide what that category of that hurricane will be.</p>
+<p>The comparison of the hurricane track and intensity indicates that the longer the hurricane stay over the southern warm water, the stronger it gets to be (see Irma), while the northern formed storms, like Gert, could not reach high category and they die out a few hours after they start because they do not have enough energy to become a hurricane.</p>
+<p>This seems to confirm the hypothesis stated above: there seems to be an interesting relationship between location and category of a hurricane. In addition, hurricanes seem to reach higher categories when located in the South of the Atlantic Ocean than in the North.</p>
+<div class="figure" style="text-align: center"><span id="fig:co2-year-fig"></span>
+<img src="edav-final-project_files/figure-html/co2-year-fig-1.png" alt="Frequency of Hurricanes across the United States" width="80%" />
+<p class="caption">
+Figure 5.5: Frequency of Hurricanes across the United States
+</p>
+</div>
+<p>Let’s now check whether the hypothesis can be extended in terms of frequency. The frequency of hurricane by location for each category. Figure <a href="result.html#fig:co2-year-fig">5.5</a> shows that storms and hurricanes disappear when they reach the land or the northern water.</p>
+<p>The low category storms (e.g., category 0 and 1) with the highest density along the coastline can reach further North, while the high category hurricanes (4 and 5) only appear in the South. The highest density along the coastline is related to the progress of the small tropical depressions. When these small depressions travel over the ocean to the US eastern coast, they gain energy and update to the category 0 storm. It is worth to note that as category increases, their north boundary seems to shift toward the south, suggesting the feature of storms and hurricanes are location-related.</p>
+<p>We build a Shiny Web Application for the Interactive Component in order to assist with visualizing this result.</p>
+</div>
+</div>
+<div id="does-hurricane-activity-shift-north-ward" class="section level2">
+<h2><span class="header-section-number">5.2</span> Does hurricane activity shift north-ward?</h2>
+<p>Next, we want to assess whether hurricane activity is shifting North. A recent study showed that the locations of tropical cyclones is shifting poleward (i.e. north-ward) globally (<a href="https://www.climatecentral.org/news/warming-may-shift-hurricane-impacts-17437">Thompson</a>). If true, this implies heavy consequences for the Northern part of the United States. Southern states such as Florida have already taken steps to improve its approach to hurricanes, such as property structure improvements, rescue boats and vehicles investments, and emergency workers trainings; if the frequency of tropical cyclones is indeed shifting North, Northern states should consider taking similar actions.</p>
+<p>Before exploring the above hypothesis, it is worth redefining latitude and longitude:</p>
+<p><strong>Latitude</strong> is the measurement of a place on Earth with regards to its distance north or south-wise from the Earth’s equator. Latitude is expressed in degrees followed by the letter N or S whether the location measured is North or South from the equator. Interesting examples for this project are Miami’s latitude (~26°N) and New York City’s latitude (~41°N).</p>
+<p><strong>Longitude</strong> is the measurement of a place on Earth with regards to its distance west or east-wise from the meridian at Greenwich, England. It is also measured in degrees and followed by the letter W or E depending on whether the location of interest is West or East from the meridian.</p>
+<p>We will focus on latitude to verify whether hurricane activity seems to be changing directions.</p>
+<div class="figure" style="text-align: center"><span id="fig:hurricane-north-fig"></span>
+<img src="edav-final-project_files/figure-html/hurricane-north-fig-1.png" alt="Frequency of Hurricanes by Latitude over Years" width="80%" />
+<p class="caption">
+Figure 5.6: Frequency of Hurricanes by Latitude over Years
+</p>
+</div>
+<p>Figure <a href="result.html#fig:hurricane-north-fig">5.6</a> shows a heatmap of hurricane activity based on time and location.</p>
+<p>While tropical cyclones frequency seems to be consistently higher at lower latitudes, one can observe an increase in cyclones activity at higher latitudes in the 1970s. However, this shift does not seem to be permanent as the frequency of tropical cyclones seems to decrease again in the following decades.</p>
+<p>Besides, if we look at the tropical cyclones activity faceted on category (Figure <a href="result.html#fig:hurricane-north-category-fig">5.7</a>), the shift in location seems to be focused on tropical storms (category 0) and hurricanes of category 1. Hurricanes of category 4 are also more frequent on higher latitudes in the 1970s but the frequency remains at a low level and the activity returns to lower latitudes in the following decades. These observed trends would therefore not justify investments in hurricane-proofed facilities for Northern States.</p>
+<div class="figure" style="text-align: center"><span id="fig:hurricane-north-category-fig"></span>
+<img src="edav-final-project_files/figure-html/hurricane-north-category-fig-1.png" alt="Frequency of each Hurricane Category over Years" width="80%" />
+<p class="caption">
+Figure 5.7: Frequency of each Hurricane Category over Years
+</p>
+</div>
+</div>
+<div id="have-humans-already-caused-a-detectable-long-term-increase-in-atlantic-hurricane-activity" class="section level2">
+<h2><span class="header-section-number">5.3</span> Have humans already caused a detectable long-term increase in Atlantic hurricane activity?</h2>
+<!--test-->
+<!--test: category has been calculated based on [Saffir-Simpson Hurricane Wind Scale](https://www.nhc.noaa.gov/aboutsshws.php) to indicate "Types of Damage Due to Hurricane Winds". -->
+<!--test:*Note: there is an "ET" in _Status of system_, which does not included in the description [HURDAT2](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf). This is a typo in the dataset, `recode` it into 'EX".*-->
+<!--Save transformed data** for further use.-->
+<!--_Save data for furture use_*-->
+<!--_Time Series Analysis_ -->
+<p>As we can see from Figure <a href="result.html#fig:ts-co2-year-fig">5.8</a>, the global CO2 concentration has increased, and the tropical Atlantic sea surface temperature show significant warming trends (Figure <a href="result.html#fig:ts-sst-year-fig">5.9</a>).</p>
+<!--CO2-->
+<div class="figure" style="text-align: center"><span id="fig:ts-co2-year-fig"></span>
+<img src="edav-final-project_files/figure-html/ts-co2-year-fig-1.png" alt="Time Series of Atmospheric CO2 (ppm)" width="80%" />
+<p class="caption">
+Figure 5.8: Time Series of Atmospheric CO2 (ppm)
+</p>
+</div>
+<!--SST-->
+<div class="figure" style="text-align: center"><span id="fig:ts-sst-year-fig"></span>
+<img src="edav-final-project_files/figure-html/ts-sst-year-fig-1.png" alt="Time Series of Ocean Surface Temperature" width="80%" />
+<p class="caption">
+Figure 5.9: Time Series of Ocean Surface Temperature
+</p>
+</div>
+<p>Besides, one can also observed an increase in the number of storms and hurricanes in the Atlantic from 1851 to 2018 (Figure <a href="result.html#fig:ts-storm-year-fig">5.10</a>). We used this finding to ask the following question: <em>is there a link between greenhouse-induced warming and changes in the Atlantic storms frequency (Figure <a href="result.html#fig:ts-storms-duration-year-fig">5.11</a>)?</em>.
+<!--ts-storm--></p>
+<div class="figure" style="text-align: center"><span id="fig:ts-storm-year-fig"></span>
+<img src="edav-final-project_files/figure-html/ts-storm-year-fig-1.png" alt="Number of Atlantic Storms and Hurricanes Over Time" width="80%" />
+<p class="caption">
+Figure 5.10: Number of Atlantic Storms and Hurricanes Over Time
+</p>
+</div>
+<p>Based on past Atlantic hurricanes records from 1878-2006, scientists concluded that the increasing trend in the number of Atlantic storms is almost completely due to the increase in short-duration storms (less than 2 days) (<span class="citation">Landsea et al. (<a href="#ref-Landsea2010">2010</a>)</span>), suggesting that only the count of short-duration storms follow a similar trend as the CO2 concentration and surface ocean temperature.</p>
+<p>However, at the time, the focus was on storms that could have had an impact on ship traffic and, therefore, it is very likely that short-lived storms were overlooked in the earlier parts of the record. Besides, once our group explored the dataset with extra ten years’ record, we found that there is an increase trend on both short-lived and long-lived storms.</p>
+<!--ts-duration-->
+<div class="figure" style="text-align: center"><span id="fig:ts-storms-duration-year-fig"></span>
+<img src="edav-final-project_files/figure-html/ts-storms-duration-year-fig-1.png" alt="Time Series of Atlantic Short-lived (`S`) and Long-lived (`L`) Storms and Hurricanes Number" width="80%" />
+<p class="caption">
+Figure 5.11: Time Series of Atlantic Short-lived (<code>S</code>) and Long-lived (<code>L</code>) Storms and Hurricanes Number
+</p>
+</div>
+<p>This means that the evolution of the number of cyclones over time follows a similar trend as the CO2 concentration and surface ocean temperature. This could mean that humans have had an impact on the increase of hurricane activity, but to prove that this is a causation and not only a correlation, deeper research and statistical tests should be performed.</p>
+<p>```</p>
+
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references">
+<div id="ref-Landsea2010">
+<p>Landsea, Christopher W., Gabriel A. Vecchi, Lennart Bengtsson, and Thomas R. Knutson. 2010. “Impact of Duration Thresholds on Atlantic Tropical Cyclone Counts.” <em>Journal of Climate</em> 23 (10): 2508–19. <a href="https://doi.org/10.1175/2009JCLI3034.1">https://doi.org/10.1175/2009JCLI3034.1</a>.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="missingval.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="intercom.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/jqz300/edav_proj.git04-Results.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": ["edav-final-project.pdf", "edav-final-project.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

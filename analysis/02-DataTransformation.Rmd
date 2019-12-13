@@ -1,0 +1,510 @@
+# Data Transformation {#datatrans}
+
+<!--test-->
+
+The ([HURDAT2](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf)) data has a comma-delimited, text format with six-hourly information on the location, maximum winds, central pressure, and (beginning in 2004) size of all known tropical cyclones and subtropical cyclones. The dataset is a combination of serveral subsets. Each subset is used for a storm track record which includes header information and values.
+please refer to [this file](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf) for detail information.
+
+
+```{r include=FALSE}
+ # keep this chunk in your .Rmd file
+ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+```{r echo=FALSE}
+library(tidyverse)
+library(stringr)
+# Read in data set
+#dfile <- read_lines("https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt")
+dfile<- "../data/raw/hurdat2-1851-2018-120319.txt"
+hurdat2_in <- read_lines(dfile)
+```
+
+Firstly, we extract storm `id`, `name`, and `subtext length` from each subtext header, then read in data according to each `subtext length`, and merge data subset by indexing it with storm `id`, `name`. In the original text, you will find that the `name` is non-unique. Currently, there are six lists that are used in rotation and re-cycled every six years, i.e., the 2013 list is used again in 2019. For more information, please see tropical cyclone names. To avoid the future confusion, we create `storm-id` variable by combining `name` and `year` together (e.g., _Sandy-2012_). In the original file, there are storms labeled with NAMEs but others labelled with `UNNAME`. Here, we use `name_id` variable to indicate whether a storm has a name or not. 
+
+
+```{r echo=FALSE}
+# read hearder information
+library(stringr)
+header_locations <- (1:length(hurdat2_in))[stringr::str_count(hurdat2_in, "\\,") == 3]
+
+header_df <- readr::read_csv(hurdat2_in[header_locations], 
+                             col_names = FALSE) %>% 
+  dplyr::select(-c("X4"))
+
+names(header_df) <- c("id","name","n_entries")
+
+header_df <-  header_df %>% mutate(header_loc = as.numeric(header_locations))
+```
+
+
+```{r echo=FALSE}
+#tail(header_df)
+```
+
+
+```{r echo=FALSE}
+# read data value
+hurdat2_df <- vector("list", nrow(header_df))
+names(hurdat2_df) <- header_df$id
+df_names <- c(
+  "date", "time", "record_identifier", "status", "latitude", "longitude", "max_wind", "min_pressure",
+  "extent_34_NE", "extent_34_SE", "extent_34_SW", "extent_34_NW",
+  "extent_50_NE", "extent_50_SE", "extent_50_SW", "extent_50_NW",
+  "extent_64_NE", "extent_64_SE", "extent_64_SW", "extent_64_NW", "nas"
+)
+```
+
+
+```{r echo=FALSE}
+#
+for (i in seq_along(header_df$id)) {
+  hurdat2_df[[i]] <- read_csv(dfile,
+    skip = header_df$header_loc[i],
+    n_max = header_df$n_entries[i],
+    col_names = df_names,
+    na = c("", "-99", "-999"),
+    col_types = list(
+      time = col_character(),
+      record_identifier = col_character(),
+      min_pressure = col_integer(),
+      extent_34_NE = col_integer(),
+      extent_34_SE = col_integer(),
+      extent_34_SW = col_integer(),
+      extent_34_NW = col_integer(),
+      extent_50_NE = col_integer(),
+      extent_50_SE = col_integer(),
+      extent_50_SW = col_integer(),
+      extent_50_NW = col_integer(),
+      extent_64_NE = col_integer(),
+      extent_64_SE = col_integer(),
+      extent_64_SW = col_integer(),
+      extent_64_NW = col_integer()
+    )
+  )
+}
+```
+
+
+```{r echo=FALSE}
+#hurdat2_df[[1]]
+```
+
+
+Secondly, we estimate `category` variable from wind speed based on [Saffir-Simpson storm category](https://www.nhc.noaa.gov/aboutsshws.php), calculate the diameter of the area experiencing hurricane strength winds (64 knots or above), `_ts_diameter_` from extent of 34 kt wind radii maximum extent in northeastern quadrant (in nautical miles, `extent_34_NE `), 34 kt wind radii maximum extent in southeastern quadrant (in nautical miles, `extent_34_SW`), 34 kt wind radii maximum extent in northeastern quadrant (in nautical miles, ` extent_34_NW `), and 34 kt wind radii maximum extent in southeastern quadrant (in nautical miles, ` extent_34_SE`), `_hu_diameter_` from extent of 64 kt wind radii maximum extent in northeastern quadrant - `extent_64_NE `, southeastern quadrant -  `extent_34_SW`, northeastern quadrant, ` extent_64_NW `), and southeastern quadrant - ` extent_64_SE`.
+
+```{r echo=FALSE}
+# Combine and clean the data sets
+library(lubridate)
+hurdat2 <- 
+  hurdat2_df %>%
+  dplyr::bind_rows(.id = "id") %>%
+  dplyr::mutate(
+    date = lubridate::ymd(date),
+    year = lubridate::year(date),
+    month = lubridate::month(date),
+    day = lubridate::day(date),
+    hour = as.numeric(stringr::str_sub(time, 1, 2)),
+    #datetime = as.Date(ISOdate(year, month, day, hour, min = 0, sec = 0, tz = "GMT")),
+    datetime = lubridate::ymd_h(paste(year, month, day, hour, sep="-")),
+    #lat_hemisphere = stringr::str_sub(latitude, -1),
+    latitude = dplyr::if_else(stringr::str_sub(latitude, -1) == "N",
+                              as.numeric(stringr::str_sub(latitude, 1, -2))*1, 
+                              as.numeric(stringr::str_sub(latitude, 1, -2))*(-1)),
+    longitude = dplyr::if_else(stringr::str_sub(longitude, -1) == "E",
+                              as.numeric(stringr::str_sub(longitude, 1, -2))*1, 
+                              as.numeric(stringr::str_sub(longitude, 1, -2))*(-1)),
+    category = cut(max_wind, # Saffir-Simpson Hurricane Wind Scale
+      breaks = c(0, 34, 64, 83, 96, 113, 137, 500),
+      labels = c(-1, 0, 1, 2, 3, 4, 5),
+      include.lowest = TRUE, ordered = TRUE
+    ),
+    # wind = wind * 1.15078, # transforms knots to mph,
+    TSradius1 = extent_34_NE + extent_34_SW,
+    TSradius2 = extent_34_NW + extent_34_SE,
+    ts_diameter = pmax(TSradius1, TSradius2) * 1.15078, # to convert from nautical miles to miles # pmax: returns the parallel maxima and minima of the input values
+    HUradius1 = extent_64_NE + extent_64_SW,
+    HUradius2 = extent_64_NW + extent_64_SE,
+    hu_diameter = pmax(HUradius1, HUradius2) * 1.15078, # to convert from nautical miles to miles # pmax: returns the parallel maxima and minima of the input values
+    status = recode(status,
+                    "TD" = "tropical depression", # maximum sustained winds below 39 mph
+                    "TS" = "tropical storm",  # 39-73 mph
+                    "HU" = "tropical hurricane", #74-95, 96-110, 111-130, 131-155, >156
+                    "EX" = "Extratropical cyclone", ##
+                    "SD" = "subtropical depression", #<18m/s or <35
+                    "SS" = "subtropical storm",
+                    "LO" = "a low",
+                    "WV" = "tropical wave",
+                    "DB" = "disturbance")
+  ) 
+```
+<!--test: category has been calculated based on [Saffir-Simpson Hurricane Wind Scale](https://www.nhc.noaa.gov/aboutsshws.php) to indicate "Types of Damage Due to Hurricane Winds". -->
+
+```{r echo=FALSE}
+# merge header information to data values
+header_df_selected <- header_df %>% dplyr::select(c("id","name"))
+# headers_df_selected
+hurdat2_add_name <- left_join(header_df_selected, hurdat2, by=c("id")) %>% 
+  dplyr::select(id, name, datetime, year, month, day, hour, record_identifier, latitude, longitude, status, category,
+         max_wind, min_pressure, ts_diameter, hu_diameter)
+```
+```{r echo=FALSE}
+hurdat2_out <- hurdat2_add_name %>% 
+  mutate(name= dplyr::if_else(grepl("UNNAMED", name), name,
+                              stringr::str_to_title(name)))
+hurdat2_out$status <- factor(hurdat2_out$status)
+hurdat2_out$category <- factor(hurdat2_out$category)
+```
+
+
+```{r echo=FALSE}
+# absorb header information to data values
+header_df_selected <- header_df %>% dplyr::select(c("id","name"))
+# headers_df_selected
+hurdat2_add_name <- left_join(header_df_selected, hurdat2, by=c("id")) %>% 
+  dplyr::select(id, name, datetime, year, month, day, hour, record_identifier, latitude, longitude, status, category,
+         max_wind, min_pressure, ts_diameter, hu_diameter)
+```
+
+```{r echo=FALSE}
+hurdat2_out <- hurdat2_add_name %>% 
+  mutate(name= dplyr::if_else(grepl("UNNAMED", name), name,
+                              stringr::str_to_title(name)))
+hurdat2_out$status <- factor(hurdat2_out$status)
+hurdat2_out$category <- factor(hurdat2_out$category)
+```
+
+```{r echo=FALSE}
+#levels(hurdat2_out$status)
+#hurdat2_out %>% dplyr::filter(status == "ET")
+```
+
+<!--test:*Note: there is an "ET" in _Status of system_, which does not included in the description [HURDAT2](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf). This is a typo in the dataset, `recode` it into 'EX".*-->
+
+```{r echo=FALSE}
+hurdat2_out$status <- dplyr::recode(hurdat2_out$status, ET = "Extratropical cyclone")
+```
+```{r echo=FALSE}
+#hurdat2_out$status %>% unique()
+```
+
+```{r echo=FALSE}
+hurdat2_out$category <- factor(hurdat2_out$category, levels=c("0","1","2","3","4","5"))
+```
+
+```{r echo=FALSE}
+hurdat2_out$storm_id <- paste(hurdat2_out$name, hurdat2_out$year, sep="-")
+#df$date <- lubridate::ymd_h(paste(df$year, df$month, df$day, df$hour, sep="-"))
+```
+
+
+```{r echo=FALSE}
+#names(df)
+```
+
+
+<!--Save transformed data** for further use.-->
+
+Thirdly, we estimate the storm duration `tc_dur_track` to those with maximum sustained surface winds of at least 35 knot and defined storms and define `tc_dur_type` for type of the duration. Here,  `S` indicates storms with duration of 2.0 days or less and will be mentioned in the following text as *short-lived* storms, and ` L` represnts storms with duration of more than 2.0 days and will be referred as “medium-to-long lived” storms.
+
+
+```{r echo=FALSE}
+hurdat2_out <- hurdat2_out %>% 
+  #dplyr::filter(status == c("tropical hurricane", "tropical storm")) %>% 
+  group_by(id) %>% mutate(dur_track=as.numeric(
+  max(datetime) - min(datetime), units = "days")) %>% ungroup() %>% 
+  mutate(dur_type = dplyr::if_else(dur_track<=2, "S","L"))%>% 
+                                   #if_else((dur_track<=4 & dur_track>2), "M", "S")
+                                   #)) %>%
+  mutate(dur_type=factor(dur_type, levels = c("S", "L")))
+```
+```{r echo=FALSE}
+#dim(hurdat2_out)
+```
+
+
+
+```{r echo=FALSE}
+tcs <- c("tropical storm", "tropical hurricane","subtropical storm")
+df <- hurdat2_out %>% dplyr::filter(status %in% tcs)
+#df$status <- factor(df$status, levels=tcs)
+df$status <- factor(df$status, levels=tcs)
+```
+```{r echo=FALSE}
+#dim(df)
+```
+
+```{r echo=FALSE}
+df <- df %>% 
+  dplyr::filter(status %in% tcs) %>% 
+  dplyr::group_by(id) %>% mutate(tc_dur_track=as.numeric(
+  max(datetime) - min(datetime), units = "days"))%>% 
+    ungroup() %>% 
+  mutate(tc_dur_type = dplyr::if_else(tc_dur_track<=2, "S",
+                                      "L"
+                                  # if_else((tc_dur_track<=4 & tc_dur_track>2), "M", "L")
+                                   )) %>%
+  mutate(tc_dur_type=factor(tc_dur_type, levels = c("S", "M", "L")))
+```
+
+```{r echo=FALSE}
+df$category <- (as.numeric(df$category)-1)
+#df$category %>% unique()
+```
+
+
+```{r echo=FALSE}
+df <- df %>% 
+  dplyr::filter(status %in% tcs) %>% 
+  dplyr::group_by(id) %>% 
+  mutate(unname_label = if_else(name=="UNNAMED", "no", "yes"),
+    max_category = max(category),
+         max_status_label = (category == max(category)),
+         max_max_wind = max(max_wind),
+         min_min_pressure = min(min_pressure),
+         max_ts_diameter = max(ts_diameter),
+         max_hu_diamter = max(hu_diameter)) %>%
+    ungroup()
+#names(df)
+#df$year %>% unique()
+```
+
+```{r echo=FALSE}
+dir <- '../data/clean/hurricanes.csv'
+readr::write_csv(df, dir)
+```
+
+```{r echo=FALSE}
+#head(df)
+dfout <- df %>% dplyr::filter(status != "subtropical storm ") 
+#dfout
+```
+
+
+
+```{r echo=FALSE}
+dfoutshort <- df %>% drop_na
+dir <- 'data/'
+readr::write_csv(dfoutshort, "../data/clean/hurricanes_short.csv")
+```
+
+
+Finally, the ocean surface temperature and  the directly observed Atlantic Meridional Overturning Circulation (AMOC) index are `.nc` formate, we use `ncdf4` to read in data. Note that there is there is an "ET" typo in _Status_ of system in the [HURDAT2]( https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2018-120319.txt), which has been corrected to `EX` in the output `data\clean\hurricanes.csv` file.
+<!--
+_read in atmospheric CO2_
+-->
+
+```{r echo=FALSE}
+d <- read.table('ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt',
+                na.strings = -99.99)
+names(d) <- c('year', 'month', 'decimalYear', 'average', 'interpolated', 'trend', 'ndays')
+d$time <- with(d, as.Date(paste(year, sprintf('%02d', month), '01', sep='-'), format='%Y-%m-%d', tz='UTC'))
+time <- d$time
+co2 <- d$interpolated
+df_aco2 <- data.frame(time, co2)
+#names(d)
+```
+```{r echo=FALSE}
+#d$year %>% unique()
+```
+
+<!--
+_read in HUDART (1970-2018)_
+-->
+
+```{r echo=FALSE}
+hurdat_names <- c("year","Original_Named_Storms","Revised_Named_Storms",
+                  "Original_Hurricanes", "Revised_Hurricanes",
+                  "Original_Major_Hurricanes","Revised_Major_Hurricanes","Original_ACE","Revised_ACE",
+                  "Original_US_Hurricanes","Original_US_Hurricanes_Category",
+                  "Revised_US_Hurricanes", "Revised_US_Hurricanes_Category")
+col_types = list(year = col_double(),
+                 Original_Named_Storms = col_double(),
+                 Revised_Named_Storms = col_double(),
+                 Original_Hurricanes = col_double(),
+                 Revised_Hurricanes = col_double(),
+                 Original_Major_Hurricanes = col_double(),
+                 Revised_Major_Hurricanes = col_double(),
+                 Original_ACE = col_double(),
+                 Revised_ACE = col_double(),
+                 Original_US_Hurricanes = col_double(),
+                 Original_US_Hurricanes_Category = col_character(),
+                 Revised_US_Hurricanes = col_double(),
+                 Revised_US_Hurricanes_Category = col_character())
+dfhurdatin<- "../data/raw/HURDAT.csv"
+df_hurdat <- read_csv(dfhurdatin, skip =7, n_max = 168, col_names = hurdat_names, na = c(""," "), col_types = col_types)
+#names(df_hurdat)
+#df_hurdat$year
+```
+
+<!--
+_read in ocean temperature (1870-2010)_
+-->
+
+```{r echo=FALSE}
+library(ncdf4)
+ 
+ncfname <- "../data/raw/AMO_HADLEY.1870-2010.CLM_1901-1970.nc"
+ncIn <- nc_open(ncfname)
+#print(ncIn)
+
+year <- ncvar_get(ncIn, "year")
+
+AMO_WARM <- ncvar_get(ncIn, "AMO_WARM")
+AMO_WARM_REMOVED <- ncvar_get(ncIn, "AMO_WARM_REMOVED")
+AMO_WARM_REMOVED_SMTH <- ncvar_get(ncIn, "AMO_WARM_REMOVED_SMTH")
+AMO_WARM_SMTH <- ncvar_get(ncIn, "AMO_WARM_SMTH")
+SST_GLOBAL_MEAN <- ncvar_get(ncIn, "SST_GLOBAL_MEAN")
+SST_GLOBAL_MEAN_SMTH <- ncvar_get(ncIn, "SST_GLOBAL_MEAN_SMTH")
+
+df_amo <- data.frame(year, AMO_WARM, AMO_WARM_REMOVED, AMO_WARM_REMOVED_SMTH,AMO_WARM_SMTH,
+                     SST_GLOBAL_MEAN, SST_GLOBAL_MEAN_SMTH)
+#names(df_amo)
+#df_amo$year
+```
+<!--_Save data for furture use_*-->
+
+
+```{r echo=FALSE}
+dir <- '../data/clean/'
+write_csv(hurdat2_out, file.path(dir, "hurdat2_out.csv"))
+```
+```{r echo=FALSE}
+#names(hurdat2_out)
+```
+
+```{r echo=FALSE}
+#names(df)
+```
+```{r echo=FALSE}
+#df$max_max_wind %>% unique()
+```
+
+**Meaning for each variables**
+
+`_id_`
+
+Storm id, which is unique. An id is a combination of 8 characters, 
+
+for example, 'AL092011', 
+
+* AL (Spaces 1 and 2) – Basin – Atlantic
+
+* 09 (Spaces 3 and 4) – ATCF cyclone number for that year
+
+* 2011 (Spaces 5-8, before first comma) – Year
+
+for detail information, please see [dataformat](https://www.nhc.noaa.gov/data/hurdat/hurdat2-format-atlantic.pdf)
+
+`_name_`
+
+Storm Name, which is non-unique. There are six lists that are used in rotation and re-cycled every six years, i.e., the 2013 list is used again in 2019. For more information, please see [tropical cyclone names](https://www.nhc.noaa.gov/aboutnames.shtml).
+
+`_storm_id_`
+
+Storm name and id combined,  i.e., Sandy-2012  
+
+`_unname_label_`   
+
+Storms have name or not (“yes”, “no”)
+
+`_datetime, year, month, day, hour_`
+
+Date of report (in Universal Time Coordinate)
+
+`_record_identifier_`
+
+C – Closest approach to a coast, not followed by a landfall
+
+G – Genesis
+
+I – An intensity peak in terms of both pressure and wind
+
+L – Landfall (center of system crossing a coastline)
+
+P – Minimum in central pressure
+
+R – Provides additional detail on the intensity of the cyclone when rapid changes are underway
+
+S – Change of status of the system
+
+T – Provides additional detail on the track (position) of the cyclone
+
+W – Maximum sustained wind speed
+
+`_latitude,longitude_`
+
+Location of storm center
+
+`_status_`
+
+Storm classification (Tropical Depression, Tropical Storm, or Hurricane)
+
+TD – Tropical cyclone of tropical depression intensity (< 34 knots)
+
+TS – Tropical cyclone of tropical storm intensity (34-63 knots)
+
+HU – Tropical cyclone of hurricane intensity (> 64 knots)
+
+EX – Extratropical cyclone (of any intensity)
+
+SD – Subtropical cyclone of subtropical depression intensity (< 34 knots)
+
+SS – Subtropical cyclone of subtropical storm intensity (> 34 knots)
+
+LO – A low that is neither a tropical cyclone, a subtropical cyclone, nor an extratropical cyclone (of any intensity)
+
+WV – Tropical Wave (of any intensity)
+
+DB – Disturbance (of any intensity) 
+
+`_category_`
+
+[Saffir-Simpson storm category](https://www.nhc.noaa.gov/aboutsshws.php) (estimated from wind speed. -1 = Tropical Depression, 0 = Tropical Storm)
+
+`_max_wind_`
+
+storm's maximum sustained wind speed (in knots)
+
+`_min_pressure_`
+
+Air pressure at the storm's center (in millibars)
+
+`_ts_diameter_`
+
+Diameter of the area experiencing tropical storm strength winds (34 knots or above)
+
+`_hu_diameter_`
+
+Diameter of the area experiencing hurricane strength winds (64 knots or above)
+
+`_max_category_`
+
+Maximum category of each storm track
+
+`_max_status_label_`
+
+Label (“TRUE”, “FALSE”) to indicate whether the measurement is for the maximum status of each track
+
+`_max_max_wind_`  
+
+The maximum value of the ` max_wind ` for each track
+
+`_min_min_pressure_` 
+
+The minimum value of the ` min_pressure ` for each track
+
+`_max_ts_diameter_`
+
+The maximum value of the ` ts_diameter ` for each track
+
+`_max_hu_diamter_`
+
+The maximum value of the ` hu_diameter ` for each track
+
+
+
+
+
+
+
